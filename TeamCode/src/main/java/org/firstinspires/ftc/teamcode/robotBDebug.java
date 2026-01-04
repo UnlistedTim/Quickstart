@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+//import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -79,10 +79,13 @@ public class robotBDebug extends LinearOpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
+       // telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
+        flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
+        flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         flyBot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flyTop.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
         flyBot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -92,8 +95,6 @@ public class robotBDebug extends LinearOpMode {
         flyTop.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
-        flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
-        flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
 
@@ -146,7 +147,7 @@ public class robotBDebug extends LinearOpMode {
 
         double pid = flyPID.calculate(vel,targ_vel);
         double ff = flyf *targ_vel;
-        if (Math.abs(vel - targ_vel) < 40) pid = 0;
+       // if (Math.abs(vel - targ_vel) < 40) pid = 0;
         double power = pid + ff;
         flyBot.setPower(power);
         flyTop.setPower(power);
