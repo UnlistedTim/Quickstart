@@ -162,9 +162,14 @@ public class TeleopState extends LinearOpMode {
 
 
                 case INTAKE:
+                    if (gamepad2.right_bumper){
+                        state = State.OUTTAKE;
+                        break;
+                    }
 
                     break;
                 case OUTTAKE:
+                    flywheel();
 
 
                     break;
@@ -213,6 +218,8 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void intakeStart(){
+
+        Blocker.setPosition(blockClose);
         Intake.setPower(intakePower);
     }
 
