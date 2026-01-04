@@ -57,7 +57,7 @@ public class robotBDebug extends LinearOpMode {
     private Servo Hood, Blocker, Tripod, Flicker;
 
 
-    public static double flyp = 0.005, flyi = 0, flyd = 0, flyf = 0.0003;
+    public static double flyp = 0.005, flyi = 0, flyd = 0, flyf = 0.0005;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
@@ -105,10 +105,10 @@ public class robotBDebug extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
-//            flyPID(flyVel);
+            flyPID(flyVel);
 
-            flyBot.setPower(flyBotPower);
-            flyTop.setPower(flyTopPower);
+//            flyBot.setPower(flyBotPower);
+//            flyTop.setPower(flyTopPower);
 
 //            Hood.setPosition(hoodPos);
 //
@@ -121,8 +121,6 @@ public class robotBDebug extends LinearOpMode {
             Flicker.setPosition(flickerPos);
 
             Tripod.setPosition(tripodPos);
-
-            dashboardTelemetry.addData("Bottom motor velocity", flyBot.getVelocity());
 
 
 
@@ -148,7 +146,7 @@ public class robotBDebug extends LinearOpMode {
 
         double pid = flyPID.calculate(vel,targ_vel);
         double ff = flyf *targ_vel;
-//        if (Math.abs(vel - targ_vel) < 40) pid = 0;
+        if (Math.abs(vel - targ_vel) < 40) pid = 0;
         double power = pid + ff;
         flyBot.setPower(power);
         flyTop.setPower(power);
