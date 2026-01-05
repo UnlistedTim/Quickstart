@@ -37,7 +37,7 @@ public class TeleopState extends LinearOpMode {
     private Servo Hood, Blocker, Tripod, Flicker;
 
 
-    public double blockClose = 0.18, blockOpen = 0.4;
+    public double blockClose = 0.2, blockOpen = 0.4;
 
     public double flickerUp = 0.65, flickerDown = 0.38;
 
@@ -48,7 +48,7 @@ public class TeleopState extends LinearOpMode {
 
     double Tyaverage = 0;
 
-    public static double intakePower = 0.8;
+    public static double intakePower = 0.9;
     // private PIDController controller;
     public final int max_vel = 1800;
 
@@ -79,7 +79,7 @@ public class TeleopState extends LinearOpMode {
     int id = 1;
     int target_id = 24;
     int green_index = 4;
-    public static double flyp = 0.008, flyi = 0, flyd = 0, flyf = 0.00045;
+    public static double flyp = 0.008, flyi = 0, flyd = 0, flyf = 0.0005;
 
 
     boolean shootingActive = false;
@@ -92,6 +92,8 @@ public class TeleopState extends LinearOpMode {
     InterpLUT Flylut = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
     double InterpPower = 0.0;
+
+    public static int flyTargetVel = 1000;
     boolean red = true;
 
 
@@ -108,7 +110,7 @@ public class TeleopState extends LinearOpMode {
     public static double turretPower = 0.0;
     public static double targetTurretPos = 0.0;
     public int turretPos = 0;
-    public double flywheelspeed = 0;
+    public double flyCurrentVel = 0;
 
     private Limelight3A limelight;
 
@@ -122,8 +124,15 @@ public class TeleopState extends LinearOpMode {
         MANUALOUTTAKE;
     }
 
+    private enum ShootState {
+        PRE_SHOOT, SHOOT, SHOOT_FLICKER, DONE
+    }
+    ShootState shootState = ShootState.PRE_SHOOT;
+
     //  State state = State.DEBUG;
     State state = State.IDLE;
+
+    boolean shooting = false;
 
     // --- Timers ---
     private ElapsedTime deltaT = new ElapsedTime();
@@ -162,14 +171,26 @@ public class TeleopState extends LinearOpMode {
 
 
                 case INTAKE:
-                    if (gamepad2.right_bumper){
+                    if (gamepad2.leftBumperWasPressed()){
                         state = State.OUTTAKE;
                         break;
                     }
 
                     break;
                 case OUTTAKE:
-                    flywheel();
+                    Hood.setPosition(hoodPos);
+                    flyCurrentVel = flyBot.getVelocity();
+
+                    dashboardTelemetry.addData("Current Velocity", flyCurrentVel);
+                    dashboardTelemetry.update();
+
+                    flyPID(flyTargetVel);
+
+                    if (gamepad2.rightBumperWasPressed() || shooting){
+                        shoot();
+
+
+                    }
 
 
                     break;
@@ -184,7 +205,8 @@ public class TeleopState extends LinearOpMode {
 
 
 
-            mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
+            if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
+            else stopDriveMotors();
 //
 //
 //            if (gamepad1.psWasPressed())resetOTOS();
@@ -203,11 +225,18 @@ public class TeleopState extends LinearOpMode {
         flyBot.setPower(power);
         flyTop.setPower(power);
     }
-
+    public void stopDriveMotors(){
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
 
     public void afterstart() {
         
         Blocker.setPosition(blockClose);
+        Flicker.setPosition(flickerDown);
+        Tripod.setPosition(tripodIdle);
 
         deltaT.reset();
         timer.reset();
@@ -448,7 +477,7 @@ public class TeleopState extends LinearOpMode {
 
         InterpPower = Math.round(InterpPower / 0.001) * 0.001;
 
-        flywheelspeed = flyBot.getVelocity();
+        flyCurrentVel = flyBot.getVelocity();
 
         flyPID(InterpPower);
 
@@ -461,8 +490,8 @@ public class TeleopState extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         Intake = hardwareMap.get(DcMotorEx.class, "Intake");
-        flyBot = hardwareMap.get(DcMotorEx.class, "flyCon");
-        flyTop = hardwareMap.get(DcMotorEx.class, "flyExp");
+        flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
+        flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
@@ -513,8 +542,10 @@ public class TeleopState extends LinearOpMode {
         flyTop.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
-        flyBot.setDirection(DcMotorSimple.Direction.FORWARD);
+        flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        Hood.setDirection(Servo.Direction.REVERSE);
 
 
 
@@ -575,18 +606,61 @@ public class TeleopState extends LinearOpMode {
         return runtime.milliseconds() - stoptime[i] > period;
     }
 
+    public void shoot(){
 
-    public void flyPID(double pow) {
+        if (!shooting){
+            shooting = true;
+            shootState = ShootState.PRE_SHOOT;
+        }
+        switch (shootState){
+            case PRE_SHOOT:
+                if (Math.abs(flyCurrentVel - flyTargetVel) <= 40){
+                    drive = false;
+                    Blocker.setPosition(blockOpen);
+                    stoptimers(0, outtake);
+                    shootState = ShootState.SHOOT;
+                    break;
+                }
+                break;
+            case SHOOT:
 
-        double target_vel = pow * max_vel;
+                if (stoptimers(1000,outtake)){
+                    shootState = ShootState.SHOOT_FLICKER;
+                    break;
+                }
+                break;
+            case SHOOT_FLICKER:
+                if (Math.abs(flyCurrentVel - flyTargetVel) <= 40){
+                    Flicker.setPosition(flickerUp);
+                    shootState = ShootState.DONE;
+                    stoptimers(0,outtake);
+                    break;
+
+                }
+                break;
+            case DONE:
+                if (stoptimers(500,outtake)){
+                    Flicker.setPosition(flickerDown);
+                    drive = true;
+                    shooting = false;
+
+                    state = State.IDLE;
+                    break;
+
+                }
+                break;
+
+        }
+    }
+
+
+    public void flyPID(double target_vel) {
+
 
         // double vel =  flyTop.getVelocity();
-//
-//        dashboardTelemetry.addData("Current speed", vel);
-//        dashboardTelemetry.addData("Target speed", pow * max_vel);
 
 
-        double pid = flyPID.calculate(flywheelspeed, target_vel);
+        double pid = flyPID.calculate(flyCurrentVel, target_vel);
         double ff = flyf * target_vel;
         double power = pid + ff;
         flyBot.setPower(power);
