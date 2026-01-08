@@ -248,6 +248,9 @@ public class TeleopState extends LinearOpMode {
 
     public void intakeStart(){
 
+        flyTop.setPower(0);
+        flyBot.setPower(0);
+
         Blocker.setPosition(blockClose);
         Intake.setPower(intakePower);
     }
