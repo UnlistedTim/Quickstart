@@ -57,7 +57,7 @@ public class robotBDebug extends LinearOpMode {
     private Servo Hood, Blocker, Tripod, Flicker;
 
 
-    public static double flyp = 0.005, flyi = 0, flyd = 0, flyf = 0.0005;
+    public static double flyp = 0.001, flyi = 0, flyd = 0, flyf = 0.00035;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
@@ -127,9 +127,8 @@ public class robotBDebug extends LinearOpMode {
 
 
 //            flyPID(fly_power);
-//            dashboardTelemetry.addData("Target Velocity", fly_power * max_vel);
 ////
-            dashboardTelemetry.update();
+//            dashboardTelemetry.update();
 
 
 
@@ -154,6 +153,8 @@ public class robotBDebug extends LinearOpMode {
         dashboardTelemetry.addData("Exp velocity", vel);
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
+
+        dashboardTelemetry.update();
 
         //  telemetry.addData("Velocity",vel);
     }
