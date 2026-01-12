@@ -4,6 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,10 +16,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.List;
+
 
 @TeleOp
 @Config
 public class robotBDebug extends LinearOpMode {
+
+
+    //blocker Block 0.25, blocker not block 0.65
 
 
 
@@ -26,11 +34,17 @@ public class robotBDebug extends LinearOpMode {
 
     public static double IntakePower = 0.0;
 
-    public static double hoodPos = 0.05;// 0 vertical angle 0.85 horizontal angle
+    int id = 1;
 
-    public static double blockerPos = 0.4; // 0.4 open 0.18 close
 
-    public static double flickerPos = 0.38;
+    double Tx = 0;
+
+    double Ty = 0;
+
+
+    public static double hoodPos = 0.15;// 0 vertical angle 0.85 horizontal angle
+
+    public static double blockerPos = 0.25; // 0.4 open 0.18 close
 
     public static double tripodPos = 0.95;
 
@@ -54,10 +68,13 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-    private Servo Hood, Blocker, Tripod, Flicker;
+    private Servo Hood, Blocker, Tripod;
+
+    private Limelight3A limelight;
 
 
-    public static double flyp = 0.001, flyi = 0, flyd = 0, flyf = 0.00035;
+
+    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
@@ -71,12 +88,15 @@ public class robotBDebug extends LinearOpMode {
 
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
-        Flicker = hardwareMap.get(Servo.class, "Flicker");
+//        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
 
 
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
+
+        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+
 
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
@@ -100,6 +120,10 @@ public class robotBDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
+
+        limelight.pipelineSwitch(6);
+        limelight.start();
+
         waitForStart();
 
 
@@ -109,26 +133,45 @@ public class robotBDebug extends LinearOpMode {
 
 //            flyBot.setPower(flyBotPower);
 //            flyTop.setPower(flyTopPower);
-
-//            Hood.setPosition(hoodPos);
-//
+            //
             Intake.setPower(IntakePower);
 
 
             Hood.setPosition(hoodPos);
 
             Blocker.setPosition(blockerPos);
-            Flicker.setPosition(flickerPos);
 
             Tripod.setPosition(tripodPos);
 
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                id = fiducial.getFiducialId(); // The ID number of the fiducial
+            }
+
+            boolean limeValid = result.isValid();
+
+            if (limeValid){
+
+                Tx = result.getTx();
+                Ty = result.getTy();
+
+            }
+
+            dashboardTelemetry.addData("Tx", Tx);
+            dashboardTelemetry.addData("Ty", Ty);
+
+
+
+            dashboardTelemetry.update();
 
 
 
 
-//            flyPID(fly_power);
+
+
+
 ////
-//            dashboardTelemetry.update();
 
 
 
@@ -145,16 +188,17 @@ public class robotBDebug extends LinearOpMode {
 
         double pid = flyPID.calculate(vel,targ_vel);
         double ff = flyf *targ_vel;
-        if (Math.abs(vel - targ_vel) < 40) pid = 0;
+//        if (Math.abs(vel - targ_vel) < 40) pid = 0;
         double power = pid + ff;
         flyBot.setPower(power);
         flyTop.setPower(power);
+
 
         dashboardTelemetry.addData("Exp velocity", vel);
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
 
-        dashboardTelemetry.update();
+
 
         //  telemetry.addData("Velocity",vel);
     }

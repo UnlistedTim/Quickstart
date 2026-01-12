@@ -6,8 +6,11 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.util.InterpLUT;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -34,12 +37,13 @@ public class TeleopState extends LinearOpMode {
 
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
 
-    private Servo Hood, Blocker, Tripod, Flicker;
+    private Servo Hood, Blocker, Tripod;
+
+    private Limelight3A limelight;
 
 
-    public double blockClose = 0.2, blockOpen = 0.4;
 
-    public double flickerUp = 0.65, flickerDown = 0.38;
+    public double blockClose = 0.35, blockOpen = 0.65;
 
     public double tripodIdle = 0.95, tripodPark = 0.27;
 
@@ -79,7 +83,7 @@ public class TeleopState extends LinearOpMode {
     int id = 1;
     int target_id = 24;
     int green_index = 4;
-    public static double flyp = 0.008, flyi = 0, flyd = 0, flyf = 0.0005;
+    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
 
     boolean shootingActive = false;
@@ -112,7 +116,7 @@ public class TeleopState extends LinearOpMode {
     public int turretPos = 0;
     public double flyCurrentVel = 0;
 
-    private Limelight3A limelight;
+//    private Limelight3A limelight;
 
 
     public enum State {
@@ -125,7 +129,7 @@ public class TeleopState extends LinearOpMode {
     }
 
     private enum ShootState {
-        PRE_SHOOT, SHOOT, SHOOT_FLICKER, DONE
+        PRE_SHOOT, SHOOT, DONE
     }
     ShootState shootState = ShootState.PRE_SHOOT;
 
@@ -178,13 +182,13 @@ public class TeleopState extends LinearOpMode {
 
                     break;
                 case OUTTAKE:
-                    Hood.setPosition(hoodPos);
-                    flyCurrentVel = flyBot.getVelocity();
 
-                    dashboardTelemetry.addData("Current Velocity", flyCurrentVel);
-                    dashboardTelemetry.update();
+                    limeTrack();
 
-                    flyPID(flyTargetVel);
+
+                    flywheel();
+
+//                    flyPID(flyTargetVel);
 
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         shoot();
@@ -235,7 +239,6 @@ public class TeleopState extends LinearOpMode {
     public void afterstart() {
         
         Blocker.setPosition(blockClose);
-        Flicker.setPosition(flickerDown);
         Tripod.setPosition(tripodIdle);
 
         deltaT.reset();
@@ -244,6 +247,23 @@ public class TeleopState extends LinearOpMode {
 
         runtime.reset();
 
+    }
+
+    public void limeTrack(){
+        LLResult result = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            id = fiducial.getFiducialId(); // The ID number of the fiducial
+        }
+
+        boolean limeValid = result.isValid();
+
+        if (limeValid){
+
+            Tx = result.getTx();
+            Ty = result.getTy();
+
+        }
     }
 
     public void intakeStart(){
@@ -325,7 +345,6 @@ public class TeleopState extends LinearOpMode {
 //            limelight.pipelineSwitch(7);
         }
 
-//        limelight.start();//todo
         telemetry.clear();
 
         if (red) telemetry.addLine("Red Alliance Selected");
@@ -333,6 +352,10 @@ public class TeleopState extends LinearOpMode {
         telemetry.addLine("Blue Alliance Selected");
         telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
+
+        limelight.pipelineSwitch(6);
+        limelight.start();
+
 
     }
 
@@ -462,25 +485,31 @@ public class TeleopState extends LinearOpMode {
     public void flywheel() {
 
 
-        if (Tyaverage < 11 && Tyaverage > -15) InterpPower = Flylut.get(Tyaverage);
+        if (Ty < 11 && Ty > -9.27) InterpPower = Flylut.get(Ty);
 
 
         else InterpPower = 0.75;
 
-        if (Tyaverage < 11 && Tyaverage > -10.5) {
+        if (Ty < 11 && Ty > -9.27) {
 
-            double hoodLutGet = Hoodlut.get(Tyaverage);
+            double hoodLutGet = Hoodlut.get(Ty);
 
             if (Math.abs(hoodLutGet - hoodLastPos) > 0.01) {
                 Hood.setPosition(hoodLutGet);
                 hoodLastPos = hoodLutGet;
             }
 
-        } else if (Tyaverage < -10.5) Hood.setPosition(hoodFar);
+        } //else if (Tyaverage < -10.5) Hood.setPosition(hoodFar);
 
         InterpPower = Math.round(InterpPower / 0.001) * 0.001;
 
         flyCurrentVel = flyBot.getVelocity();
+
+
+        dashboardTelemetry.addData("InterpPower", InterpPower);
+        dashboardTelemetry.addData("Hood pos", Hoodlut.get(Ty));
+        dashboardTelemetry.update();
+
 
         flyPID(InterpPower);
 
@@ -502,25 +531,24 @@ public class TeleopState extends LinearOpMode {
 
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
-        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
 
-//        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
-        imu = hardwareMap.get(IMU.class, "imu");
-        // This needs to be changed to match the orientation on your robot
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.UP;
+//        imu = hardwareMap.get(IMU.class, "imu");
+//        // This needs to be changed to match the orientation on your robot
+//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
+//                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
+//                RevHubOrientationOnRobot.UsbFacingDirection.UP;
+//
+//        RevHubOrientationOnRobot orientationOnRobot = new
+//                RevHubOrientationOnRobot(logoDirection, usbDirection);
+//        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -559,37 +587,59 @@ public class TeleopState extends LinearOpMode {
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
+        Flylut.add(-9.27,1400);
+
+
+        Flylut.add(-2.71,1240);
+
+        Flylut.add(6.28,1060);
+
+        Flylut.add(11 , 1000); // 10 0.67 ; 0.0 hood
+
+
+
+        Hoodlut.add(-9.27,0.55);
+
+        Hoodlut.add(-2.71,0.45);
+
+        Hoodlut.add(6.28,0.2);
+
+        Hoodlut.add(11,0.18);
+
+
+
+
 // far hood pos 0.48 power 0.9
 
-        Flylut.add(-15, 0.92);  //far 0.89
-
-        Flylut.add(-14, 0.895);  //far 0.87
-        Flylut.add(-13.8, 0.9);  //far 0.85
-
-        Flylut.add(-13, 0.878);  //far 0.85
-        Flylut.add(-12.8, 0.863);  //far   0.82
-        Flylut.add(-11.5, 0.82);  //far   0.82
-
-        Flylut.add(-10.5, 0.77); //+1 // Input camera Ty, Output flywheel power
-        Flylut.add(-9.55, 0.744);   // - 9.55 0.78 (2.0 hood)
-        Flylut.add(-9.00, 0.735);   // - 9.55 0.78 (2.0 hood)
-        Flylut.add(-8.70, 0.73);   // - 9.55 0.78 (2.0 hood)
-        Flylut.add(-6.55, 0.7);// -6.55 0.74
-        Flylut.add(-0.59, 0.63); // - 0.59 0.7
-        Flylut.add(3.65, 0.6); // 3.65 0.67
-
-        Flylut.add(11, 0.58); // 10 0.67 ; 0.0 hood
-
-        // NEAR HOOD ANGLES
-        Hoodlut.add(-10.5, 0.59);  //close
-
-//        Hoodlut.add(-9.5 , 0.5);  //close
-
-        Hoodlut.add(-6.5, 0.48);  //close
-
-        Hoodlut.add(-0.65, 0.25);  //close
-        Hoodlut.add(4, 0.19);  //close
-        Hoodlut.add(11, 0);  //close
+//        Flylut.add(-15, 0.92);  //far 0.89
+//
+//        Flylut.add(-14, 0.895);  //far 0.87
+//        Flylut.add(-13.8, 0.9);  //far 0.85
+//
+//        Flylut.add(-13, 0.878);  //far 0.85
+//        Flylut.add(-12.8, 0.863);  //far   0.82
+//        Flylut.add(-11.5, 0.82);  //far   0.82
+//
+//        Flylut.add(-10.5, 0.77); //+1 // Input camera Ty, Output flywheel power
+//        Flylut.add(-9.55, 0.744);   // - 9.55 0.78 (2.0 hood)
+//        Flylut.add(-9.00, 0.735);   // - 9.55 0.78 (2.0 hood)
+//        Flylut.add(-8.70, 0.73);   // - 9.55 0.78 (2.0 hood)
+//        Flylut.add(-6.55, 0.7);// -6.55 0.74
+//        Flylut.add(-0.59, 0.63); // - 0.59 0.7
+//        Flylut.add(3.65, 0.6); // 3.65 0.67
+//
+//        Flylut.add(11, 0.58); // 10 0.67 ; 0.0 hood
+//
+//        // NEAR HOOD ANGLES
+//        Hoodlut.add(-10.5, 0.59);  //close
+//
+////        Hoodlut.add(-9.5 , 0.5);  //close
+//
+//        Hoodlut.add(-6.5, 0.48);  //close
+//
+//        Hoodlut.add(-0.65, 0.25);  //close
+//        Hoodlut.add(4, 0.19);  //close
+//        Hoodlut.add(11, 0);  //close
 
 
         Flylut.createLUT();
@@ -617,7 +667,7 @@ public class TeleopState extends LinearOpMode {
         }
         switch (shootState){
             case PRE_SHOOT:
-                if (Math.abs(flyCurrentVel - flyTargetVel) <= 40){
+                if (Math.abs(flyCurrentVel - InterpPower) <= 40){
                     drive = false;
                     Blocker.setPosition(blockOpen);
                     stoptimers(0, outtake);
@@ -627,30 +677,16 @@ public class TeleopState extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if (stoptimers(1000,outtake)){
-                    shootState = ShootState.SHOOT_FLICKER;
-                    break;
-                }
-                break;
-            case SHOOT_FLICKER:
-                if (Math.abs(flyCurrentVel - flyTargetVel) <= 40){
-                    Flicker.setPosition(flickerUp);
+                if (stoptimers(1500,outtake)){
                     shootState = ShootState.DONE;
-                    stoptimers(0,outtake);
                     break;
-
                 }
                 break;
             case DONE:
-                if (stoptimers(500,outtake)){
-                    Flicker.setPosition(flickerDown);
-                    drive = true;
-                    shooting = false;
+                drive = true;
+                shooting = false;
 
-                    state = State.IDLE;
-                    break;
-
-                }
+                state = State.IDLE;
                 break;
 
         }
