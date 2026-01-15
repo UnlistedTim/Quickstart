@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.util.InterpLUT;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -24,6 +25,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
@@ -41,9 +45,13 @@ public class TeleopState extends LinearOpMode {
 
     private Limelight3A limelight;
 
+    private GoBildaPinpointDriver Pinpoint;
+
 
 
     public double blockClose = 0.35, blockOpen = 0.65;
+
+    Pose2D pose;
 
     public double tripodIdle = 0.95, tripodPark = 0.27;
 
@@ -209,6 +217,8 @@ public class TeleopState extends LinearOpMode {
 
 
 
+
+
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
             else stopDriveMotors();
 //
@@ -356,6 +366,11 @@ public class TeleopState extends LinearOpMode {
         limelight.pipelineSwitch(6);
         limelight.start();
 
+        configurePinpoint();
+
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
+
+
 
     }
 
@@ -462,35 +477,49 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void mecanumRobotDrive(double y, double x, double rx){
-//        double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-//        double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-//        double rx = gamepad1.right_stick_x;
+
+        Pinpoint.update();
+        pose = Pinpoint.getPosition();
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
+
+        double botHeading = pose.getHeading(AngleUnit.RADIANS);
+
+        // Rotate the movement direction counter to the bot's rotation
+        double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+        double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+
+        rotX = rotX * 1.1;  // Counteract imperfect strafing
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frontLeftPower = (rotY + rotX + rx) / denominator;
+        double backLeftPower = (rotY - rotX + rx) / denominator;
+        double frontRightPower = (rotY - rotX - rx) / denominator;
+        double backRightPower = (rotY + rotX - rx) / denominator;
 
         leftFront.setPower(frontLeftPower);
         leftBack.setPower(backLeftPower);
         rightFront.setPower(frontRightPower);
         rightBack.setPower(backRightPower);
+
+        telemetry.addData("Angle", botHeading);
+
+
+        telemetry.update();
     }
+
 
 
     public void flywheel() {
 
 
-        if (Ty < 11 && Ty > -9.27) InterpPower = Flylut.get(Ty);
+        if (Ty < 11 && Ty > -13.5) InterpPower = Flylut.get(Ty);
 
 
         else InterpPower = 0.75;
 
-        if (Ty < 11 && Ty > -9.27) {
+        if (Ty < 11 && Ty > -13.5) {
 
             double hoodLutGet = Hoodlut.get(Ty);
 
@@ -504,11 +533,6 @@ public class TeleopState extends LinearOpMode {
         InterpPower = Math.round(InterpPower / 0.001) * 0.001;
 
         flyCurrentVel = flyBot.getVelocity();
-
-
-        dashboardTelemetry.addData("InterpPower", InterpPower);
-        dashboardTelemetry.addData("Hood pos", Hoodlut.get(Ty));
-        dashboardTelemetry.update();
 
 
         flyPID(InterpPower);
@@ -525,6 +549,9 @@ public class TeleopState extends LinearOpMode {
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
+
+        Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
+
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
 
@@ -587,14 +614,31 @@ public class TeleopState extends LinearOpMode {
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        Flylut.add(-9.27,1400);
+        Flylut.add(-13.5,1750); //far
+
+        Flylut.add(-12.7,1700); //far
+
+        Flylut.add(-11.6 , 1550); // far
 
 
-        Flylut.add(-2.71,1240);
 
-        Flylut.add(6.28,1060);
 
-        Flylut.add(11 , 1000); // 10 0.67 ; 0.0 hood
+        Flylut.add(-9.27,1400); //close
+
+
+        Flylut.add(-2.71,1240); //close
+
+        Flylut.add(6.28,1060); //close
+
+        Flylut.add(11 , 1000); // close
+
+
+
+        Hoodlut.add(-13.5,0.78);   //far
+
+        Hoodlut.add(-12.7,0.75);   //far
+
+        Hoodlut.add(-11.6 ,0.7);    //far
 
 
 
@@ -657,6 +701,46 @@ public class TeleopState extends LinearOpMode {
             return false;
         }
         return runtime.milliseconds() - stoptime[i] > period;
+    }
+
+    public void configurePinpoint(){
+        /*
+         *  Set the odometry pod positions relative to the point that you want the position to be measured from.
+         *
+         *  The X pod offset refers to how far sideways from the tracking point the X (forward) odometry pod is.
+         *  Left of the center is a positive number, right of center is a negative number.
+         *
+         *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
+         *  Forward of center is a positive number, backwards is a negative number.
+         */
+        Pinpoint.setOffsets(3.15, -5, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+
+        /*
+         * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
+         * the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
+         * If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
+         * number of ticks per unit of your odometry pod.  For example:
+         *     pinpoint.setEncoderResolution(13.26291192, DistanceUnit.MM);
+         */
+        Pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+
+        /*
+         * Set the direction that each of the two odometry pods count. The X (forward) pod should
+         * increase when you move the robot forward. And the Y (strafe) pod should increase when
+         * you move the robot to the left.
+         */
+        Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+        /*
+         * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
+         * The IMU will automatically calibrate when first powered on, but recalibrating before running
+         * the robot is a good idea to ensure that the calibration is "good".
+         * resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
+         * This is recommended before you run your autonomous, as a bad initial calibration can cause
+         * an incorrect starting value for x, y, and heading.
+         */
+        Pinpoint.resetPosAndIMU();
     }
 
     public void shoot(){
