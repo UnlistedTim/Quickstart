@@ -55,6 +55,8 @@ public class TeleopState extends LinearOpMode {
 
     public double tripodIdle = 0.95, tripodPark = 0.27;
 
+    public boolean lift = false;
+
 
     // lift pos 0.07 lift angle 40
 
@@ -216,7 +218,20 @@ public class TeleopState extends LinearOpMode {
             }
 
 
+            if (gamepad1.leftBumperWasPressed()){
+                if (!lift){
+                    Tripod.setPosition(tripodPark);
+                    drive = false;
+                    lift = true;
+                }
 
+                else{
+                    Tripod.setPosition(tripodIdle);
+                    lift = false;
+                    drive = true;
+                }
+
+            }
 
 
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
