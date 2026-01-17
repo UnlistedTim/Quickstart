@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.util.InterpLUT;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -14,7 +13,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -43,13 +41,13 @@ public class TeleopState extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
-    private Limelight3A limelight;
+    private Limelight3A Limelight;
 
     private GoBildaPinpointDriver Pinpoint;
 
 
 
-    public double blockClose = 0.35, blockOpen = 0.65;
+    public double blockClose = 0.3, blockOpen = 0.65;
 
     Pose2D pose;
 
@@ -275,7 +273,7 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void limeTrack(){
-        LLResult result = limelight.getLatestResult();
+        LLResult result = Limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             id = fiducial.getFiducialId(); // The ID number of the fiducial
@@ -287,6 +285,9 @@ public class TeleopState extends LinearOpMode {
 
             Tx = result.getTx();
             Ty = result.getTy();
+
+            dashboardTelemetry.addData("Ty",Ty);
+            dashboardTelemetry.update();
 
         }
     }
@@ -302,7 +303,9 @@ public class TeleopState extends LinearOpMode {
 
 
     public void initalize() {
+
         Hw_init();
+        Limelight.pipelineSwitch(6);
         flyPID.setPID(flyp, flyi, flyd);
         try {
             red = (boolean) blackboard.get("RED");
@@ -378,8 +381,8 @@ public class TeleopState extends LinearOpMode {
         telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
 
-        limelight.pipelineSwitch(6);
-        limelight.start();
+
+        Limelight.start();
 
         configurePinpoint();
 
@@ -575,7 +578,7 @@ public class TeleopState extends LinearOpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
 
-        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
 //        imu = hardwareMap.get(IMU.class, "imu");
 //        // This needs to be changed to match the orientation on your robot

@@ -34,6 +34,8 @@ public class robotBDebug extends LinearOpMode {
 
     public static double IntakePower = 0.0;
 
+    boolean limeValid = false;
+
     int id = 1;
 
 
@@ -70,7 +72,7 @@ public class robotBDebug extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
-    private Limelight3A limelight;
+    private Limelight3A Limelight;
 
 
 
@@ -95,7 +97,7 @@ public class robotBDebug extends LinearOpMode {
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
-        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
 
 
@@ -120,11 +122,14 @@ public class robotBDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
+        Limelight.pipelineSwitch(6);
 
-        limelight.pipelineSwitch(6);
-        limelight.start();
+
+
+
 
         waitForStart();
+        Limelight.start();
 
 
         while (opModeIsActive()) { //Main While loop
@@ -143,13 +148,13 @@ public class robotBDebug extends LinearOpMode {
 
             Tripod.setPosition(tripodPos);
 
-            LLResult result = limelight.getLatestResult();
+            LLResult result = Limelight.getLatestResult();
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             for (LLResultTypes.FiducialResult fiducial : fiducials) {
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
             }
 
-            boolean limeValid = result.isValid();
+            limeValid = result.isValid();
 
             if (limeValid){
 
@@ -160,6 +165,10 @@ public class robotBDebug extends LinearOpMode {
 
             dashboardTelemetry.addData("Tx", Tx);
             dashboardTelemetry.addData("Ty", Ty);
+
+            telemetry.addData("Ty,",Ty);
+            telemetry.update();
+            dashboardTelemetry.addData("Pipeline",Limelight.pipelineSwitch(6));
 
 
 
