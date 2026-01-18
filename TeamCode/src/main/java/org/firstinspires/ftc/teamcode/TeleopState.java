@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -41,6 +42,8 @@ public class TeleopState extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
+    private DigitalChannel beamBreaker;
+
     private Limelight3A Limelight;
 
     private GoBildaPinpointDriver Pinpoint;
@@ -55,14 +58,32 @@ public class TeleopState extends LinearOpMode {
 
     public boolean lift = false;
 
+    public boolean BBState = true;
+
+    public boolean prevBBState = true;
+
 
     // lift pos 0.07 lift angle 40
 
     double Tyaverage = 0;
 
-    public static double intakePower = 0.9;
+    public static double intakeMaxVel = 3000;
+
+    public static double intakeVel = 2500;
     // private PIDController controller;
     public final int max_vel = 1800;
+
+    public int ball_count = 0;
+
+    public boolean debounce = false;
+
+    public boolean debouncearr[] = {false,false,false};
+
+    int i = 0;
+
+    int breakInARow = 1;
+
+    int openInARow = 1;
 
     double[] stoptime = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -97,7 +118,9 @@ public class TeleopState extends LinearOpMode {
     double angle_to_goal = 0.0;
     InterpLUT Flylut = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
-    double InterpPower = 0.0;
+    double InterpVel = 0.0;
+
+    public final double DROP_PERCENT = 0.9;
 
     public static int flyTargetVel = 1000;
     boolean red = true;
@@ -117,6 +140,10 @@ public class TeleopState extends LinearOpMode {
     public static double targetTurretPos = 0.0;
     public int turretPos = 0;
     public double flyCurrentVel = 0;
+
+    int shootCount = 0;
+
+    boolean velocityDropped = false;
 
 //    private Limelight3A limelight;
 
@@ -173,7 +200,9 @@ public class TeleopState extends LinearOpMode {
 
 
                 case INTAKE:
-                    if (gamepad2.leftBumperWasPressed()){
+
+
+                    if (gamepad2.leftBumperWasPressed() || beamBreakCount()){
                         state = State.OUTTAKE;
                         break;
                     }
@@ -182,8 +211,6 @@ public class TeleopState extends LinearOpMode {
                 case OUTTAKE:
                     limeTrack();
                     flywheel();
-
-//                    flyPID(flyTargetVel);
 
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         shoot();
@@ -258,8 +285,7 @@ public class TeleopState extends LinearOpMode {
             Tx = result.getTx();
             Ty = result.getTy();
 
-            dashboardTelemetry.addData("Ty",Ty);
-            dashboardTelemetry.update();
+
 
         }
     }
@@ -270,7 +296,7 @@ public class TeleopState extends LinearOpMode {
         flyBot.setPower(0);
 
         Blocker.setPosition(blockClose);
-        Intake.setPower(intakePower);
+        Intake.setVelocity(intakeVel);
     }
 
 
@@ -362,6 +388,60 @@ public class TeleopState extends LinearOpMode {
 
 
 
+    }
+
+    public void resetIntakeVars(){
+        breakInARow = 0;
+        ball_count = 3;
+        debounce = false;
+        i = 0;
+        boolean debouncearr[] =  {false,false,false};
+        prevBBState = true;
+
+    }
+
+    public boolean beamBreakCount(){
+        BBState = beamBreaker.getState();
+        if (!BBState && !debounce){
+            ball_count++;
+            if (ball_count == 3){
+                Intake.setVelocity(100);
+                resetIntakeVars();
+                state = State.OUTTAKE;
+                return true;
+            }
+            debounce = true;
+        }
+
+        if (breakInARow >= 100){
+            Intake.setVelocity(100);
+            resetIntakeVars();
+            state = State.OUTTAKE;
+            return true;
+        }
+
+        if (!BBState && !prevBBState) breakInARow++;
+        else breakInARow = 0;
+
+        if (BBState && prevBBState) openInARow++;
+        else openInARow = 0;
+
+        if (debounce && openInARow > 10){
+            debounce = false;
+            openInARow = 0;
+
+        }
+
+        prevBBState = BBState;
+
+        dashboardTelemetry.addData("Break in a row", breakInARow);
+        dashboardTelemetry.addData("Open in a row", openInARow);
+        dashboardTelemetry.addData("Count",ball_count);
+        dashboardTelemetry.update();
+
+
+
+        return false;
     }
 
     void configinfo() {
@@ -504,10 +584,10 @@ public class TeleopState extends LinearOpMode {
     public void flywheel() {
 
 
-        if (Ty < 11 && Ty > -13.5) InterpPower = Flylut.get(Ty);
+        if (Ty < 11 && Ty > -13.5) InterpVel = Flylut.get(Ty);
 
 
-        else InterpPower = 0.75;
+        else InterpVel = 0.75;
 
         if (Ty < 11 && Ty > -13.5) {
 
@@ -520,12 +600,12 @@ public class TeleopState extends LinearOpMode {
 
         } //else if (Tyaverage < -10.5) Hood.setPosition(hoodFar);
 
-        InterpPower = Math.round(InterpPower / 0.001) * 0.001;
+        InterpVel = Math.round(InterpVel / 0.001) * 0.001;
 
         flyCurrentVel = flyBot.getVelocity();
 
 
-        flyPID(InterpPower);
+        flyPID(InterpVel);
 
     }
 
@@ -539,6 +619,9 @@ public class TeleopState extends LinearOpMode {
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
+
+        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
+
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
 
@@ -575,6 +658,10 @@ public class TeleopState extends LinearOpMode {
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Intake.setVelocity(0);
+        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -737,11 +824,12 @@ public class TeleopState extends LinearOpMode {
 
         if (!shooting){
             shooting = true;
+            Intake.setVelocity(intakeVel);
             shootState = ShootState.PRE_SHOOT;
         }
         switch (shootState){
             case PRE_SHOOT:
-                if (Math.abs(flyCurrentVel - InterpPower) <= 40){
+                if (Math.abs(flyCurrentVel - InterpVel) <= 40){
                     drive = false;
                     Blocker.setPosition(blockOpen);
                     stoptimers(0, outtake);
@@ -750,15 +838,28 @@ public class TeleopState extends LinearOpMode {
                 }
                 break;
             case SHOOT:
+                double thresholdVel = InterpVel * DROP_PERCENT;
 
-                if (stoptimers(1500,outtake)){
+                if (flyCurrentVel < thresholdVel && !velocityDropped) {
+                    shootCount++;
+                    velocityDropped = true;
+                }
+
+                if (flyCurrentVel > InterpVel * 0.95) {
+                    velocityDropped = false;
+                }
+
+                if (shootCount >= ball_count || stoptimers(2500,outtake)) {
                     shootState = ShootState.DONE;
-                    break;
                 }
                 break;
             case DONE:
                 drive = true;
                 shooting = false;
+
+                ball_count = 0;
+                shootCount = 0;
+                velocityDropped =false;
 
                 state = State.IDLE;
                 break;

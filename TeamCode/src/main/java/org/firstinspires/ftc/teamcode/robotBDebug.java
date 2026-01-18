@@ -34,6 +34,8 @@ public class robotBDebug extends LinearOpMode {
 
 
     public static double IntakePower = 0.0;
+    int openInARow = 1;
+
 
     boolean limeValid = false;
 
@@ -51,12 +53,22 @@ public class robotBDebug extends LinearOpMode {
 
     public static double tripodPos = 0.95;
 
+    public boolean prevBBState = true;
+
     public static double flyBotPower = 0;
     public static double flyTopPower = 0;
 
     public final int max_vel = 1800;
 
     public static int flyVel = 0;
+
+    public int ball_count = 0;
+
+    public boolean debounce = false;
+
+    public boolean debouncearr[] = {false,false,false};
+
+    int i = 0;
 
 
     private DcMotorEx Intake, flyBot, flyTop;
@@ -175,7 +187,35 @@ public class robotBDebug extends LinearOpMode {
             dashboardTelemetry.addData("Ty", Ty);
 
 
-            telemetry.addData("Beam breaker",beamBreaker.getState());
+            boolean BBState = beamBreaker.getState();
+
+
+
+            if (!BBState && !debounce){
+                ball_count++;
+                if (ball_count == 3){
+                    Intake.setPower(0);
+//                    sleep(1000000);
+                }
+                debounce = true;
+            }
+
+            if (BBState && prevBBState) openInARow++;
+            else openInARow = 0;
+
+            if (debounce && openInARow > 10){
+                debounce = false;
+                openInARow = 0;
+
+            }
+
+
+            telemetry.addData("Beam breaker",BBState);
+
+            dashboardTelemetry.addData("beam breaker state", BBState);
+            dashboardTelemetry.addData("ball_count",ball_count);
+
+            dashboardTelemetry.addData("Intake velocity",Intake.getVelocity());
 
             telemetry.addData("Ty,",Ty);
             telemetry.update();
