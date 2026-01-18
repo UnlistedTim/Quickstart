@@ -78,23 +78,17 @@ public class TeleopState extends LinearOpMode {
     public static double hoodPos = 0.4;
     boolean[] flag = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-
     boolean recevieinfo = false;
-    int[] shoot_order = new int[]{4, 4, 4, 4};
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-    double currentintakepower = 0, MAX_TURN_POWER = 0.3;
     boolean limeValid = false;
     boolean drive = true, present = false;
     int presentpurple = 0, shoot_count = 0;
     int id = 1;
     int target_id = 24;
-    int green_index = 4;
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
-
-    boolean shootingActive = false;
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double Tx = 100;
@@ -156,9 +150,7 @@ public class TeleopState extends LinearOpMode {
 
     public void runOpMode() {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-
         initalize();
-
         waitForStart();
         afterstart();
         for (LynxModule module : allHubs) {
@@ -175,10 +167,8 @@ public class TeleopState extends LinearOpMode {
 
                     break;
                 case IDLE:
-
                     intakeStart();
                     state = State.INTAKE;
-
                     break;
 
 
@@ -190,10 +180,7 @@ public class TeleopState extends LinearOpMode {
 
                     break;
                 case OUTTAKE:
-
                     limeTrack();
-
-
                     flywheel();
 
 //                    flyPID(flyTargetVel);
@@ -201,18 +188,11 @@ public class TeleopState extends LinearOpMode {
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         shoot();
 
-
                     }
-
-
                     break;
 
                 case MANUALOUTTAKE:
-
-
                     break;
-
-
             }
 
 
@@ -234,14 +214,6 @@ public class TeleopState extends LinearOpMode {
 
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
             else stopDriveMotors();
-//
-//
-//            if (gamepad1.psWasPressed())resetOTOS();
-//            if(gamepad2.psWasPressed()) flag[manualshoot] = !flag[manualshoot];
-//            if (gamepad1.touchpadWasPressed()){
-//                if (fieldCentric) fieldCentric = false;
-//                else fieldCentric = true;
-//            }
 
 
         }
@@ -342,21 +314,21 @@ public class TeleopState extends LinearOpMode {
                 recevieinfo = true;
                 telemetry.addLine("Red  Selected");
             }
-            if (gamepad2.triangleWasPressed()) {
-                pattern_id = 21;
-                recevieinfo = true;
-                telemetry.addLine(" Green 1 selected");
-            }
-            if (gamepad2.circleWasPressed()) {
-                pattern_id = 22;
-                recevieinfo = true;
-                telemetry.addLine("  Green 2  selected");
-            }
-            if (gamepad2.crossWasPressed()) {
-                pattern_id = 23;
-                recevieinfo = true;
-                telemetry.addLine(" Green 3 selected");
-            }
+//            if (gamepad2.triangleWasPressed()) {
+//                pattern_id = 21;
+//                recevieinfo = true;
+//                telemetry.addLine(" Green 1 selected");
+//            }
+//            if (gamepad2.circleWasPressed()) {
+//                pattern_id = 22;
+//                recevieinfo = true;
+//                telemetry.addLine("  Green 2  selected");
+//            }
+//            if (gamepad2.crossWasPressed()) {
+//                pattern_id = 23;
+//                recevieinfo = true;
+//                telemetry.addLine(" Green 3 selected");
+//            }
             if (recevieinfo) {
                 configinfo();
                 telemetry.update();

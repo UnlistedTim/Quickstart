@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -72,6 +73,8 @@ public class robotBDebug extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
+    private DigitalChannel beamBreaker;
+
     private Limelight3A Limelight;
 
 
@@ -92,6 +95,8 @@ public class robotBDebug extends LinearOpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
+
+        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
 
 
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
@@ -134,6 +139,9 @@ public class robotBDebug extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
+
+
+
             flyPID(flyVel);
 
 //            flyBot.setPower(flyBotPower);
@@ -165,6 +173,9 @@ public class robotBDebug extends LinearOpMode {
 
             dashboardTelemetry.addData("Tx", Tx);
             dashboardTelemetry.addData("Ty", Ty);
+
+
+            telemetry.addData("Beam breaker",beamBreaker.getState());
 
             telemetry.addData("Ty,",Ty);
             telemetry.update();
