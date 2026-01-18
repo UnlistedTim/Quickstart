@@ -48,6 +48,9 @@ public class TeleopState extends LinearOpMode {
 
     private GoBildaPinpointDriver Pinpoint;
 
+    BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
+
+
 
 
     public double blockClose = 0.3, blockOpen = 0.65;
@@ -120,7 +123,7 @@ public class TeleopState extends LinearOpMode {
     InterpLUT Hoodlut = new InterpLUT();
     double InterpVel = 0.0;
 
-    public final double DROP_PERCENT = 0.9;
+    public final double DROP_PERCENT = 0.93;
 
     public static int flyTargetVel = 1000;
     boolean red = true;
@@ -188,16 +191,19 @@ public class TeleopState extends LinearOpMode {
         while (opModeIsActive()) { //Main While loop
 
 
+
+
             switch (state) {
                 case DEBUG:
 
 
                     break;
                 case IDLE:
-                    intakeStart();
-                    state = State.INTAKE;
-                    break;
-
+                    if (stoptimers(300,outtake )){
+                        intakeStart();
+                        state = State.INTAKE;
+                        break;
+                    }
 
                 case INTAKE:
 
@@ -291,10 +297,9 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void intakeStart(){
-
         flyTop.setPower(0);
         flyBot.setPower(0);
-
+        checker = new BooleanConfidenceChecker();
         Blocker.setPosition(blockClose);
         Intake.setVelocity(intakeVel);
     }
@@ -413,15 +418,24 @@ public class TeleopState extends LinearOpMode {
             debounce = true;
         }
 
-        if (breakInARow >= 100){
+        if (checker.update(!BBState)) {
             Intake.setVelocity(100);
+
             resetIntakeVars();
             state = State.OUTTAKE;
             return true;
+
         }
 
-        if (!BBState && !prevBBState) breakInARow++;
-        else breakInARow = 0;
+//        if (breakInARow >= 100){
+//            Intake.setVelocity(100);
+//            resetIntakeVars();
+//            state = State.OUTTAKE;
+//            return true;
+//        }
+
+//        if (!BBState && !prevBBState) breakInARow++;
+//        else breakInARow = 0;
 
         if (BBState && prevBBState) openInARow++;
         else openInARow = 0;
@@ -545,6 +559,38 @@ public class TeleopState extends LinearOpMode {
         rightBack.setPower(backRightPower);
 
     }
+
+    public class BooleanConfidenceChecker {
+
+        private static final int WINDOW_SIZE = 100;   // total samples
+        private static final double TRUE_THRESHOLD = 0.90; // 95%
+
+        private final boolean[] window = new boolean[WINDOW_SIZE];
+        private int index = 0;
+        private int trueCount = 0;
+        private boolean filled = false;
+
+        public boolean update(boolean input) {
+
+            if (filled) {
+                if (window[index]) trueCount--;
+            }
+            window[index] = input;
+            if (input) trueCount++;
+
+            index++;
+            if (index >= WINDOW_SIZE) {
+                index = 0;
+                filled = true;
+            }
+
+            if (!filled) return false;
+            double trueRate = (double) trueCount / WINDOW_SIZE;
+
+            return trueRate >= TRUE_THRESHOLD;
+        }
+    }
+
 
     public void mecanumRobotDrive(double y, double x, double rx){
 
@@ -862,6 +908,7 @@ public class TeleopState extends LinearOpMode {
                 velocityDropped =false;
 
                 state = State.IDLE;
+                stoptimers(0, outtake);
                 break;
 
         }
