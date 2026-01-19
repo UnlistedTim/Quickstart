@@ -48,8 +48,8 @@ public class bass {
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     double Tx_offset=0;
-    int turretCwlim=-300;
-    int turretCcwlim=300;
+    int turretCwlim=-150;
+    int turretCcwlim=150;
 
 
 

@@ -25,10 +25,12 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 //test
@@ -50,6 +52,8 @@ public class TeleopStateA extends LinearOpMode {
     private GoBildaPinpointDriver Pinpoint;
 
     BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
+
+    MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
 
     public bass rbg= new bass();
@@ -123,6 +127,11 @@ public class TeleopStateA extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime();
     double Tx = 100;
     double Tx_offset = 0;
+
+    double rawIntakeCurrent;
+
+    double filteredIntakeCurrent;
+
     double Ty = 0.0;
     double angle_to_goal = 0.0;
 //    InterpLUT Flylut = new InterpLUT();
@@ -225,18 +234,18 @@ public class TeleopStateA extends LinearOpMode {
                     break;
                 case OUTTAKE:
 
+                    dashboardTelemetry.addData("Speed error",rbg.flyspeedgap);
+                    dashboardTelemetry.addData("Tx error",rbg.Txgap);
+
                     flywheel();
                     if (gamepad2.rightBumperWasPressed() || shooting){
-                        if(shoot()) {
-
-                            outtakestate=false;
-
-                        }
-
+                        if(shoot()) outtakestate=false;
                     }
                     if(!outtakestate||gamepad2.leftBumperWasPressed())
                     {
                         state=State.IDLE;
+                        outtakestate=false;
+                        break;
                     }
 
                     break;
@@ -270,6 +279,9 @@ public class TeleopStateA extends LinearOpMode {
             statusupdate();//caputure all the hardware reading info.
             turntable();
 
+            dashboardTelemetry.addData("State",state);
+            dashboardTelemetry.update();
+
 
         }
     }
@@ -288,7 +300,7 @@ public class TeleopStateA extends LinearOpMode {
               Ty=result.getTy();
 
           }
-            flyCurrentVel=flyTop.getVelocity();
+            flyCurrentVel=flyBot.getVelocity();
 
 
         }
@@ -355,6 +367,7 @@ public class TeleopStateA extends LinearOpMode {
         flyTop.setPower(0);
         flyBot.setPower(0);
         checker = new BooleanConfidenceChecker();
+        intakeCurrentFilter = new MedianFilter(10);
         Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(intakeVel);
     }
@@ -455,7 +468,7 @@ public class TeleopStateA extends LinearOpMode {
 
     public void resetIntakeVars(){
         breakInARow = 0;
-        ball_count = 3;
+        ball_count = 0;
         debounce = false;
         i = 0;
         boolean debouncearr[] =  {false,false,false};
@@ -498,10 +511,7 @@ public class TeleopStateA extends LinearOpMode {
 
         prevBBState = BBState;
 
-        dashboardTelemetry.addData("Break in a row", breakInARow);
-        dashboardTelemetry.addData("Open in a row", openInARow);
-        dashboardTelemetry.addData("Count",ball_count);
-        dashboardTelemetry.update();
+
 
 
 
@@ -638,6 +648,33 @@ public class TeleopStateA extends LinearOpMode {
             double trueRate = (double) trueCount / WINDOW_SIZE;
 
             return trueRate >= TRUE_THRESHOLD;
+        }
+    }
+
+    public class MedianFilter {
+        private final double[] window;
+        private int index = 0;
+        private boolean filled = false;
+
+        public MedianFilter(int size) {
+            window = new double[size];
+        }
+
+        public double update(double value) {
+            window[index] = value;
+            index = (index + 1) % window.length;
+
+            if (index == 0) {
+                filled = true;
+            }
+
+            double[] temp = filled
+                    ? window.clone()
+                    : Arrays.copyOf(window, index);
+
+            Arrays.sort(temp);
+
+            return temp[temp.length / 2];
         }
     }
 
@@ -922,35 +959,35 @@ public class TeleopStateA extends LinearOpMode {
                 }
                 break;
             case SHOOT:
-                double thresholdVel = rbg.targetVel * DROP_PERCENT;
+                 rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+                filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
 
-                if (flyCurrentVel < thresholdVel && !velocityDropped) {
-                    shootCount++;
-                    velocityDropped = true;
-                }
-
-                if (flyCurrentVel > rbg.targetVel* 0.95) {
-                    velocityDropped = false;
-                }
-
-                if (shootCount >= ball_count || stoptimers(2500,outtake)) {
+                if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) || stoptimers(2500,outtake)){
                     shootState = ShootState.DONE;
                 }
+
+//                double thresholdVel = rbg.targetVel * DROP_PERCENT;
+//
+//                if (flyCurrentVel < thresholdVel && !velocityDropped) {
+//                    shootCount++;
+//                    velocityDropped = true;
+//                }
+//
+//                if (flyCurrentVel > rbg.targetVel* 0.95) {
+//                    velocityDropped = false;
+//                }
+//
+//                if (shootCount >= ball_count || stoptimers(2500,outtake)) {
+//                    shootState = ShootState.DONE;
+//                }
                 break;
             case DONE:
                 drive = true;
                 shooting = false;
 
                 ball_count = 0;
-                shootCount = 0;
-                velocityDropped =false;
-
                 stoptimers(0, outtake);
                 return true;
-
-
-
-
 
 
         }

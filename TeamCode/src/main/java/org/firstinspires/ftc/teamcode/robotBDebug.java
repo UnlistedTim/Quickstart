@@ -8,6 +8,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import java.util.Arrays;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,6 +17,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-    public static double IntakePower = 0.0;
+    public static int IntakeVel = 0;
     int openInARow = 1;
 
 
@@ -45,6 +47,9 @@ public class robotBDebug extends LinearOpMode {
     double Tx = 0;
 
     double Ty = 0;
+
+    double rawIntakeCurrent;
+    double filteredIntakeCurrent;
 
 
     public static double hoodPos = 0.15;// 0 vertical angle 0.85 horizontal angle
@@ -73,6 +78,8 @@ public class robotBDebug extends LinearOpMode {
 
     private DcMotorEx Intake, flyBot, flyTop;
 
+    MedianFilter intakeCurrentFilter = new MedianFilter(10);
+
 
 
 
@@ -94,6 +101,36 @@ public class robotBDebug extends LinearOpMode {
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
+
+
+
+    public class MedianFilter {
+        private final double[] window;
+        private int index = 0;
+        private boolean filled = false;
+
+        public MedianFilter(int size) {
+            window = new double[size];
+        }
+
+        public double update(double value) {
+            window[index] = value;
+            index = (index + 1) % window.length;
+
+            if (index == 0) {
+                filled = true;
+            }
+
+            double[] temp = filled
+                    ? window.clone()
+                    : Arrays.copyOf(window, index);
+
+            Arrays.sort(temp);
+
+            return temp[temp.length / 2];
+        }
+    }
+
 
 
 
@@ -134,6 +171,10 @@ public class robotBDebug extends LinearOpMode {
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Intake.setVelocity(0);
+        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
 
 
@@ -151,6 +192,10 @@ public class robotBDebug extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
+            rawIntakeCurrent = Intake.getCurrent(CurrentUnit.MILLIAMPS);
+
+            filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
+
 
 
 
@@ -159,7 +204,9 @@ public class robotBDebug extends LinearOpMode {
 //            flyBot.setPower(flyBotPower);
 //            flyTop.setPower(flyTopPower);
             //
-            Intake.setPower(IntakePower);
+            Intake.setVelocity(IntakeVel);
+
+
 
 
             Hood.setPosition(hoodPos);
@@ -185,6 +232,10 @@ public class robotBDebug extends LinearOpMode {
 
             dashboardTelemetry.addData("Tx", Tx);
             dashboardTelemetry.addData("Ty", Ty);
+
+            dashboardTelemetry.addData("Intake raw current", rawIntakeCurrent);
+            dashboardTelemetry.addData("Intake filtered current", filteredIntakeCurrent);
+
 
 
             boolean BBState = beamBreaker.getState();
