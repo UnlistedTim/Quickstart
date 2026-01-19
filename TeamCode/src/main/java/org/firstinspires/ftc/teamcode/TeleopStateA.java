@@ -363,6 +363,7 @@ public class TeleopStateA extends LinearOpMode {
     public void initalize() {
 
         Hw_init();
+        rbg.init();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(tripodIdle);
     //    Limelight.pipelineSwitch(6);
