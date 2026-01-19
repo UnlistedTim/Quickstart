@@ -54,7 +54,7 @@ public class TeleopStateA extends LinearOpMode {
 
     public bass rbg= new bass();
 
-    public double blockClose = 0.3, blockOpen = 0.65;
+
 
     Pose2D pose;
 
@@ -66,7 +66,7 @@ public class TeleopStateA extends LinearOpMode {
 
     public boolean prevBBState = true;
 
-    public double Txgap=50;
+
 
 
     // lift pos 0.07 lift angle 40
@@ -95,12 +95,12 @@ public class TeleopStateA extends LinearOpMode {
 
     double[] stoptime = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    double[] Tyempty = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int tyorder = 0;
+//    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//    double[] Tyempty = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//    int tyorder = 0;
     int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
-    int pattern_id = 21, last_ball_number;
-    public double hoodFar = 0.62;
+   // int pattern_id = 21, last_ball_number;
+    //public double hoodFar = 0.62;
 
     public double hoodLastPos = 0.0;
 
@@ -114,10 +114,10 @@ public class TeleopStateA extends LinearOpMode {
     boolean limeValid = false;
     boolean outtakestate=false;
     boolean drive = true, present = false;
-    int presentpurple = 0, shoot_count = 0;
+    int  shoot_count = 0;
     int id = 1;
     int target_id = 24;
-    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+   // public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
@@ -125,8 +125,8 @@ public class TeleopStateA extends LinearOpMode {
     double Tx_offset = 0;
     double Ty = 0.0;
     double angle_to_goal = 0.0;
-    InterpLUT Flylut = new InterpLUT();
-    InterpLUT Hoodlut = new InterpLUT();
+//    InterpLUT Flylut = new InterpLUT();
+//    InterpLUT Hoodlut = new InterpLUT();
     double InterpVel = 0.0;
 
     public final double DROP_PERCENT = 0.93;
@@ -135,13 +135,13 @@ public class TeleopStateA extends LinearOpMode {
     boolean red = true;
 
 
-    public IMU imu;
+
 
 
     // --- PID Control ---
-    public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
-    PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
-    PIDController flyPID = new PIDController(flyp, flyi, flyd);
+ //   public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
+  //  PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
+   // PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
     // --- State Variables ---
     public static double fly_factor = 0.0;
@@ -163,7 +163,6 @@ public class TeleopStateA extends LinearOpMode {
         DEBUG,
         IDLE,
         INTAKE,
-        SORT,
         OUTTAKE,
         MANUALOUTTAKE;
     }
@@ -229,12 +228,17 @@ public class TeleopStateA extends LinearOpMode {
                     flywheel();
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         if(shoot()) {
-                            state = State.IDLE;
+
                             outtakestate=false;
 
-                        };
+                        }
 
                     }
+                    if(!outtakestate||gamepad2.leftBumperWasPressed())
+                    {
+                        state=State.IDLE;
+                    }
+
                     break;
 
                 case MANUALOUTTAKE:
@@ -245,7 +249,7 @@ public class TeleopStateA extends LinearOpMode {
 
 
 
-            if (gamepad1.leftBumperWasPressed()){
+            if (gamepad1.psWasPressed()){
                 if (!lift){
                     Tripod.setPosition(tripodPark);
                     drive = false;
@@ -318,8 +322,7 @@ public class TeleopStateA extends LinearOpMode {
 
     public void afterstart() {
         
-        Blocker.setPosition(blockClose);
-        Tripod.setPosition(tripodIdle);
+
 
         deltaT.reset();
         timer.reset();
@@ -352,7 +355,7 @@ public class TeleopStateA extends LinearOpMode {
         flyTop.setPower(0);
         flyBot.setPower(0);
         checker = new BooleanConfidenceChecker();
-        Blocker.setPosition(blockClose);
+        Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(intakeVel);
     }
 
@@ -360,8 +363,10 @@ public class TeleopStateA extends LinearOpMode {
     public void initalize() {
 
         Hw_init();
-        Limelight.pipelineSwitch(6);
-        flyPID.setPID(flyp, flyi, flyd);
+        Blocker.setPosition(rbg.blockClose);
+        Tripod.setPosition(tripodIdle);
+    //    Limelight.pipelineSwitch(6);
+      //  flyPID.setPID(flyp, flyi, flyd);
         try {
             red = (boolean) blackboard.get("RED");
 
@@ -370,18 +375,18 @@ public class TeleopStateA extends LinearOpMode {
             telemetry.addLine("Color transfer Error!");
 
         }
-        try {
-            pattern_id = (int) blackboard.get("ID");
-        } catch (NullPointerException e) {
-            pattern_id = 21;
-            telemetry.addLine("Pattern ID transfer Error!");
-
-        }
+//        try {
+//            pattern_id = (int) blackboard.get("ID");
+//        } catch (NullPointerException e) {
+//            pattern_id = 21;
+//            telemetry.addLine("Pattern ID transfer Error!");
+//
+//        }
 
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-        telemetry.addData(" Patter Green ", pattern_id - 20);
+      //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.addLine("*******************************************");
         configinfo();
         telemetry.update();
@@ -421,11 +426,11 @@ public class TeleopStateA extends LinearOpMode {
         if (red) {
             Tx_offset = 0;
             target_id = 24;
-//            limelight.pipelineSwitch(6);
+            Limelight.pipelineSwitch(6);
         } else {
             Tx_offset = 0;
             target_id = 20;
-//            limelight.pipelineSwitch(7);
+            Limelight.pipelineSwitch(7);
         }
 
         telemetry.clear();
@@ -433,7 +438,7 @@ public class TeleopStateA extends LinearOpMode {
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-        telemetry.addData(" Patter Green ", pattern_id - 20);
+      //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
 
 
@@ -464,7 +469,7 @@ public class TeleopStateA extends LinearOpMode {
             if (ball_count == 3){
                 Intake.setVelocity(100);
                 resetIntakeVars();
-                state = State.OUTTAKE;
+               // state = State.OUTTAKE;
                 return true;
             }
             debounce = true;
@@ -479,15 +484,7 @@ public class TeleopStateA extends LinearOpMode {
 
         }
 
-//        if (breakInARow >= 100){
-//            Intake.setVelocity(100);
-//            resetIntakeVars();
-//            state = State.OUTTAKE;
-//            return true;
-//        }
-
-//        if (!BBState && !prevBBState) breakInARow++;
-//        else breakInARow = 0;
+//
 
         if (BBState && prevBBState) openInARow++;
         else openInARow = 0;
@@ -513,10 +510,10 @@ public class TeleopStateA extends LinearOpMode {
     void configinfo() {
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
-        telemetry.addLine("Driver Triangle select  Debug mode");
-        telemetry.addLine("Gunner Triangle select Green1 1");
-        telemetry.addLine("Gunner Circle select Green 2");
-        telemetry.addLine("Gunner Cross select Green3");
+//        telemetry.addLine("Driver Triangle select  Debug mode");
+//        telemetry.addLine("Gunner Triangle select Green1 1");
+//        telemetry.addLine("Gunner Circle select Green 2");
+//        telemetry.addLine("Gunner Cross select Green3");
         telemetry.addLine("Drive Right Bumper Confrim ");
 
 
@@ -777,41 +774,41 @@ public class TeleopStateA extends LinearOpMode {
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        Flylut.add(-13.5,1750); //far
-
-        Flylut.add(-12.7,1700); //far
-
-        Flylut.add(-11.6 , 1550); // far
-
-
-
-
-        Flylut.add(-9.27,1400); //close
-
-
-        Flylut.add(-2.71,1240); //close
-
-        Flylut.add(6.28,1060); //close
-
-        Flylut.add(11 , 1000); // close
-
-
-
-        Hoodlut.add(-13.5,0.78);   //far
-
-        Hoodlut.add(-12.7,0.75);   //far
-
-        Hoodlut.add(-11.6 ,0.7);    //far
-
-
-
-        Hoodlut.add(-9.27,0.55);
-
-        Hoodlut.add(-2.71,0.45);
-
-        Hoodlut.add(6.28,0.2);
-
-        Hoodlut.add(11,0.18);
+//        Flylut.add(-13.5,1750); //far
+//
+//        Flylut.add(-12.7,1700); //far
+//
+//        Flylut.add(-11.6 , 1550); // far
+//
+//
+//
+//
+//        Flylut.add(-9.27,1400); //close
+//
+//
+//        Flylut.add(-2.71,1240); //close
+//
+//        Flylut.add(6.28,1060); //close
+//
+//        Flylut.add(11 , 1000); // close
+//
+//
+//
+//        Hoodlut.add(-13.5,0.78);   //far
+//
+//        Hoodlut.add(-12.7,0.75);   //far
+//
+//        Hoodlut.add(-11.6 ,0.7);    //far
+//
+//
+//
+//        Hoodlut.add(-9.27,0.55);
+//
+//        Hoodlut.add(-2.71,0.45);
+//
+//        Hoodlut.add(6.28,0.2);
+//
+//        Hoodlut.add(11,0.18);
 
 
 
@@ -849,9 +846,9 @@ public class TeleopStateA extends LinearOpMode {
 //        Hoodlut.add(11, 0);  //close
 
 
-        Flylut.createLUT();
-
-        Hoodlut.createLUT();
+//        Flylut.createLUT();
+//
+//        Hoodlut.createLUT();
 
 
     }
@@ -917,7 +914,7 @@ public class TeleopStateA extends LinearOpMode {
             case PRE_SHOOT:
                 if(rbg.flyspeedgap <= 40&&rbg.Txgap<2){
                     drive = false;
-                    Blocker.setPosition(blockOpen);
+                    Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
                     shootState = ShootState.SHOOT;
                     break;
@@ -960,18 +957,7 @@ public class TeleopStateA extends LinearOpMode {
     }
 
 
-    public void flyPID(double target_vel) {
 
-
-        // double vel =  flyTop.getVelocity();
-
-
-        double pid = flyPID.calculate(flyCurrentVel, target_vel);
-        double ff = flyf * target_vel;
-        double power = pid + ff;
-        flyBot.setPower(power);
-        flyTop.setPower(power);
-    }
 }
 
 

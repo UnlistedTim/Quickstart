@@ -40,7 +40,9 @@ public class bass {
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
     public double flyspeedgap=500,Txgap=50;
 
+
     public double targetVel=0;
+    public double blockClose = 0.3, blockOpen = 0.65;
 
     //double turretPower=0;
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
@@ -55,6 +57,8 @@ public class bass {
 
     {
 
+        flyPID.setPID(flyp, flyi, flyd);
+        turretPID.setPID(turretkP, turretkI, turretkD);
         Flylut.add(-13.5,1750); //far
         Flylut.add(-12.7,1700); //far
         Flylut.add(-11.6 , 1550); // far

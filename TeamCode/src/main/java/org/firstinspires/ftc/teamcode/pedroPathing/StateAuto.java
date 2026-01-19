@@ -8,12 +8,16 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.bass;
+
 
 @Autonomous(name = " StateAuto", group = "A")
 public class StateAuto extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
+    public bass rbga;
+
 
     private int pathState;
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
@@ -188,6 +192,7 @@ public class StateAuto extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        rbga=new bass();
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -211,6 +216,7 @@ public class StateAuto extends OpMode {
     public void start() {
         opmodeTimer.resetTimer();
         setPathState(0);
+
     }
 
     /**
