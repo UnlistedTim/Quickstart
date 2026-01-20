@@ -8,7 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -17,17 +17,19 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.TeleopStateA;
-import org.firstinspires.ftc.teamcode.bass;
+import org.firstinspires.ftc.teamcode.base;
 
 
 @Autonomous(name = " StateAuto", group = "A")
 public class StateAuto extends OpMode {
 
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
-    public bass rbga;
+    private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
+    public base rbga;
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
 
     private Servo Hood, Blocker, Tripod;
@@ -35,9 +37,20 @@ public class StateAuto extends OpMode {
     private DigitalChannel beamBreaker;
 
     private Limelight3A Limelight;
+    LLResult result;
 
-    private GoBildaPinpointDriver Pinpoint;
-    public boolean red=true,recevieinfo=false;
+    public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
+
+    public double hoodPos = 0;
+
+    public int shootState=0 ,turretTarget=0 ;
+   public final int preshoot=0,shoot=1,done=2;
+
+    int  turretPos;
+
+   // private GoBildaPinpointDriver Pinpoint;
+    public boolean red=true,recevieinfo=false,adrive=false,limeValid=false;
+    double  rawIntakeCurrent=0,filteredIntakeCurrent,turnPower;
 
 
     //TeleopStateA.BooleanConfidenceChecker checker = new TeleopStateA.BooleanConfidenceChecker();
@@ -47,10 +60,13 @@ public class StateAuto extends OpMode {
     private final Pose startPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(3, 3, Math.toRadians(-20)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose pickup1Pose = new Pose(20, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose pickup2Pose = new Pose(3, 38, Math.toRadians(90)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private Path scorePreload;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
+    boolean shooting=false,firstshoot=true;
+
 
 
 
@@ -58,9 +74,10 @@ public class StateAuto extends OpMode {
         switch (pathState) {
             case 0:
 
+                ashoot();
                 //flywheel spee up, ID read,turn table turn right,shoot;
 //                follower.followPath(scorePreload);
-                setPathState(1);
+               if(adrive) setPathState(1);
                 break;
             case 1:
 
@@ -157,6 +174,9 @@ public class StateAuto extends OpMode {
 
 
         follower.update();
+        statusupdate();
+        turntable();
+        if(!shooting)flyprepower(flypower);
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
@@ -176,7 +196,10 @@ public class StateAuto extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        rbga=new bass();
+        outtaketimer=new Timer();
+
+
+        rbga=new base();
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -266,6 +289,121 @@ public class StateAuto extends OpMode {
     @Override
     public void stop() {
     }
+    public void statusupdate()
+
+    {
+        turretPos=turretSpin.getCurrentPosition();
+
+        if(shooting) {
+
+            result = Limelight.getLatestResult();
+            limeValid = result.isValid();
+            if(limeValid)  {
+                Tx=result.getTx();
+                Ty=result.getTy();
+
+            }
+            flyCurrentVel=flyBot.getVelocity();
+            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+            filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+
+        }
+
+
+    }
+
+    public void  turntable()
+
+    {
+
+        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx);
+        turnPower= Range.clip(turnPower,-rbga.turnMax,rbga.turnMax);
+        turretSpin.setPower(turnPower);
+    }
+
+
+
+
+
+    public void flyprepower(double power) {
+        flyBot.setPower(power);
+        flyTop.setPower(power);
+    }
+    public void stopDriveMotors(){
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
+
+
+    public void flywheel() {
+
+        double fpower;
+        fpower=rbga.flyspeed(flyCurrentVel,Ty);
+        flyBot.setPower(fpower);
+        flyTop.setPower(fpower);
+        hoodPos=rbga.flyhood(Ty);
+        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
+
+            Hood.setPosition(hoodPos);
+            hoodLastPos=hoodPos;
+        }
+
+
+    }
+
+    public boolean ashoot() {
+
+
+        if (!shooting){
+            shooting = true;
+            Intake.setVelocity(rbga.intakeVel);
+            shootState = preshoot;
+            adrive=false;
+        }
+        if(firstshoot) Ty=10.5;
+
+        flywheel();
+
+       switch (shootState){
+            case preshoot:
+                if(rbga.flyspeedgap <= 40&&rbga.Txgap<2){
+
+                    Blocker.setPosition(rbga.blockOpen);
+                    outtaketimer.resetTimer();
+                    shootState = shoot;
+
+                }
+                break;
+            case shoot:
+                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+
+                if ((filteredIntakeCurrent < 700 || outtaketimer.getElapsedTime()>2500)){
+                    shootState = done;
+                }
+
+
+                break;
+            case done:
+                shooting = false;
+                adrive=true;
+                firstshoot=false;
+                return true;
+
+
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
         scorePreload = new Path(new BezierLine(startPose, scorePose));
@@ -314,10 +452,10 @@ public class StateAuto extends OpMode {
 
 
     public void Hw_init() {
-//        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-//        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-//        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-//        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
@@ -326,7 +464,7 @@ public class StateAuto extends OpMode {
         beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
 
 
-        Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
+        //Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
 
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
@@ -348,17 +486,20 @@ public class StateAuto extends OpMode {
 //        RevHubOrientationOnRobot orientationOnRobot = new
 //                RevHubOrientationOnRobot(logoDirection, usbDirection);
 //        imu.initialize(new IMU.Parameters(orientationOnRobot));
+//     .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+//                .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+//                .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+//                .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
 
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
-//        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-//        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-//        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-//        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-//
-//        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -472,6 +613,8 @@ public class StateAuto extends OpMode {
 
 
     }
+
+
 
 
 }

@@ -4,29 +4,13 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.util.InterpLUT;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import java.util.Arrays;
 
-import java.util.List;
-
-public class bass {
+public class base {
 
 
     Limelight3A limelight;
@@ -38,7 +22,7 @@ public class bass {
     InterpLUT Hoodlut = new InterpLUT();
     public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50;
+    public double flyspeedgap=500,Txgap=50,turnMax=0.3;
 
 
     public double targetVel=0;
@@ -50,7 +34,36 @@ public class bass {
     double Tx_offset=0;
     int turretCwlim=-150;
     int turretCcwlim=150;
+    public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
+    public double intakeVel = 2500;
+
+    public class MedianFilter {
+        private final double[] window;
+        private int index = 0;
+        private boolean filled = false;
+
+        public MedianFilter(int size) {
+            window = new double[size];
+        }
+
+        public double update(double value) {
+            window[index] = value;
+            index = (index + 1) % window.length;
+
+            if (index == 0) {
+                filled = true;
+            }
+
+            double[] temp = filled
+                    ? window.clone()
+                    : Arrays.copyOf(window, index);
+
+            Arrays.sort(temp);
+
+            return temp[temp.length / 2];
+        }
+    }
 
 
     public void init()
@@ -123,14 +136,8 @@ public class bass {
 
 
     public double  turretturn(boolean outtake , boolean valid,int target, int turretPos, double tx){
-
-
         double turretPower;
-
-
-
         if (outtake)  {
-
             if(valid) {
                 turretPower = turretPID.calculate(tx, Tx_offset);
                 limeLocked=true;
@@ -154,7 +161,6 @@ public class bass {
                 turretPower=0;
                 return turretPower;
             }
-
 
 
         }

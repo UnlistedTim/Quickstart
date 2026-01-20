@@ -5,8 +5,6 @@ import android.annotation.SuppressLint;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -18,7 +16,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -53,10 +50,10 @@ public class TeleopStateA extends LinearOpMode {
 
     BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
 
-    MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
 
-    public bass rbg= new bass();
+
+    public base rbg= new base();
 
 
 
@@ -79,7 +76,6 @@ public class TeleopStateA extends LinearOpMode {
 
     public static double intakeMaxVel = 3000;
 
-    public static double intakeVel = 2500;
     // private PIDController controller;
     public final int max_vel = 1800;
 
@@ -90,6 +86,10 @@ public class TeleopStateA extends LinearOpMode {
     public boolean debouncearr[] = {false,false,false};
 
     LLResult result;
+
+    public double hoodLastPos = 0.0;
+
+    public double hoodPos = 0;
 
     int i = 0;
 
@@ -106,9 +106,7 @@ public class TeleopStateA extends LinearOpMode {
    // int pattern_id = 21, last_ball_number;
     //public double hoodFar = 0.62;
 
-    public double hoodLastPos = 0.0;
 
-    public double hoodPos = 0;
     boolean[] flag = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
     boolean recevieinfo = false;
@@ -158,7 +156,7 @@ public class TeleopStateA extends LinearOpMode {
     public static double targetTurretPos = 0.0;
     public int turretPos = 0;
     public int turretTarget=0;
-    public double turnPower=0 ,turnMax=0.3;
+    public double turnPower=0 ;
     public double flyCurrentVel = 0;
 
     int shootCount = 0;
@@ -291,6 +289,7 @@ public class TeleopStateA extends LinearOpMode {
 
     {
         turretPos=turretSpin.getCurrentPosition();
+
         if(outtakestate) {
 
            result = Limelight.getLatestResult();
@@ -301,7 +300,8 @@ public class TeleopStateA extends LinearOpMode {
 
           }
             flyCurrentVel=flyBot.getVelocity();
-
+            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
 
@@ -313,7 +313,7 @@ public class TeleopStateA extends LinearOpMode {
     {
 
        turnPower= rbg.turretturn(outtakestate,limeValid,turretTarget,turretPos,Tx);
-       turnPower= Range.clip(turnPower,-turnMax,turnMax);
+       turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
        turretSpin.setPower(turnPower);
     }
 
@@ -344,32 +344,14 @@ public class TeleopStateA extends LinearOpMode {
 
     }
 
-    public void limeTrack(){
-        LLResult result = Limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            id = fiducial.getFiducialId(); // The ID number of the fiducial
-        }
-
-        boolean limeValid = result.isValid();
-
-        if (limeValid){
-
-            Tx = result.getTx();
-            Ty = result.getTy();
-
-
-
-        }
-    }
 
     public void intakeStart(){
         flyTop.setPower(0);
         flyBot.setPower(0);
         checker = new BooleanConfidenceChecker();
-        intakeCurrentFilter = new MedianFilter(10);
+       // intakeCurrentFilter = new MedianFilter(10);
         Blocker.setPosition(rbg.blockClose);
-        Intake.setVelocity(intakeVel);
+        Intake.setVelocity(rbg.intakeVel);
     }
 
 
@@ -651,32 +633,6 @@ public class TeleopStateA extends LinearOpMode {
         }
     }
 
-    public class MedianFilter {
-        private final double[] window;
-        private int index = 0;
-        private boolean filled = false;
-
-        public MedianFilter(int size) {
-            window = new double[size];
-        }
-
-        public double update(double value) {
-            window[index] = value;
-            index = (index + 1) % window.length;
-
-            if (index == 0) {
-                filled = true;
-            }
-
-            double[] temp = filled
-                    ? window.clone()
-                    : Arrays.copyOf(window, index);
-
-            Arrays.sort(temp);
-
-            return temp[temp.length / 2];
-        }
-    }
 
 
     public void mecanumRobotDrive(double y, double x, double rx){
@@ -945,7 +901,7 @@ public class TeleopStateA extends LinearOpMode {
 
         if (!shooting){
             shooting = true;
-            Intake.setVelocity(intakeVel);
+            Intake.setVelocity(rbg.intakeVel);
             shootState = ShootState.PRE_SHOOT;
         }
         switch (shootState){
@@ -959,8 +915,7 @@ public class TeleopStateA extends LinearOpMode {
                 }
                 break;
             case SHOOT:
-                 rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-                filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
+
 
                 if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) || stoptimers(2500,outtake)){
                     shootState = ShootState.DONE;
