@@ -44,9 +44,9 @@ public class StateAuto extends OpMode {
 
 
     private int pathState;
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
+    private final Pose startPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(3, 3, Math.toRadians(-20)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose pickup1Pose = new Pose(7, 22.5, Math.toRadians(90)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1Pose = new Pose(20, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose pickup2Pose = new Pose(3, 38, Math.toRadians(90)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private Path scorePreload;
@@ -59,7 +59,7 @@ public class StateAuto extends OpMode {
             case 0:
 
                 //flywheel spee up, ID read,turn table turn right,shoot;
-                follower.followPath(scorePreload);
+//                follower.followPath(scorePreload);
                 setPathState(1);
                 break;
             case 1:
@@ -71,13 +71,13 @@ public class StateAuto extends OpMode {
             */
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
+//                if (!follower.isBusy()) {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup1, true);
                     setPathState(2);
-                }
+//                }
                 break;
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
@@ -276,7 +276,7 @@ public class StateAuto extends OpMode {
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, pickup1Pose))
+                .addPath(new BezierLine(startPose, pickup1Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
                 .build();
 
@@ -314,10 +314,10 @@ public class StateAuto extends OpMode {
 
 
     public void Hw_init() {
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+//        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+//        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+//        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+//        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
@@ -350,15 +350,15 @@ public class StateAuto extends OpMode {
 //        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
 
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+//        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+//        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+//        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+//
+//        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -366,10 +366,10 @@ public class StateAuto extends OpMode {
         Intake.setVelocity(0);
         Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flyBot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
