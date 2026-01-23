@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.util.InterpLUT;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
@@ -74,9 +75,10 @@ public class base {
 
         flyPID.setPID(flyp, flyi, flyd);
         turretPID.setPID(turretkP, turretkI, turretkD);
-        Flylut.add(-13.5,1750); //far
-        Flylut.add(-12.7,1700); //far
-        Flylut.add(-11.6 , 1550); // far
+        Flylut.add(-13.5,1720); //far
+        Flylut.add(-12.7,1680); //far
+        Flylut.add(-12,1570); //far
+        Flylut.add(-11.6 , 1530); // far
         Flylut.add(-9.27,1400); //close
         Flylut.add(-2.71,1240); //close
         Flylut.add(6.28,1060); //close
@@ -196,6 +198,10 @@ public class base {
 
     }
 
+    public double getVel(double ty){
+        return Flylut.get(ty);
+    }
+
     public double  flyspeed(double currentVel,double ty) {
 
 
@@ -203,6 +209,7 @@ public class base {
         if (ty < 11 && ty > -13.5) {
 
             targetVel = Flylut.get(ty);// Tx offset
+
             Tx_offset=0;
 
         }
