@@ -872,6 +872,7 @@ public class TeleopState extends LinearOpMode {
             shooting = true;
             Intake.setVelocity(intakeVel);
             shootState = ShootState.PRE_SHOOT;
+
         }
         switch (shootState){
             case PRE_SHOOT:

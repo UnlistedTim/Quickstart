@@ -17,7 +17,7 @@ public class base {
   //  LLResult result = limelight.getLatestResult();
 
   //  double Tx=0,Ty=0;
-    boolean limeLocked=false;
+   public boolean limelocked=false;
     InterpLUT Flylut = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
     public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
@@ -27,16 +27,18 @@ public class base {
 
     public double targetVel=0;
     public double blockClose = 0.3, blockOpen = 0.65;
+    public double tripodIdle = 0.95, tripodPark = 0.27;
+
 
     //double turretPower=0;
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     double Tx_offset=0;
-    int turretCwlim=-150;
-    int turretCcwlim=150;
+    int turretCwlim=-200;
+    int turretCcwlim=200;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
-    public double intakeVel = 2500;
+    public double intakeVel = 2500,outtakVel=2599;
 
     public class MedianFilter {
         private final double[] window;
@@ -140,24 +142,24 @@ public class base {
         if (outtake)  {
             if(valid) {
                 turretPower = turretPID.calculate(tx, Tx_offset);
-                limeLocked=true;
+                limelocked=true;
                 Txgap=Math.abs(tx-Tx_offset);
                 if (turretPos > turretCcwlim- 10 &&  turretPower  > 0) {
                     turretPower= -0.3;
 //                    target = 0;
-                    limeLocked = false;
+                    limelocked = false;
                 }
                 if (turretPos < (turretCwlim + 10) && turretPower< 0) {
                     turretPower= 0.3;
 //                    target = 0;
-                    limeLocked = false;
+                    limelocked = false;
                 }
 
 
                 return  turretPower ;
             }
 
-             if (limeLocked) {
+             if (limelocked) {
                 turretPower=0;
                 return turretPower;
             }

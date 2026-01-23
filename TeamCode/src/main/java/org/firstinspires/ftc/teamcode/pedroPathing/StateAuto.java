@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing; // make sure this aligns with class location
 
+import static java.lang.Thread.sleep;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -29,7 +31,7 @@ public class StateAuto extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
-    public base rbga;
+  //  public base rbga;
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
 
     private Servo Hood, Blocker, Tripod;
@@ -41,7 +43,7 @@ public class StateAuto extends OpMode {
 
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
 
-    public double hoodPos = 0;
+    public double hoodPos = 0,outtaketime=0;
 
     public int shootState=0 ,turretTarget=0 ;
    public final int preshoot=0,shoot=1,done=2;
@@ -49,7 +51,7 @@ public class StateAuto extends OpMode {
     int  turretPos;
 
    // private GoBildaPinpointDriver Pinpoint;
-    public boolean red=true,recevieinfo=false,adrive=false,limeValid=false;
+    public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false;
     double  rawIntakeCurrent=0,filteredIntakeCurrent,turnPower;
 
 
@@ -58,14 +60,17 @@ public class StateAuto extends OpMode {
 
     private int pathState;
     private final Pose startPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
-    private final Pose scorePose = new Pose(3, 3, Math.toRadians(-20)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose pickup1Pose = new Pose(20, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose pickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose pickup2Pose = new Pose(3, 38, Math.toRadians(90)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose scorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose pickup1Pose = new Pose(15, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1PoseA = new Pose(42, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2Pose = new Pose(42, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup3Pose = new Pose(8, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose endPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private Path scorePreload;
-    private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
+    private PathChain approachPickup1, grabPickup1,scorePickup1, approachPickup2,grabPickup2, scorePickup2, grabPickup3, parkEnd,scorePickup3;
     boolean shooting=false,firstshoot=true;
+    public base rbga=new base();
 
 
 
@@ -77,9 +82,23 @@ public class StateAuto extends OpMode {
                 ashoot();
                 //flywheel spee up, ID read,turn table turn right,shoot;
 //                follower.followPath(scorePreload);
-               if(adrive) setPathState(1);
+               if(adrive) {
+                   follower.followPath(approachPickup1, true);
+                   setPathState(1);
+                   Blocker.setPosition(rbga.blockClose);
+                   adrive=false;
+               }
                 break;
             case 1:
+
+                if (!follower.isBusy()) {
+                    /* Grab Sample */
+
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(grabPickup1, 0.31,true);
+                    setPathState(2);
+                }
 
             /* You could check for
             - Follower State: "if(!follower.isBusy()) {}"
@@ -92,65 +111,103 @@ public class StateAuto extends OpMode {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup1, true);
-                    setPathState(2);
+
 //                }
                 break;
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if (!follower.isBusy()) {
-                    /* Grab Sample */
+                    /* Score Sample */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(scorePickup1, true);
                     setPathState(3);
+
                 }
                 break;
             case 3:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
-                    /* Score Sample */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup2, true);
+                if (!follower.isBusy()) {
+
+
                     setPathState(4);
                 }
+
                 break;
+
+
+
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
-                if (!follower.isBusy()) {
-                    /* Grab Sample */
 
+                ashoot();
+               if(adrive){
+
+                    /* Grab Sample */
+                   follower.followPath(approachPickup2, false);
+
+                   adrive=false;
+                   setPathState(5);
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup2, true);
-                    setPathState(-1);
+
                 }
                 break;
+
             case 5:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
-                    /* Score Sample */
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup3, true);
+                if (!follower.isBusy()) {
+                    Blocker.setPosition(rbga.blockClose);
+                    actionTimer.resetTimer();
+                    /* Grab Sample */
+                    follower.followPath(grabPickup2, 0.4,false);
+
+
+
                     setPathState(6);
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+
                 }
                 break;
-            case 6:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
-                if (!follower.isBusy()) {
-                    /* Grab Sample */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup3, true);
+            case 6:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if (actionTimer.getElapsedTime()>3000) {
+
+
+                    follower.followPath(scorePickup2,true);
                     setPathState(7);
                 }
-                break;
+
+             break;
+
             case 7:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
+                if (!follower.isBusy()) setPathState(7);;
+
+                break;
+            case 8:
+                ashoot();
+                if (adrive) {
+                    /* Grab Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(parkEnd, true);
+                    adrive=false;
+                    setPathState(8);
+
+                }
+                break;
+
+            case 9:  /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
+                    flypower=0;
+                    Blocker.setPosition(rbga.blockClose);
+
                     setPathState(-1);
+
                 }
                 break;
         }
@@ -176,7 +233,6 @@ public class StateAuto extends OpMode {
         follower.update();
         statusupdate();
         turntable();
-        if(!shooting)flyprepower(flypower);
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
@@ -192,14 +248,17 @@ public class StateAuto extends OpMode {
      **/
     @Override
     public void init() {
+      //  rbga=new base();
         Hw_init();
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         outtaketimer=new Timer();
+        actionTimer=new Timer();
 
 
-        rbga=new base();
+
+        rbga.init();
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -309,6 +368,9 @@ public class StateAuto extends OpMode {
 
         }
 
+        else   flyprepower(flypower);
+
+
 
     }
 
@@ -353,23 +415,23 @@ public class StateAuto extends OpMode {
 
     }
 
-    public boolean ashoot() {
+    public void ashoot() {
 
 
         if (!shooting){
             shooting = true;
-            Intake.setVelocity(rbga.intakeVel);
             shootState = preshoot;
-            adrive=false;
+
+            rbga.Txgap=30;//avoid to use last time value
         }
-        if(firstshoot) Ty=10.5;
+        if(firstshoot) {Ty=-12.4;}
 
         flywheel();
 
        switch (shootState){
             case preshoot:
                 if(rbga.flyspeedgap <= 40&&rbga.Txgap<2){
-
+                    Intake.setVelocity(rbga.outtakVel);
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
                     shootState = shoot;
@@ -377,10 +439,11 @@ public class StateAuto extends OpMode {
                 }
                 break;
             case shoot:
-                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+//                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+//                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+                outtaketime=outtaketimer.getElapsedTime();
 
-                if ((filteredIntakeCurrent < 700 || outtaketimer.getElapsedTime()>2500)){
+                if ((outtaketime>700&&filteredIntakeCurrent < 650 ) ||outtaketime>2500){
                     shootState = done;
                 }
 
@@ -388,13 +451,15 @@ public class StateAuto extends OpMode {
                 break;
             case done:
                 shooting = false;
+                limeValid=false;
+                rbga.limelocked=false;
                 adrive=true;
                 firstshoot=false;
-                return true;
+               // return true;
 
 
         }
-        return false;
+        // return false;
     }
 
 
@@ -413,22 +478,30 @@ public class StateAuto extends OpMode {
     scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup1 = follower.pathBuilder()
+
+        approachPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, pickup1Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .setLinearHeadingInterpolation(startPose.getHeading(), pickup1Pose.getHeading())
+                .build();
+
+        grabPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup1Pose, pickup1PoseA))
+                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), pickup1PoseA.getHeading())
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup1Pose, scorePose))
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(pickup1PoseA, scorePose))
+                .setLinearHeadingInterpolation(pickup1PoseA.getHeading(), scorePose.getHeading())
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup2 = follower.pathBuilder()
+       approachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, pickup2Pose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
                 .build();
+
+
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup2 = follower.pathBuilder()
@@ -437,9 +510,10 @@ public class StateAuto extends OpMode {
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, pickup3Pose))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+        grabPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup2Pose, pickup2PoseA))
+               // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .setConstantHeadingInterpolation(Math.toRadians(340))
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -447,6 +521,11 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .build();
+        parkEnd= follower.pathBuilder()
+                .addPath(new BezierLine(scorePose, endPose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), endPose.getHeading())
+                .build();
+
     }
 
 
@@ -533,6 +612,8 @@ public class StateAuto extends OpMode {
 
         turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Blocker.setPosition(rbga.blockClose);
+        Tripod.setPosition(rbga.tripodIdle);
 
 
 //        Flylut.add(-13.5,1750); //far

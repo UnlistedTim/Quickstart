@@ -59,7 +59,6 @@ public class TeleopStateA extends LinearOpMode {
 
     Pose2D pose;
 
-    public double tripodIdle = 0.95, tripodPark = 0.27;
 
     public boolean lift = false;
 
@@ -215,6 +214,7 @@ public class TeleopStateA extends LinearOpMode {
                 case IDLE:
                     if (stoptimers(300,outtake )){
                         intakeStart();
+                        rbg.limelocked=false;
                         state = State.INTAKE;
                         flyprepower(0.4);
                         break;
@@ -258,13 +258,13 @@ public class TeleopStateA extends LinearOpMode {
 
             if (gamepad1.psWasPressed()){
                 if (!lift){
-                    Tripod.setPosition(tripodPark);
+                    Tripod.setPosition(rbg.tripodPark);
                     drive = false;
                     lift = true;
                 }
 
                 else{
-                    Tripod.setPosition(tripodIdle);
+                    Tripod.setPosition(rbg.tripodIdle);
                     lift = false;
                     drive = true;
                 }
@@ -312,7 +312,7 @@ public class TeleopStateA extends LinearOpMode {
 
     {
 
-       turnPower= rbg.turretturn(outtakestate,limeValid,turretTarget,turretPos,Tx);
+       turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx);
        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
        turretSpin.setPower(turnPower);
     }
@@ -360,7 +360,7 @@ public class TeleopStateA extends LinearOpMode {
         Hw_init();
         rbg.init();
         Blocker.setPosition(rbg.blockClose);
-        Tripod.setPosition(tripodIdle);
+        Tripod.setPosition(rbg.tripodIdle);
     //    Limelight.pipelineSwitch(6);
       //  flyPID.setPID(flyp, flyi, flyd);
         try {
@@ -766,6 +766,8 @@ public class TeleopStateA extends LinearOpMode {
 
         turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Blocker.setPosition(rbg.blockClose);
+        Tripod.setPosition(rbg.tripodIdle);
 
 
 //        Flylut.add(-13.5,1750); //far
@@ -902,7 +904,10 @@ public class TeleopStateA extends LinearOpMode {
         if (!shooting){
             shooting = true;
             Intake.setVelocity(rbg.intakeVel);
+            rbg.Txgap=30;
             shootState = ShootState.PRE_SHOOT;
+
+
         }
         switch (shootState){
             case PRE_SHOOT:
@@ -939,8 +944,9 @@ public class TeleopStateA extends LinearOpMode {
             case DONE:
                 drive = true;
                 shooting = false;
-
                 ball_count = 0;
+                limeValid=false;
+                rbg.limelocked=false;
                 stoptimers(0, outtake);
                 return true;
 
