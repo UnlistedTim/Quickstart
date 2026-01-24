@@ -452,9 +452,7 @@ public class TeleopStateA extends LinearOpMode {
 
         Limelight.start();
 
-        configurePinpoint();
 
-        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
 
 
 
@@ -652,9 +650,9 @@ public class TeleopStateA extends LinearOpMode {
         Pinpoint.update();
         pose = Pinpoint.getPosition();
 
-        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
-        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
-        dashboardTelemetry.update();
+//        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
+//        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
+//        dashboardTelemetry.update();
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
@@ -718,6 +716,12 @@ public class TeleopStateA extends LinearOpMode {
 
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
+
+        configurePinpoint();
+
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
+
+
 
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
@@ -903,7 +907,7 @@ public class TeleopStateA extends LinearOpMode {
          * you move the robot to the left.
          */
         Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
         /*
          * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
@@ -920,7 +924,7 @@ public class TeleopStateA extends LinearOpMode {
 
         if (!shooting){
             shooting = true;
-            Intake.setVelocity(rbg.intakeVel);  //shootingIntakeVel
+            Intake.setVelocity(shootingIntakeVel);  //shootingIntakeVel
             rbg.Txgap=30;
             shootState = ShootState.PRE_SHOOT;
 

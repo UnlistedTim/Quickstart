@@ -36,8 +36,8 @@ public class base {
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     double Tx_offset=0;
-    int turretCwlim=-200;
-    int turretCcwlim=200;
+    int turretCwlim=-650;
+    int turretCcwlim=650;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
     public double intakeVel = 2500,outtakVel=2599;
