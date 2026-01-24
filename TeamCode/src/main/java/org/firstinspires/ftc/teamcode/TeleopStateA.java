@@ -652,6 +652,10 @@ public class TeleopStateA extends LinearOpMode {
         Pinpoint.update();
         pose = Pinpoint.getPosition();
 
+        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
+        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
+        dashboardTelemetry.update();
+
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]

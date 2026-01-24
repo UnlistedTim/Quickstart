@@ -80,18 +80,41 @@ public class base {
         turretPID.setPID(turretkP, turretkI, turretkD);
         Flylut.add(-13.5,1720); //far
         Flylut.add(-12.7,1680); //far
-        Flylut.add(-12,1570); //far
-        Flylut.add(-11.6 , 1530); // far
-        Flylut.add(-9.27,1440); //close
+//        Flylut.add(-12,1570); //far
+//        Flylut.add(-11.6 , 1530); // far
+
+
+        Flylut.add(-12.2,1630); //far
+
+        Flylut.add(-11.85,1610); //far
+
+
+
+
+
+
+
+
+
+        Flylut.add(-9.27,1400); //close
         Flylut.add(-2.71,1240); //close
         Flylut.add(6.28,1060); //close
         Flylut.add(11 , 1000); // close
 
         Hoodlut.add(-13.5,0.78);   //far
         Hoodlut.add(-12.7,0.75);   //far
-        Hoodlut.add(-11.6 ,0.7);    //far
-        Hoodlut.add(-9.27,0.55);
-        Hoodlut.add(-2.71,0.45);
+//        Hoodlut.add(-11.6 ,0.7);    //far
+
+
+        Hoodlut.add(-12.2,0.75);   //far
+
+        Hoodlut.add(-11.8,0.75);   //far
+
+
+
+
+        Hoodlut.add(-9.27,0.65);
+        Hoodlut.add(-2.71,0.48);
         Hoodlut.add(6.28,0.2);
         Hoodlut.add(11,0.18);
 
