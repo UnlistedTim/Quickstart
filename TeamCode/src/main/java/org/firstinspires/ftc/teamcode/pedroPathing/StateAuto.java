@@ -173,7 +173,7 @@ public class StateAuto extends OpMode {
 
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (actionTimer.getElapsedTime()>3000) {
+                if (actionTimer.getElapsedTime()>1500) {
 
 
                     follower.followPath(scorePickup2,true);
@@ -421,10 +421,9 @@ public class StateAuto extends OpMode {
         if (!shooting){
             shooting = true;
             shootState = preshoot;
-
             rbga.Txgap=30;//avoid to use last time value
         }
-        if(firstshoot) {Ty=-12.4;}
+        if(firstshoot) {Ty=-12.2;}
 
         flywheel();
 

@@ -227,7 +227,6 @@ public class TeleopStateA extends LinearOpMode {
 
                     if ( gamepad2.leftBumperWasPressed() || (stoptimers(1000,intake) && beamBreakCount())){
                         state = State.OUTTAKE;
-
                         outtakestate=true;
                         break;
                     }

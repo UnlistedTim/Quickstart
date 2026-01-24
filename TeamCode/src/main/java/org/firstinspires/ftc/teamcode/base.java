@@ -21,7 +21,8 @@ public class base {
    public boolean limelocked=false;
     InterpLUT Flylut = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
-    public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
+    //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
+    public static double turretkP = 0.028, turretkI = 0.05, turretkD = 0.002;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
     public double flyspeedgap=500,Txgap=50,turnMax=0.3;
 
