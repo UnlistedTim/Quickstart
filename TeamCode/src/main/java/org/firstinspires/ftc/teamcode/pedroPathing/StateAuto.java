@@ -378,7 +378,7 @@ public class StateAuto extends OpMode {
 
     {
 
-        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx);
+        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, 0);
         turnPower= Range.clip(turnPower,-rbga.turnMax,rbga.turnMax);
         turretSpin.setPower(turnPower);
     }

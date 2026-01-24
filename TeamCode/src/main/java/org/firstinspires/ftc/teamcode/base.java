@@ -42,6 +42,8 @@ public class base {
 
     public double intakeVel = 2500,outtakVel=2599;
 
+
+
     public class MedianFilter {
         private final double[] window;
         private int index = 0;
@@ -80,7 +82,7 @@ public class base {
         Flylut.add(-12.7,1680); //far
         Flylut.add(-12,1570); //far
         Flylut.add(-11.6 , 1530); // far
-        Flylut.add(-9.27,1400); //close
+        Flylut.add(-9.27,1440); //close
         Flylut.add(-2.71,1240); //close
         Flylut.add(6.28,1060); //close
         Flylut.add(11 , 1000); // close
@@ -140,13 +142,13 @@ public class base {
 
 
 
-    public double  turretturn(boolean outtake , boolean valid,int target, int turretPos, double tx){
+    public double  turretturn(boolean outtake , boolean valid,int target, int turretPos, double tx, double offset){
         double turretPower;
         if (outtake)  {
             if(valid) {
-                turretPower = turretPID.calculate(tx, Tx_offset);
+                turretPower = turretPID.calculate(tx, offset);
                 limelocked=true;
-                Txgap=Math.abs(tx-Tx_offset);
+                Txgap=Math.abs(tx-offset);
                 if (turretPos > turretCcwlim- 10 &&  turretPower  > 0) {
                     turretPower= -0.3;
 //                    target = 0;
@@ -206,15 +208,15 @@ public class base {
     public double  flyspeed(double currentVel,double ty) {
 
 
-
         if (ty < 11 && ty > -13.5) {
 
             targetVel = Flylut.get(ty);// Tx offset
 
-            Tx_offset=0;
+//            Tx_offset=0;
 
         }
         else targetVel = 0.75;
+
 
 
         targetVel = Math.round(targetVel / 0.001) * 0.001;

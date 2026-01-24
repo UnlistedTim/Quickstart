@@ -123,13 +123,19 @@ public class TeleopStateA extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double Tx = 100;
-    double Tx_offset = 0;
+    public static double Tx_offset = 0;
 
     double rawIntakeCurrent;
 
     double filteredIntakeCurrent;
 
     double Ty = 0.0;
+
+    public static int flywheelDebugVel = 1600;
+
+    public static double  shootingIntakeVel = 2000;
+
+    public static double hoodDebugPos = 0.6;
     double angle_to_goal = 0.0;
 //    InterpLUT Flylut = new InterpLUT();
 //    InterpLUT Hoodlut = new InterpLUT();
@@ -307,6 +313,8 @@ public class TeleopStateA extends LinearOpMode {
 
 
         dashboardTelemetry.addData("TY",Ty);
+        dashboardTelemetry.addData("Current fly vel", flyCurrentVel);
+        dashboardTelemetry.update();
 
 
 
@@ -316,7 +324,7 @@ public class TeleopStateA extends LinearOpMode {
 
     {
 
-       turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx);
+       turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
        turretSpin.setPower(turnPower);
     }
@@ -464,16 +472,16 @@ public class TeleopStateA extends LinearOpMode {
 
     public boolean beamBreakCount(){
         BBState = beamBreaker.getState();
-//        if (!BBState && !debounce){
-//            ball_count++;
-//            if (ball_count == 3){
-//                Intake.setVelocity(100);
-//                resetIntakeVars();
-//               // state = State.OUTTAKE;
-//                return true;
-//            }
-//            debounce = true;
-//        }
+        if (!BBState && !debounce){
+            ball_count++;
+            if (ball_count == 3){
+                Intake.setVelocity(100);
+                resetIntakeVars();
+               // state = State.OUTTAKE;
+                return true;
+            }
+            debounce = true;
+        }
 
         if (checker.update(!BBState)) {
             Intake.setVelocity(100);
@@ -908,7 +916,7 @@ public class TeleopStateA extends LinearOpMode {
 
         if (!shooting){
             shooting = true;
-            Intake.setVelocity(rbg.intakeVel);
+            Intake.setVelocity(rbg.intakeVel);  //shootingIntakeVel
             rbg.Txgap=30;
             shootState = ShootState.PRE_SHOOT;
 
@@ -916,7 +924,7 @@ public class TeleopStateA extends LinearOpMode {
         }
         switch (shootState){
             case PRE_SHOOT:
-                if(rbg.flyspeedgap <= 40&&rbg.Txgap<1){
+                if(rbg.flyspeedgap <= 40&&rbg.Txgap <1){
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
@@ -926,7 +934,7 @@ public class TeleopStateA extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) ){
+                if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) ){  //TODO OLD 700 vel
                     shootState = ShootState.DONE;
                 }
                 break;
