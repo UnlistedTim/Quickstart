@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -27,7 +26,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 
-import java.util.Arrays;
 import java.util.List;
 
 //test
@@ -54,6 +52,10 @@ public class TeleopStateA extends LinearOpMode {
 
 
     public base rbg= new base();
+
+    double startHeading, startX, startY;
+
+    boolean allianceRed = false;
 
 
 
@@ -160,6 +162,10 @@ public class TeleopStateA extends LinearOpMode {
     public static double turretPower = 0.0;
     public static double targetTurretPos = 0.0;
     public int turretPos = 0;
+
+    public double fieldRelativeAngle = 0;
+
+    public double robotRelativeTurretAngle = 0;
     public int turretTarget=0;
     public double turnPower=0 ;
     public double flyCurrentVel = 0;
@@ -284,12 +290,12 @@ public class TeleopStateA extends LinearOpMode {
 
             statusupdate();//caputure all the hardware reading info.
 
-            turntable();
+//            turntable();
+            turntablePP();
 
 
         }
     }
-
 
     public void statusupdate()
 
@@ -297,6 +303,12 @@ public class TeleopStateA extends LinearOpMode {
         turretPos=turretSpin.getCurrentPosition();
 
         if(outtakestate) {
+
+            fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
+
+            robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -2.36,2.36);
+
+
 
            result = Limelight.getLatestResult();
            limeValid = result.isValid();
@@ -327,6 +339,16 @@ public class TeleopStateA extends LinearOpMode {
        turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
        turretSpin.setPower(turnPower);
+    }
+
+
+    public void  turntablePP()
+
+    {
+
+        turnPower= rbg.turretturnPP(outtakestate,turretPos, (robotRelativeTurretAngle * rbg.ticksPerDegree));
+        turnPower= Range.clip(turnPower,-rbg.turnMaxPP,rbg.turnMaxPP);
+        turretSpin.setPower(turnPower);
     }
 
 
@@ -375,14 +397,6 @@ public class TeleopStateA extends LinearOpMode {
         Tripod.setPosition(rbg.tripodIdle);
     //    Limelight.pipelineSwitch(6);
       //  flyPID.setPID(flyp, flyi, flyd);
-        try {
-            red = (boolean) blackboard.get("RED");
-
-        } catch (NullPointerException e) {
-            red = true;
-            telemetry.addLine("Color transfer Error!");
-
-        }
 //        try {
 //            pattern_id = (int) blackboard.get("ID");
 //        } catch (NullPointerException e) {
@@ -677,6 +691,9 @@ public class TeleopStateA extends LinearOpMode {
         rightBack.setPower(backRightPower);
 
         telemetry.addData("Angle", botHeading);
+        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
+        telemetry.addData("Y", pose.getY(DistanceUnit.INCH));
+
 
 
         telemetry.update();
@@ -719,8 +736,7 @@ public class TeleopStateA extends LinearOpMode {
 
         configurePinpoint();
 
-        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
-
+        getAutoVars();
 
 
 
@@ -919,6 +935,48 @@ public class TeleopStateA extends LinearOpMode {
          */
         Pinpoint.resetPosAndIMU();
     }
+
+    public void getAutoVars(){
+
+
+        try {
+            startHeading = (double) blackboard.get("Heading");
+        }
+        catch (NullPointerException e){
+            startHeading = 3*Math.PI/2;
+        }
+
+        try {
+            startX = (double) blackboard.get("X");
+        }
+
+        catch (NullPointerException e){
+            startX = rbg.REDXOFFSET;
+        }
+
+        try {
+            startY = (double) blackboard.get("Y");
+        }
+
+        catch (NullPointerException e){
+            startY = rbg.REDYOFFSET;
+        }
+
+        try{
+            allianceRed = (boolean) blackboard.get("Color");
+        }
+        catch (NullPointerException e){
+            allianceRed = true;
+        }
+
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 67, 67, AngleUnit.RADIANS, Math.PI/2));
+
+//        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+
+
+
+    }
+
 
     public boolean shoot(){
 

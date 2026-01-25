@@ -30,6 +30,9 @@ import org.firstinspires.ftc.teamcode.base;
 public class StateAuto extends OpMode {
 
     private Follower follower;
+
+
+
     private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
   //  public base rbga;
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
@@ -184,7 +187,7 @@ public class StateAuto extends OpMode {
 
             case 7:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
-                if (!follower.isBusy()) setPathState(7);;
+                if (!follower.isBusy()) setPathState(8);;
 
                 break;
             case 8:
@@ -195,7 +198,7 @@ public class StateAuto extends OpMode {
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(parkEnd, true);
                     adrive=false;
-                    setPathState(8);
+                    setPathState(9);
 
                 }
                 break;
@@ -204,7 +207,22 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
                     flypower=0;
+                    flyprepower(0);
                     Blocker.setPosition(rbga.blockClose);
+                    if (red) {
+                        blackboard.put("Heading", follower.getPose().getHeading());
+                        blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET );
+                        blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
+
+                    }
+
+                    else {
+                        blackboard.put("Heading",follower.getPose().getHeading());
+                        blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET );
+                        blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET) ;
+                    }
+
+
 
                     setPathState(-1);
 
@@ -302,6 +320,9 @@ public class StateAuto extends OpMode {
             }
 
         }
+
+
+        blackboard.put("COLOR",   red);
 
 
         if (red) {

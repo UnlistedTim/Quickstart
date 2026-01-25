@@ -33,7 +33,7 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-
+    public DcMotorEx turretSpin;
 
     public static int IntakeVel = 0;
     int openInARow = 1;
@@ -152,6 +152,7 @@ public class robotBDebug extends LinearOpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
 
 
@@ -176,6 +177,11 @@ public class robotBDebug extends LinearOpMode {
         Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
+        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
 
         Hood.setDirection(Servo.Direction.REVERSE);
@@ -191,6 +197,9 @@ public class robotBDebug extends LinearOpMode {
 
 
         while (opModeIsActive()) { //Main While loop
+
+
+            double turretPos = turretSpin.getCurrentPosition();
 
             rawIntakeCurrent = Intake.getCurrent(CurrentUnit.MILLIAMPS);
 
@@ -232,6 +241,7 @@ public class robotBDebug extends LinearOpMode {
 
             dashboardTelemetry.addData("Tx", Tx);
             dashboardTelemetry.addData("Ty", Ty);
+            dashboardTelemetry.addData("Turret Pos",turretPos);
 
             dashboardTelemetry.addData("Intake raw current", rawIntakeCurrent);
             dashboardTelemetry.addData("Intake filtered current", filteredIntakeCurrent);

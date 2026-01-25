@@ -14,6 +14,35 @@ import java.util.Arrays;
 public class base {
 
 
+    public final double ticksPerDegree = 957.0/180.0;
+
+
+    public double redGoalX = 144;
+
+    public double redGoalY = 144;
+
+
+    public double blueGoalX = 0;
+
+    public double blueGoalY = 144;
+
+    public final double REDXOFFSET = -7.17 + 96; //TODO
+
+    public final double REDYOFFSET = 10.33; //TODO
+
+    public final double BLUEXOFFSET = 48 + 7.17; // TODO
+
+    public final double BLUEYOFFSET = 10.33; //TODO
+
+
+
+
+
+
+
+
+
+
     Limelight3A limelight;
   //  LLResult result = limelight.getLatestResult();
 
@@ -24,7 +53,7 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.028, turretkI = 0.05, turretkD = 0.002;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50,turnMax=0.3;
+    public double flyspeedgap=500,Txgap=50,turnMax=0.3, turnMaxPP = 0.6;
 
 
     public double targetVel=0;
@@ -36,8 +65,8 @@ public class base {
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     double Tx_offset=0;
-    int turretCwlim=-650;
-    int turretCcwlim=650;
+    int turretCwlim=-750;
+    int turretCcwlim=750;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
     public double intakeVel = 2500,outtakVel=2599;
@@ -208,6 +237,39 @@ public class base {
 
     }
 
+    public double  turretturnPP(boolean outtake , double currentPos, double targetPos ){
+        double turretPower;
+        if (outtake)  {
+            turretPower = turretPID.calculate(currentPos, targetPos);
+//            limelocked=true;
+//            Txgap=Math.abs(tx-offset);
+            if (currentPos > turretCcwlim- 10 &&  turretPower  > 0) {
+                turretPower= -0.3;
+//                    target = 0;
+                limelocked = false;
+            }
+            if (currentPos < (turretCwlim + 10) && turretPower< 0) {
+                turretPower= 0.3;
+//                    target = 0;
+                limelocked = false;
+            }
+
+
+            return  turretPower ;
+            }
+
+
+
+        turretPower = turretPID.calculate( currentPos*0.35,  0*0.35);
+
+
+
+        return turretPower;
+
+
+
+    }
+
     public double flyhood(double Ty) {
 
         double hoodLutGet;
@@ -221,6 +283,29 @@ public class base {
 
         return hoodLutGet;
 
+
+    }
+
+    public double calcTurretAngle(double robotAngle, double targetAngle, double minAngle, double maxAngle) {
+        double desired = targetAngle - robotAngle;
+
+        desired = Math.atan2(Math.sin(desired), Math.cos(desired));
+
+        if (desired < minAngle) return minAngle;
+        if (desired > maxAngle) return maxAngle;
+
+        return desired;
+    }
+
+    public double calcDist(double x0, double y0, double x1, double y1){
+        return Math.sqrt (Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+
+    }
+
+    public double calcAbsAngle(double x0, double y0, double x1, double y1){
+        double dx = x1 - x0;
+        double dy = y1 - y0;
+        return Math.atan2(dy, dx);
 
     }
 
