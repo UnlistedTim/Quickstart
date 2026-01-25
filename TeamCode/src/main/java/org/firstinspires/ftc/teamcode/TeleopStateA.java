@@ -59,7 +59,7 @@ public class TeleopStateA extends LinearOpMode {
 
 
 
-    Pose2D pose;
+   // Pose2D pose;
 
 
     public boolean lift = false;
@@ -304,9 +304,9 @@ public class TeleopStateA extends LinearOpMode {
 
         if(outtakestate) {
 
-            fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
+          //  fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
 
-            robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -2.36,2.36);
+          //  robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -2.36,2.36);
 
 
 
@@ -662,7 +662,7 @@ public class TeleopStateA extends LinearOpMode {
     public void mecanumRobotDrive(double y, double x, double rx){
 
         Pinpoint.update();
-        pose = Pinpoint.getPosition();
+        Pose2D pose = Pinpoint.getPosition();
 
 //        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
 //        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
@@ -970,6 +970,8 @@ public class TeleopStateA extends LinearOpMode {
         }
 
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 67, 67, AngleUnit.RADIANS, Math.PI/2));
+
+
 
 //        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
 
