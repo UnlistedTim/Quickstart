@@ -51,9 +51,9 @@ public class base {
     InterpLUT Flylut = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
-    public static double turretkP = 0.028, turretkI = 0.05, turretkD = 0.002;//
+    public static double turretkP = 0.02, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50,turnMax=0.3, turnMaxPP = 0.6;
+    public double flyspeedgap=500,Txgap=50, PPangle_gap = 50, turnMax=0.3, turnMaxPP = 0.8;
 
 
     public double targetVel=0;
@@ -237,20 +237,22 @@ public class base {
 
     }
 
-    public double  turretturnPP(boolean outtake , double currentPos, double targetPos ){
+    public double  turretturnPP(boolean outtake , double currentPosTicks, double targetAngle ){
+        targetAngle = Math.atan2(Math.sin(targetAngle), Math.cos(targetAngle));
+        double currentTicksRobotFrame = currentPosTicks;
         double turretPower;
         if (outtake)  {
-            turretPower = turretPID.calculate(currentPos, targetPos);
-//            limelocked=true;
-//            Txgap=Math.abs(tx-offset);
-            if (currentPos > turretCcwlim- 10 &&  turretPower  > 0) {
+            turretPower = turretPID.calculate(currentTicksRobotFrame, Math.toDegrees(targetAngle) * ticksPerDegree);
+            PPangle_gap=Math.abs( (Math.toDegrees(targetAngle)  - (currentTicksRobotFrame / ticksPerDegree)));
+
+            if (currentPosTicks > turretCcwlim- 10 &&  turretPower  > 0) {
                 turretPower= -0.3;
-//                    target = 0;
+
                 limelocked = false;
             }
-            if (currentPos < (turretCwlim + 10) && turretPower< 0) {
+            if (currentPosTicks < (turretCwlim + 10) && turretPower< 0) {
                 turretPower= 0.3;
-//                    target = 0;
+
                 limelocked = false;
             }
 
@@ -260,7 +262,7 @@ public class base {
 
 
 
-        turretPower = turretPID.calculate( currentPos*0.35,  0*0.35);
+        turretPower = turretPID.calculate( currentPosTicks*0.35,  0*0.35);
 
 
 
@@ -287,7 +289,9 @@ public class base {
     }
 
     public double calcTurretAngle(double robotAngle, double targetAngle, double minAngle, double maxAngle) {
-        double desired = targetAngle - robotAngle;
+        double desired = targetAngle - (robotAngle -Math.PI);
+
+
 
         desired = Math.atan2(Math.sin(desired), Math.cos(desired));
 

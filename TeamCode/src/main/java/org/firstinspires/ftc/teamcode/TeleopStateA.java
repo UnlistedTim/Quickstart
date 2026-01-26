@@ -36,6 +36,9 @@ import java.util.List;
 public class TeleopStateA extends LinearOpMode {
 
 
+    Pose2D pose;
+
+
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
 
     private Servo Hood, Blocker, Tripod;
@@ -44,7 +47,7 @@ public class TeleopStateA extends LinearOpMode {
 
     private Limelight3A Limelight;
 
-    private GoBildaPinpointDriver Pinpoint;
+    public GoBildaPinpointDriver Pinpoint;
 
     BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
 
@@ -176,6 +179,8 @@ public class TeleopStateA extends LinearOpMode {
 
 //    private Limelight3A limelight;
 
+    Pose2D posfjkff;
+
 
     public enum State {
         DEBUG,
@@ -206,6 +211,9 @@ public class TeleopStateA extends LinearOpMode {
     public void runOpMode() {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
+        getAutoVars();
+
+
         waitForStart();
         afterstart();
         for (LynxModule module : allHubs) {
@@ -304,9 +312,16 @@ public class TeleopStateA extends LinearOpMode {
 
         if(outtakestate) {
 
-          //  fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
+            fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
 
-          //  robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -2.36,2.36);
+            robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -3*Math.PI/4,3*Math.PI/4);
+
+
+            dashboardTelemetry.addData("Field relative Angle",Math.toDegrees(fieldRelativeAngle));
+            dashboardTelemetry.addData("Robot relative Turret angle,",Math.toDegrees(robotRelativeTurretAngle));
+
+
+
 
 
 
@@ -323,10 +338,6 @@ public class TeleopStateA extends LinearOpMode {
 
         }
 
-
-        dashboardTelemetry.addData("TY",Ty);
-        dashboardTelemetry.addData("Current fly vel", flyCurrentVel);
-        dashboardTelemetry.update();
 
 
 
@@ -346,7 +357,9 @@ public class TeleopStateA extends LinearOpMode {
 
     {
 
-        turnPower= rbg.turretturnPP(outtakestate,turretPos, (robotRelativeTurretAngle * rbg.ticksPerDegree));
+        turnPower= rbg.turretturnPP(outtakestate,turretPos, robotRelativeTurretAngle);
+        dashboardTelemetry.addData("Turn Power", turnPower);
+        dashboardTelemetry.update();
         turnPower= Range.clip(turnPower,-rbg.turnMaxPP,rbg.turnMaxPP);
         turretSpin.setPower(turnPower);
     }
@@ -662,7 +675,8 @@ public class TeleopStateA extends LinearOpMode {
     public void mecanumRobotDrive(double y, double x, double rx){
 
         Pinpoint.update();
-        Pose2D pose = Pinpoint.getPosition();
+        pose = Pinpoint.getPosition();
+
 
 //        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
 //        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
@@ -736,7 +750,9 @@ public class TeleopStateA extends LinearOpMode {
 
         configurePinpoint();
 
-        getAutoVars();
+        //getAutoVars();
+
+
 
 
 
@@ -969,11 +985,7 @@ public class TeleopStateA extends LinearOpMode {
             allianceRed = true;
         }
 
-        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 67, 67, AngleUnit.RADIANS, Math.PI/2));
-
-
-
-//        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
 
 
 
@@ -992,7 +1004,7 @@ public class TeleopStateA extends LinearOpMode {
         }
         switch (shootState){
             case PRE_SHOOT:
-                if(rbg.flyspeedgap <= 40&&rbg.Txgap <1){
+                if(rbg.flyspeedgap <= 40&& rbg.PPangle_gap < 1){  // rbg.Txgap < 1
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
