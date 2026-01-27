@@ -36,11 +36,19 @@ public class base {
 
    public boolean limelocked=false,debounce=false,prevBBStatein=true;
     InterpLUT Flylut = new InterpLUT();
+
+    InterpLUT FlylutPP = new InterpLUT();
     InterpLUT Hoodlut = new InterpLUT();
+
+    InterpLUT HoodlutPP = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
-    public static double turretkP = 0.02, turretkI = 0.0, turretkD = 0.001;//
+    public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+
     public double flyspeedgap=500,Txgap=50, PPangle_gap = 50, turnMax=0.3, turnMaxPP = 0.5;
+
+
+
 
 
     public double targetVel=0;
@@ -141,6 +149,40 @@ public class base {
         Flylut.createLUT();
 
         Hoodlut.createLUT();
+
+        FlylutPP.add(0,800);
+        FlylutPP.add(49.01,1080);
+        FlylutPP.add(69.01,1180);
+        FlylutPP.add(89.49,1290);
+        FlylutPP.add(109.18,1420);
+
+        FlylutPP.add(129.20,1540); //far
+        FlylutPP.add(144.66,1630); //far
+        FlylutPP.add(162.00,1720); //far
+
+
+        HoodlutPP.add(0,0.15);
+        HoodlutPP.add(49.01,0.15);
+        HoodlutPP.add(69.01,0.48);
+        HoodlutPP.add(89.49,0.55);
+        HoodlutPP.add(109.18,0.65);
+
+        HoodlutPP.add(129.20,0.8);//far
+        HoodlutPP.add(144.66,0.8);//far
+        HoodlutPP.add(162.00,0.8); //far
+
+
+
+
+
+
+
+
+
+        FlylutPP.createLUT();
+
+        HoodlutPP.createLUT();
+
 
 
 // far hood pos 0.48 power 0.9
@@ -353,6 +395,22 @@ public class base {
 
     }
 
+    public double flyhoodPP(double calc_dist) {
+
+        double hoodLutGet;
+        if (calc_dist < 162 && calc_dist >= 0) {
+
+
+            hoodLutGet = HoodlutPP.get(calc_dist);
+        }
+
+        else hoodLutGet=0.8;
+
+        return hoodLutGet;
+
+
+    }
+
     public double calcTurretAngle(double robotAngle, double targetAngle, double minAngle, double maxAngle) {
         double desired = targetAngle - (robotAngle -Math.PI);
 
@@ -402,6 +460,31 @@ public class base {
 
 
      //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
+
+        return(flyPID.calculate(currentVel, targetVel) + flyf * targetVel);
+
+
+    }
+
+    public double  flyspeedPP(double currentVel,double calc_dist) {
+
+
+        if (calc_dist < 162 && calc_dist >= 0) {
+
+            targetVel = FlylutPP.get(calc_dist);// Tx offset
+
+
+        }
+        else targetVel = 1500;
+
+
+
+        targetVel = Math.round(targetVel / 0.001) * 0.001;
+
+        flyspeedgap=Math.abs(currentVel-targetVel);
+
+
+        //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
 
         return(flyPID.calculate(currentVel, targetVel) + flyf * targetVel);
 

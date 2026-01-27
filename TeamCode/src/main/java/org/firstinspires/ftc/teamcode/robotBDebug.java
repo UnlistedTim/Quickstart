@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -17,7 +18,10 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
 
@@ -34,6 +38,11 @@ public class robotBDebug extends LinearOpMode {
 
 
     public DcMotorEx turretSpin;
+
+    Pose2D pose;
+
+    public GoBildaPinpointDriver Pinpoint;
+
 
     public static int IntakeVel = 0;
     int openInARow = 1;
@@ -154,6 +163,10 @@ public class robotBDebug extends LinearOpMode {
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
+        Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
+
+        configurePinpoint();
+
 
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
@@ -186,17 +199,29 @@ public class robotBDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
-        Limelight.pipelineSwitch(6);
+//        Limelight.pipelineSwitch(6);
+
+
 
 
 
 
 
         waitForStart();
+
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 88.83, 10.33, AngleUnit.RADIANS, 3*Math.PI/2));
+
         Limelight.start();
 
 
         while (opModeIsActive()) { //Main While loop
+
+            Pinpoint.update();
+            pose = Pinpoint.getPosition();
+
+
+
+
 
 
             double turretPos = turretSpin.getCurrentPosition();
@@ -224,23 +249,30 @@ public class robotBDebug extends LinearOpMode {
 
             Tripod.setPosition(tripodPos);
 
-            LLResult result = Limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                id = fiducial.getFiducialId(); // The ID number of the fiducial
-            }
+//            LLResult result = Limelight.getLatestResult();
+//            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+//            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+//                id = fiducial.getFiducialId(); // The ID number of the fiducial
+//            }
+//
+//            limeValid = result.isValid();
+//
+//            if (limeValid){
+//
+//                Tx = result.getTx();
+//                Ty = result.getTy();
+//
+//            }
 
-            limeValid = result.isValid();
+            double distance = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),144,144);
 
-            if (limeValid){
+            dashboardTelemetry.addData("X pos", pose.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
 
-                Tx = result.getTx();
-                Ty = result.getTy();
+            dashboardTelemetry.addData("Distance to goal",distance);
 
-            }
 
-            dashboardTelemetry.addData("Tx", Tx);
-            dashboardTelemetry.addData("Ty", Ty);
             dashboardTelemetry.addData("Turret Pos",turretPos);
 
             dashboardTelemetry.addData("Intake raw current", rawIntakeCurrent);
@@ -250,37 +282,30 @@ public class robotBDebug extends LinearOpMode {
 
             boolean BBState = beamBreaker.getState();
 
+//
+//
+//            if (!BBState && !debounce){
+//                ball_count++;
+//                if (ball_count == 3){
+//                    Intake.setPower(0);
+////                    sleep(1000000);
+//                }
+//                debounce = true;
+//            }
+//
+//            if (BBState && prevBBState) openInARow++;
+//            else openInARow = 0;
+//
+//            if (debounce && openInARow > 10){
+//                debounce = false;
+//                openInARow = 0;
+//
+//            }
 
 
-            if (!BBState && !debounce){
-                ball_count++;
-                if (ball_count == 3){
-                    Intake.setPower(0);
-//                    sleep(1000000);
-                }
-                debounce = true;
-            }
-
-            if (BBState && prevBBState) openInARow++;
-            else openInARow = 0;
-
-            if (debounce && openInARow > 10){
-                debounce = false;
-                openInARow = 0;
-
-            }
-
-
-            telemetry.addData("Beam breaker",BBState);
-
-            dashboardTelemetry.addData("beam breaker state", BBState);
-            dashboardTelemetry.addData("ball_count",ball_count);
 
             dashboardTelemetry.addData("Intake velocity",Intake.getVelocity());
 
-            telemetry.addData("Ty,",Ty);
-            telemetry.update();
-            dashboardTelemetry.addData("Pipeline",Limelight.pipelineSwitch(6));
 
 
 
@@ -322,6 +347,51 @@ public class robotBDebug extends LinearOpMode {
 
 
         //  telemetry.addData("Velocity",vel);
+    }
+
+    public void configurePinpoint(){
+        /*
+         *  Set the odometry pod positions relative to the point that you want the position to be measured from.
+         *
+         *  The X pod offset refers to how far sideways from the tracking point the X (forward) odometry pod is.
+         *  Left of the center is a positive number, right of center is a negative number.
+         *
+         *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
+         *  Forward of center is a positive number, backwards is a negative number.
+         */
+        Pinpoint.setOffsets(3.15, -5, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+
+        /*
+         * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
+         * the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
+         * If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
+         * number of ticks per unit of your odometry pod.  For example:
+         *     pinpoint.setEncoderResolution(13.26291192, DistanceUnit.MM);
+         */
+        Pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+
+        /*
+         * Set the direction that each of the two odometry pods count. The X (forward) pod should
+         * increase when you move the robot forward. And the Y (strafe) pod should increase when
+         * you move the robot to the left.
+         */
+        Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
+        /*
+         * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
+         * The IMU will automatically calibrate when first powered on, but recalibrating before running
+         * the robot is a good idea to ensure that the calibration is "good".
+         * resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
+         * This is recommended before you run your autonomous, as a bad initial calibration can cause
+         * an incorrect starting value for x, y, and heading.
+         */
+        Pinpoint.resetPosAndIMU();
+    }
+
+    public double calcDist(double x0, double y0, double x1, double y1){
+        return Math.sqrt (Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+
     }
 
 
