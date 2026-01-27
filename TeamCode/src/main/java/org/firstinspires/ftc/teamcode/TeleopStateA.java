@@ -73,7 +73,7 @@ public class TeleopStateA extends LinearOpMode {
     boolean outtakestate=false;
     boolean drive = true, present = false;
     int target_id = 24;
-       ElapsedTime timer = new ElapsedTime();
+    ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double Tx = 100;
     public static double Tx_offset = 0;
@@ -139,11 +139,8 @@ public class TeleopStateA extends LinearOpMode {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
         getAutoVars();
-
-
         waitForStart();
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
-
         afterstart();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -161,7 +158,6 @@ public class TeleopStateA extends LinearOpMode {
                         state = State.INTAKE;
 
 
-                        flyprepower(0.6);
 
                         stoptimers(0,intake);
                         break;
@@ -169,7 +165,7 @@ public class TeleopStateA extends LinearOpMode {
 
                 case INTAKE:
 
-                    if ( gamepad2.leftBumperWasPressed() || (stoptimers(1000,intake) &&rbg.Intakecheck(BbStatein))){
+                    if ( gamepad2.leftBumperWasPressed() || (stoptimers(1000,intake) &&rbg.Intakecheck(BbStatein,timer))){
                         Intake.setVelocity(0);
                          rbg.resetIntakeVars();
                         state = State.OUTTAKE;
@@ -330,6 +326,7 @@ public class TeleopStateA extends LinearOpMode {
         Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
         rbg.limelocked=false;
+
     }
 
     public void outtakestart(){

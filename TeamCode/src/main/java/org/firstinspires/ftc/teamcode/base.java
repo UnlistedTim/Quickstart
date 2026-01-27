@@ -24,7 +24,7 @@ public class base {
 
     public double blueGoalX = 0;
 
-    public double blueGoalY = 144;
+    public double blueGoalY = 144,intaketimer=0;
 
     public final double REDXOFFSET = -7.17 + 96; //TODO
 
@@ -256,6 +256,41 @@ public class base {
 
         return false;
     }
+
+    public boolean Intakechecktime(boolean BBState,double timems){
+
+        if (!BBState && !debounce){
+            ball_count++;
+            if (ball_count == 3){
+//                Intake.setVelocity(0);
+//                resetIntakeVars();
+//
+                return true;
+            }
+            debounce = true;
+        }
+
+        if (checker.update(!BBState)) {
+
+            return true;
+
+        }
+
+        if (BBState && prevBBStatein) openInARow++;
+        else openInARow = 0;
+
+        if (debounce && openInARow > 10){
+            debounce = false;
+            intaketimer = 0;
+
+        }
+
+        prevBBStatein = BBState;
+
+        return false;
+    }
+
+
 
     public class BooleanConfidenceChecker {
 
