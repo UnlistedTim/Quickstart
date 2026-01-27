@@ -134,11 +134,11 @@ public class TeleopStateA extends LinearOpMode {
 
     double filteredIntakeCurrent;
 
-    double Ty = 0.0;
+    double Ty = 0.0, dist = 0.0;
 
     public static int flywheelDebugVel = 1600;
 
-    public static double  shootingIntakeVel = 2000;
+    public static double  shootingIntakeVel = 2500;
 
     public static double hoodDebugPos = 0.6;
     double angle_to_goal = 0.0;
@@ -215,6 +215,8 @@ public class TeleopStateA extends LinearOpMode {
 
 
         waitForStart();
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+
         afterstart();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -236,7 +238,7 @@ public class TeleopStateA extends LinearOpMode {
                         intakeStart();
                         rbg.limelocked=false;
                         state = State.INTAKE;
-                        flyprepower(0.4);
+                        flyprepower(0.6);
                         stoptimers(0,intake);
                         break;
                     }
@@ -255,7 +257,8 @@ public class TeleopStateA extends LinearOpMode {
                 case OUTTAKE:
 
 
-                    flywheel();
+//                    flywheel();
+                    flywheelPP();
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         if(shoot()) outtakestate=false;
                     }
@@ -315,6 +318,8 @@ public class TeleopStateA extends LinearOpMode {
             fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
 
             robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -3*Math.PI/4,3*Math.PI/4);
+
+            dist = rbg.calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),144,144);
 
 
             dashboardTelemetry.addData("Field relative Angle",Math.toDegrees(fieldRelativeAngle));
@@ -732,6 +737,23 @@ public class TeleopStateA extends LinearOpMode {
 
     }
 
+    public void flywheelPP() {
+
+        double flypower;
+
+        flypower=rbg.flyspeedPP(flyCurrentVel,dist);
+        flyBot.setPower(flypower);
+        flyTop.setPower(flypower);
+        hoodPos=rbg.flyhoodPP(dist);
+        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
+
+            Hood.setPosition(hoodPos);
+            hoodLastPos=hoodPos;
+        }
+
+
+    }
+
 
     public void Hw_init() {
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
@@ -985,7 +1007,6 @@ public class TeleopStateA extends LinearOpMode {
             allianceRed = true;
         }
 
-        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
 
 
 
