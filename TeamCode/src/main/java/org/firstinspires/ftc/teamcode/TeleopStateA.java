@@ -62,7 +62,7 @@ public class TeleopStateA extends LinearOpMode {
 
 
 
-   // Pose2D pose;
+    // Pose2D pose;
 
 
     public boolean lift = false;
@@ -103,11 +103,11 @@ public class TeleopStateA extends LinearOpMode {
 
     double[] stoptime = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-//    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    //    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 //    double[] Tyempty = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 //    int tyorder = 0;
     int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
-   // int pattern_id = 21, last_ball_number;
+    // int pattern_id = 21, last_ball_number;
     //public double hoodFar = 0.62;
 
 
@@ -123,7 +123,7 @@ public class TeleopStateA extends LinearOpMode {
     int  shoot_count = 0;
     int id = 1;
     int target_id = 24;
-   // public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+    // public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
@@ -142,7 +142,7 @@ public class TeleopStateA extends LinearOpMode {
 
     public static double hoodDebugPos = 0.6;
     double angle_to_goal = 0.0;
-//    InterpLUT Flylut = new InterpLUT();
+    //    InterpLUT Flylut = new InterpLUT();
 //    InterpLUT Hoodlut = new InterpLUT();
     double InterpVel = 0.0;
 
@@ -156,9 +156,9 @@ public class TeleopStateA extends LinearOpMode {
 
 
     // --- PID Control ---
- //   public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
-  //  PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
-   // PIDController flyPID = new PIDController(flyp, flyi, flyd);
+    //   public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
+    //  PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
+    // PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
     // --- State Variables ---
     public static double fly_factor = 0.0;
@@ -267,7 +267,7 @@ public class TeleopStateA extends LinearOpMode {
                     if(!outtakestate || gamepad2.leftBumperWasPressed()) //||gamepad2.leftBumperWasPressed()
                     {
                         state=State.IDLE;
-                       outtakestate=false;
+                        outtakestate=false;
 
 
                     }
@@ -332,13 +332,13 @@ public class TeleopStateA extends LinearOpMode {
 
 
 
-           result = Limelight.getLatestResult();
-           limeValid = result.isValid();
-          if(limeValid)  {
-              Tx=result.getTx();
-              Ty=result.getTy();
+            result = Limelight.getLatestResult();
+            limeValid = result.isValid();
+            if(limeValid)  {
+                Tx=result.getTx();
+                Ty=result.getTy();
 
-          }
+            }
             flyCurrentVel=flyBot.getVelocity();
             rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
             filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
@@ -354,9 +354,9 @@ public class TeleopStateA extends LinearOpMode {
 
     {
 
-       turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-       turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
-       turretSpin.setPower(turnPower);
+        turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
+        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
+        turretSpin.setPower(turnPower);
     }
 
 
@@ -387,7 +387,7 @@ public class TeleopStateA extends LinearOpMode {
     }
 
     public void afterstart() {
-        
+
 
 
         deltaT.reset();
@@ -403,7 +403,7 @@ public class TeleopStateA extends LinearOpMode {
         flyTop.setPower(0);
         flyBot.setPower(0);
         checker = new BooleanConfidenceChecker();
-       // intakeCurrentFilter = new MedianFilter(10);
+        // intakeCurrentFilter = new MedianFilter(10);
         Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
     }
@@ -415,8 +415,8 @@ public class TeleopStateA extends LinearOpMode {
         rbg.init();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
-    //    Limelight.pipelineSwitch(6);
-      //  flyPID.setPID(flyp, flyi, flyd);
+        //    Limelight.pipelineSwitch(6);
+        //  flyPID.setPID(flyp, flyi, flyd);
 //        try {
 //            pattern_id = (int) blackboard.get("ID");
 //        } catch (NullPointerException e) {
@@ -428,7 +428,7 @@ public class TeleopStateA extends LinearOpMode {
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-      //  telemetry.addData(" Patter Green ", pattern_id - 20);
+        //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.addLine("*******************************************");
         configinfo();
         telemetry.update();
@@ -480,7 +480,7 @@ public class TeleopStateA extends LinearOpMode {
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-      //  telemetry.addData(" Patter Green ", pattern_id - 20);
+        //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
 
 
@@ -509,7 +509,7 @@ public class TeleopStateA extends LinearOpMode {
             if (ball_count == 3){
                 Intake.setVelocity(100);
                 resetIntakeVars();
-               // state = State.OUTTAKE;
+                // state = State.OUTTAKE;
                 return true;
             }
             debounce = true;
@@ -723,7 +723,7 @@ public class TeleopStateA extends LinearOpMode {
 
 
     public void flywheel() {
-        
+
         double flypower;
 
         flypower=rbg.flyspeed(flyCurrentVel,Ty);

@@ -44,10 +44,10 @@ public class base {
 
 
     Limelight3A limelight;
-  //  LLResult result = limelight.getLatestResult();
+    //  LLResult result = limelight.getLatestResult();
 
-  //  double Tx=0,Ty=0;
-   public boolean limelocked=false;
+    //  double Tx=0,Ty=0;
+    public boolean limelocked=false;
     InterpLUT Flylut = new InterpLUT();
 
     InterpLUT FlylutPP = new InterpLUT();
@@ -254,7 +254,7 @@ public class base {
                 return  turretPower ;
             }
 
-             if (limelocked) {
+            if (limelocked) {
                 turretPower=0;
                 return turretPower;
             }
@@ -296,7 +296,7 @@ public class base {
 
 
             return  turretPower ;
-            }
+        }
 
 
 
@@ -390,7 +390,7 @@ public class base {
         flyspeedgap=Math.abs(currentVel-targetVel);
 
 
-     //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
+        //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
 
         return(flyPID.calculate(currentVel, targetVel) + flyf * targetVel);
 
