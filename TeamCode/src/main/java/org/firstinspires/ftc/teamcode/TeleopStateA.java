@@ -40,31 +40,79 @@ public class TeleopStateA extends LinearOpMode {
 
 
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
+
     private Servo Hood, Blocker, Tripod;
-    private DigitalChannel beamBreakerin,getBeamBreakerout;
+
+    private DigitalChannel beamBreaker;
+
     private Limelight3A Limelight;
+
     public GoBildaPinpointDriver Pinpoint;
 
+    BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
+
+
+
+
     public base rbg= new base();
+
     double startHeading, startX, startY;
+
     boolean allianceRed = false;
+
+
+
+    // Pose2D pose;
+
+
     public boolean lift = false;
-    public boolean BbStatein = true;
-   // public boolean prevBBState = true;
+
+    public boolean BBState = true;
+
+    public boolean prevBBState = true;
+
+
+
+
+    // lift pos 0.07 lift angle 40
+
+    double Tyaverage = 0;
+
+    public static double intakeMaxVel = 3000;
+
+    // private PIDController controller;
     public final int max_vel = 1800;
+
     public int ball_count = 0;
+
     public boolean debounce = false;
+
     public boolean debouncearr[] = {false,false,false};
+
     LLResult result;
+
     public double hoodLastPos = 0.0;
+
     public double hoodPos = 0;
+
     int i = 0;
+
     int breakInARow = 1;
+
     int openInARow = 1;
+
     double[] stoptime = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    //    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//    double[] Tyempty = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//    int tyorder = 0;
     int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
+    // int pattern_id = 21, last_ball_number;
+    //public double hoodFar = 0.62;
+
 
     boolean[] flag = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+
     boolean recevieinfo = false;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -72,43 +120,67 @@ public class TeleopStateA extends LinearOpMode {
     boolean limeValid = false;
     boolean outtakestate=false;
     boolean drive = true, present = false;
+    int  shoot_count = 0;
+    int id = 1;
     int target_id = 24;
+    // public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double Tx = 100;
     public static double Tx_offset = 0;
+
     double rawIntakeCurrent;
+
     double filteredIntakeCurrent;
-
-
-    public static int flywheelDebugVel = 1600;
-    public static double  shootingIntakeVel = 2000;
-
 
     double Ty = 0.0, dist = 0.0;
 
-//    public static int flywheelDebugVel = 1600;
-//
-//    public static double  shootingIntakeVel = 2500;
+    public static int flywheelDebugVel = 1600;
+
+    public static double  shootingIntakeVel = 2500;
 
     public static double hoodDebugPos = 0.6;
     double angle_to_goal = 0.0;
-//    InterpLUT Flylut = new InterpLUT();
+    //    InterpLUT Flylut = new InterpLUT();
 //    InterpLUT Hoodlut = new InterpLUT();
     double InterpVel = 0.0;
 
     public final double DROP_PERCENT = 0.93;
 
     public static int flyTargetVel = 1000;
-
     boolean red = true;
+
+
+
+
+
+    // --- PID Control ---
+    //   public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;
+    //  PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
+    // PIDController flyPID = new PIDController(flyp, flyi, flyd);
+
+    // --- State Variables ---
+    public static double fly_factor = 0.0;
+    public static double turretPower = 0.0;
+    public static double targetTurretPos = 0.0;
     public int turretPos = 0;
 
     public double fieldRelativeAngle = 0;
+
     public double robotRelativeTurretAngle = 0;
     public int turretTarget=0;
     public double turnPower=0 ;
     public double flyCurrentVel = 0;
+
+    int shootCount = 0;
+
+    boolean velocityDropped = false;
+
+//    private Limelight3A limelight;
+
+    Pose2D posfjkff;
+
 
     public enum State {
         DEBUG,
@@ -123,6 +195,7 @@ public class TeleopStateA extends LinearOpMode {
     }
     ShootState shootState = ShootState.PRE_SHOOT;
 
+    //  State state = State.DEBUG;
     State state = State.IDLE;
 
     boolean shooting = false;
@@ -136,11 +209,16 @@ public class TeleopStateA extends LinearOpMode {
     @Override
 
     public void runOpMode() {
+
+        //push
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
         getAutoVars();
+
+
         waitForStart();
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+
         afterstart();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -149,25 +227,29 @@ public class TeleopStateA extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
+
+
+
             switch (state) {
                 case DEBUG:
+
+
                     break;
                 case IDLE:
                     if (stoptimers(300,intake )){
                         intakeStart();
+                        rbg.limelocked=false;
                         state = State.INTAKE;
-
-
-
+                        flyprepower(0.6);
                         stoptimers(0,intake);
                         break;
                     }
 
                 case INTAKE:
 
-                    if ( gamepad2.leftBumperWasPressed() || (stoptimers(1000,intake) &&rbg.Intakecheck(BbStatein,timer))){
-                        Intake.setVelocity(0);
-                         rbg.resetIntakeVars();
+
+
+                    if ( gamepad2.leftBumperWasPressed() || (stoptimers(1000,intake) && beamBreakCount())){
                         state = State.OUTTAKE;
                         outtakestate=true;
                         break;
@@ -185,7 +267,7 @@ public class TeleopStateA extends LinearOpMode {
                     if(!outtakestate || gamepad2.leftBumperWasPressed()) //||gamepad2.leftBumperWasPressed()
                     {
                         state=State.IDLE;
-                       outtakestate=false;
+                        outtakestate=false;
 
 
                     }
@@ -239,30 +321,29 @@ public class TeleopStateA extends LinearOpMode {
 
             robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS),fieldRelativeAngle, -3*Math.PI/4,3*Math.PI/4);
 
-
-
             dist = rbg.calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),144,144);
-
 
 
             dashboardTelemetry.addData("Field relative Angle",Math.toDegrees(fieldRelativeAngle));
             dashboardTelemetry.addData("Robot relative Turret angle,",Math.toDegrees(robotRelativeTurretAngle));
 
-           result = Limelight.getLatestResult();
-           limeValid = result.isValid();
-          if(limeValid)  {
-              Tx=result.getTx();
-              Ty=result.getTy();
 
-          }
+
+
+
+
+            result = Limelight.getLatestResult();
+            limeValid = result.isValid();
+            if(limeValid)  {
+                Tx=result.getTx();
+                Ty=result.getTy();
+
+            }
             flyCurrentVel=flyBot.getVelocity();
             rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
             filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
-
-        else
-                BbStatein=beamBreakerin.getState()   ;
 
 
 
@@ -273,9 +354,9 @@ public class TeleopStateA extends LinearOpMode {
 
     {
 
-       turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-       turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
-       turretSpin.setPower(turnPower);
+        turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
+        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
+        turretSpin.setPower(turnPower);
     }
 
 
@@ -306,7 +387,7 @@ public class TeleopStateA extends LinearOpMode {
     }
 
     public void afterstart() {
-        
+
 
 
         deltaT.reset();
@@ -319,25 +400,14 @@ public class TeleopStateA extends LinearOpMode {
 
 
     public void intakeStart(){
-        flyTop.setPower(0.4);
-        flyBot.setPower(0.4);
-     //   checker = new BooleanConfidenceChecker();
-       // intakeCurrentFilter = new MedianFilter(10);
-        Blocker.setPosition(rbg.blockClose);
-        Intake.setVelocity(rbg.intakeVel);
-        rbg.limelocked=false;
-
-    }
-
-    public void outtakestart(){
-        flyTop.setPower(0.4);
-        flyBot.setPower(0.4);
-        //   checker = new BooleanConfidenceChecker();
+        flyTop.setPower(0);
+        flyBot.setPower(0);
+        checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
         Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
-        rbg.limelocked=false;
     }
+
 
     public void initalize() {
 
@@ -345,8 +415,8 @@ public class TeleopStateA extends LinearOpMode {
         rbg.init();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
-    //    Limelight.pipelineSwitch(6);
-      //  flyPID.setPID(flyp, flyi, flyd);
+        //    Limelight.pipelineSwitch(6);
+        //  flyPID.setPID(flyp, flyi, flyd);
 //        try {
 //            pattern_id = (int) blackboard.get("ID");
 //        } catch (NullPointerException e) {
@@ -358,7 +428,7 @@ public class TeleopStateA extends LinearOpMode {
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-      //  telemetry.addData(" Patter Green ", pattern_id - 20);
+        //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.addLine("*******************************************");
         configinfo();
         telemetry.update();
@@ -410,7 +480,7 @@ public class TeleopStateA extends LinearOpMode {
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.addLine("Blue Alliance Selected");
-      //  telemetry.addData(" Patter Green ", pattern_id - 20);
+        //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
 
 
@@ -422,42 +492,57 @@ public class TeleopStateA extends LinearOpMode {
 
     }
 
+    public void resetIntakeVars(){
+        breakInARow = 0;
+        ball_count = 0;
+        debounce = false;
+        i = 0;
+        boolean debouncearr[] =  {false,false,false};
+        prevBBState = true;
+
+    }
+
+    public boolean beamBreakCount(){
+        BBState = beamBreaker.getState();
+        if (!BBState && !debounce){
+            ball_count++;
+            if (ball_count == 3){
+                Intake.setVelocity(100);
+                resetIntakeVars();
+                // state = State.OUTTAKE;
+                return true;
+            }
+            debounce = true;
+        }
+
+        if (checker.update(!BBState)) {
+            Intake.setVelocity(100);
+
+            resetIntakeVars();
+            state = State.OUTTAKE;
+            return true;
+
+        }
 
 //
-//    public boolean beamBreakCount(){
-//        BBState = beamBreaker.getState();
-//        if (!BBState && !debounce){
-//            ball_count++;
-//            if (ball_count == 3){
-//                Intake.setVelocity(0);
-//                resetIntakeVars();
-//               // state = State.OUTTAKE;
-//                return true;
-//            }
-//            debounce = true;
-//        }
-//
-//        if (checker.update(!BBState)) {
-//            Intake.setVelocity(0);
-//            resetIntakeVars();
-//            state = State.OUTTAKE;
-//            return true;
-//
-//        }
-//
-//        if (BBState && prevBBState) openInARow++;
-//        else openInARow = 0;
-//
-//        if (debounce && openInARow > 10){
-//            debounce = false;
-//            openInARow = 0;
-//
-//        }
-//
-//        prevBBState = BBState;
-//
-//        return false;
-//    }
+
+        if (BBState && prevBBState) openInARow++;
+        else openInARow = 0;
+
+        if (debounce && openInARow > 10){
+            debounce = false;
+            openInARow = 0;
+
+        }
+
+        prevBBState = BBState;
+
+
+
+
+
+        return false;
+    }
 
     void configinfo() {
         telemetry.addLine("Driver Cross select Blue side");
@@ -561,7 +646,36 @@ public class TeleopStateA extends LinearOpMode {
 
     }
 
+    public class BooleanConfidenceChecker {
 
+        private static final int WINDOW_SIZE = 100;   // total samples
+        private static final double TRUE_THRESHOLD = 0.90; // 95%
+
+        private final boolean[] window = new boolean[WINDOW_SIZE];
+        private int index = 0;
+        private int trueCount = 0;
+        private boolean filled = false;
+
+        public boolean update(boolean input) {
+
+            if (filled) {
+                if (window[index]) trueCount--;
+            }
+            window[index] = input;
+            if (input) trueCount++;
+
+            index++;
+            if (index >= WINDOW_SIZE) {
+                index = 0;
+                filled = true;
+            }
+
+            if (!filled) return false;
+            double trueRate = (double) trueCount / WINDOW_SIZE;
+
+            return trueRate >= TRUE_THRESHOLD;
+        }
+    }
 
 
 
@@ -609,7 +723,7 @@ public class TeleopStateA extends LinearOpMode {
 
 
     public void flywheel() {
-        
+
         double flypower;
 
         flypower=rbg.flyspeed(flyCurrentVel,Ty);
@@ -653,7 +767,7 @@ public class TeleopStateA extends LinearOpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
-        beamBreakerin = hardwareMap.get(DigitalChannel.class, "beamBreakerin");
+        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
 
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");

@@ -24,7 +24,7 @@ public class base {
 
     public double blueGoalX = 0;
 
-    public double blueGoalY = 144,intaketimer=0;
+    public double blueGoalY = 144;
 
     public final double REDXOFFSET = -7.17 + 96; //TODO
 
@@ -34,7 +34,20 @@ public class base {
 
     public final double BLUEYOFFSET = 10.33; //TODO
 
-   public boolean limelocked=false,debounce=false,prevBBStatein=true;
+
+
+
+
+
+
+
+
+
+    Limelight3A limelight;
+    //  LLResult result = limelight.getLatestResult();
+
+    //  double Tx=0,Ty=0;
+    public boolean limelocked=false;
     InterpLUT Flylut = new InterpLUT();
 
     InterpLUT FlylutPP = new InterpLUT();
@@ -44,27 +57,20 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-
-    public double flyspeedgap=500,Txgap=50, PPangle_gap = 50, turnMax=0.3, turnMaxPP = 0.5;
-
-
-
+    public double flyspeedgap=500,Txgap=50, PPangle_gap = 50, turnMax=0.3, turnMaxPP = 0.9;
 
 
     public double targetVel=0;
     public double blockClose = 0.3, blockOpen = 0.65;
     public double tripodIdle = 0.95, tripodPark = 0.27;
 
-    public int ball_count=0;
-    public int turretCwlim=-750,turretCcwlim=750 ,openInARow=0;
-
-    BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
 
     //double turretPower=0;
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     double Tx_offset=0;
-
+    int turretCwlim=-750;
+    int turretCcwlim=750;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
     public double intakeVel = 2500,outtakVel=2599;
@@ -224,105 +230,6 @@ public class base {
     }
 
 
-    public boolean Intakecheck(boolean BBState){
-
-        if (!BBState && !debounce){
-            ball_count++;
-            if (ball_count == 3){
-//                Intake.setVelocity(0);
-//                resetIntakeVars();
-//
-                return true;
-            }
-            debounce = true;
-        }
-
-        if (checker.update(!BBState)) {
-
-            return true;
-
-        }
-
-        if (BBState && prevBBStatein) openInARow++;
-        else openInARow = 0;
-
-        if (debounce && openInARow > 10){
-            debounce = false;
-            openInARow = 0;
-
-        }
-
-        prevBBStatein = BBState;
-
-        return false;
-    }
-
-    public boolean Intakechecktime(boolean BBState,double timems){
-
-        if (!BBState && !debounce){
-            ball_count++;
-            if (ball_count == 3){
-//                Intake.setVelocity(0);
-//                resetIntakeVars();
-//
-                return true;
-            }
-            debounce = true;
-        }
-
-        if (checker.update(!BBState)) {
-
-            return true;
-
-        }
-
-        if (BBState && prevBBStatein) openInARow++;
-        else openInARow = 0;
-
-        if (debounce && openInARow > 10){
-            debounce = false;
-            intaketimer = 0;
-
-        }
-
-        prevBBStatein = BBState;
-
-        return false;
-    }
-
-
-
-    public class BooleanConfidenceChecker {
-
-        private static final int WINDOW_SIZE = 100;   // total samples
-        private static final double TRUE_THRESHOLD = 0.90; // 95%
-
-        private final boolean[] window = new boolean[WINDOW_SIZE];
-        private int index = 0;
-        private int trueCount = 0;
-        private boolean filled = false;
-        BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
-
-        public boolean update(boolean input) {
-
-            if (filled) {
-                if (window[index]) trueCount--;
-            }
-            window[index] = input;
-            if (input) trueCount++;
-
-            index++;
-            if (index >= WINDOW_SIZE) {
-                index = 0;
-                filled = true;
-            }
-
-            if (!filled) return false;
-            double trueRate = (double) trueCount / WINDOW_SIZE;
-
-            return trueRate >= TRUE_THRESHOLD;
-        }
-    }
 
 
     public double  turretturn(boolean outtake , boolean valid,int target, int turretPos, double tx, double offset){
@@ -347,7 +254,7 @@ public class base {
                 return  turretPower ;
             }
 
-             if (limelocked) {
+            if (limelocked) {
                 turretPower=0;
                 return turretPower;
             }
@@ -389,7 +296,7 @@ public class base {
 
 
             return  turretPower ;
-            }
+        }
 
 
 
@@ -400,17 +307,6 @@ public class base {
         return turretPower;
 
 
-
-    }
-
-    public void resetIntakeVars(){
-       // breakInARow = 0;
-        ball_count = 0;
-        debounce = false;
-      //  i = 0;
-       // boolean debouncearr[] =  {false,false,false};
-        checker=new BooleanConfidenceChecker();
-        prevBBStatein = true;
 
     }
 
@@ -494,7 +390,7 @@ public class base {
         flyspeedgap=Math.abs(currentVel-targetVel);
 
 
-     //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
+        //   double power = flyPID.calculate(flyCurrentVel, targetVel) + flyf * targetVel;
 
         return(flyPID.calculate(currentVel, targetVel) + flyf * targetVel);
 
