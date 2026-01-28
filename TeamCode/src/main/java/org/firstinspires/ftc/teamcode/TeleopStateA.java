@@ -209,6 +209,8 @@ public class TeleopStateA extends LinearOpMode {
     @Override
 
     public void runOpMode() {
+
+        //push
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
         getAutoVars();
