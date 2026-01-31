@@ -284,7 +284,7 @@ public class TeleopStateA extends LinearOpMode {
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
             else stopDriveMotors();
 
-          if(pinponit_nav)  turntablePP(); else turntable();
+            turntable();
 
 
 
@@ -298,21 +298,14 @@ public class TeleopStateA extends LinearOpMode {
         Pinpoint.update();
         pose = Pinpoint.getPosition();
         if(outtakestate) {
-          if(pinponit_nav) {
-              fieldRelativeAngle = rbg.calcAbsAngle(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), rbg.redGoalX, rbg.redGoalY);
-              robotRelativeTurretAngle = rbg.calcTurretAngle(pose.getHeading(AngleUnit.RADIANS), fieldRelativeAngle, -3 * Math.PI / 4, 3 * Math.PI / 4);
-              dist = rbg.calcDist(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), targetx, targety);
-          }
-
-          else{
-
+          if(!pinponit_nav) {
               result = Limelight.getLatestResult();
               limeValid = result.isValid();
               if(limeValid)  {
                   Tx=result.getTx();
                   Ty=result.getTy();
+            }
 
-              }
           }
 //            dashboardTelemetry.addData("Field relative Angle",Math.toDegrees(fieldRelativeAngle));
 //            dashboardTelemetry.addData("Robot relative Turret angle,",Math.toDegrees(robotRelativeTurretAngle));
@@ -331,25 +324,15 @@ public class TeleopStateA extends LinearOpMode {
     public void  turntable()
 
     {
+        if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
+       else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
 
-        turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-        turnPower= Range.clip(turnPower,-rbg.turnMax,rbg.turnMax);
-        turretSpin.setPower(turnPower);
+       turretSpin.setPower(turnPower);
+
     }
 
 
-    public void  turntablePP()
 
-    {
-
-
-
-        turnPower= rbg.turretturnPP(outtakestate,pose,turretPos, robotRelativeTurretAngle);
-//        dashboardTelemetry.addData("Turn Power", turnPower);
-//        dashboardTelemetry.update();
-        turnPower= Range.clip(turnPower,-rbg.turnMaxPP,rbg.turnMaxPP);
-        turretSpin.setPower(turnPower);
-    }
 
 
 
@@ -423,7 +406,7 @@ public class TeleopStateA extends LinearOpMode {
             Tx_offset = 0;
             target_id = 24;
            rbg.targetGoalX=rbg.redGoalX;
-            rbg.targetGoalY=rbg.redGoalY;
+           rbg.targetGoalY=rbg.redGoalY;
 
             Limelight.pipelineSwitch(6);
         } else {

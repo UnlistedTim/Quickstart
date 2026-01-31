@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import java.util.Arrays;
 
@@ -28,6 +29,7 @@ public class base {
     public double blueGoalY = 144;
     public double targetGoalY = 144;
     public double targetGoalX = 144;
+    public double Pi=Math.PI;
 
 
 
@@ -263,7 +265,7 @@ public class base {
 
         turretPower = turretPID.calculate( turretPos*0.35,  target*0.35);
 
-
+        turretPower= Range.clip(turretPower,-turnMaxPP,turnMaxPP);
 
         return turretPower;
 
@@ -271,20 +273,19 @@ public class base {
 
     }
 
-    public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks, double targetAngle ){
+    public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks){
 
-        double dx = targetGoalX- p.getX(DistanceUnit.INCH);
-        double dy = targetGoalY -p.getY(DistanceUnit.INCH);
+//        double dx = targetGoalX- p.getX(DistanceUnit.INCH);
+//        double dy = targetGoalY -p.getY(DistanceUnit.INCH);
 
-        double desired = Math.atan2(dy, dx) - (p.getHeading(AngleUnit.RADIANS) -Math.PI);
+        double targetAngle= Math.atan2(targetGoalY -p.getY(DistanceUnit.INCH), targetGoalX- p.getX(DistanceUnit.INCH)) - (p.getHeading(AngleUnit.RADIANS) -Pi);
      // desired = Math.atan2(Math.sin(desired), Math.cos(desired));
 //        if (desired < minAngle) return minAngle;
 //        if (desired > maxAngle) return maxAngle;
        // return desired;
-
+        if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
 
         //dist = rbg.calcDist(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), targetx, targety);
-
 
         double turretPower;
         if (outtake)  {
@@ -294,22 +295,21 @@ public class base {
             if (turretTicks> turretCcwlim- 10 &&  turretPower  > 0) {
                 turretPower= -0.3;
 
-                limelocked = false;
+
             }
             if (turretTicks < (turretCwlim + 10) && turretPower< 0) {
                 turretPower= 0.3;
 
-                limelocked = false;
+
             }
 
-
+            turretPower= Range.clip(turretPower,-turnMaxPP,turnMaxPP);
             return  turretPower ;
         }
 
 
 
         turretPower = turretPID.calculate( turretTicks*0.35,  0);
-
 
 
         return turretPower;
