@@ -75,11 +75,11 @@ public class StaterobotDebug extends LinearOpMode {
     double filteredIntakeCurrent;
 
 
-    public static double hoodPos = 0.15;// 0 vertical angle 0.85 horizontal angle
+    public static double hoodPos = 0.0;// 0 vertical angle 1.0 horizontal angle
 
-    public static double blockerPos = 0.25; // 0.43 open, 0.25 close
+    public static double blockerPos = 0.37; // 0.46 open, 0.37 close
 
-    public static double tripodPos = 0.95;
+    public static double tripodPos = 1.0;   //1.0 collapse 0.35 extend
 
     public boolean prevBBState = true;
 
@@ -115,7 +115,11 @@ public class StaterobotDebug extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
-    private DigitalChannel beamBreaker;
+    private DigitalChannel topBB;
+
+    private DigitalChannel botBB;
+
+
 
 //    private Limelight3A Limelight;
 
@@ -168,7 +172,8 @@ public class StaterobotDebug extends LinearOpMode {
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
 
-//        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
+        botBB = hardwareMap.get(DigitalChannel.class, "botBB");
+        topBB = hardwareMap.get(DigitalChannel.class, "topBB");
 
 
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
@@ -229,8 +234,9 @@ public class StaterobotDebug extends LinearOpMode {
 
 
         while (opModeIsActive()) { //Main While loop
+            Hood.setPosition(hoodPos);
 
-//            Intake.setPower(1.0);
+            Tripod.setPosition(tripodPos);
 
             Intake.setVelocity(IntakeVel);
 
@@ -252,6 +258,15 @@ public class StaterobotDebug extends LinearOpMode {
 
 
             flyPID(flyVel);
+
+            telemetry.addData("Bottom BB state",botBB.getState());
+            telemetry.addData("top BB state",topBB.getState());
+
+            telemetry.update();
+
+
+
+
 
 //            flyBot.setPower(flyBotPower);
 //            flyTop.setPower(flyTopPower);
