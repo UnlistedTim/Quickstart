@@ -57,8 +57,8 @@ public class base {
 
 
     public double targetVel=0;
-    public double blockClose = 0.3, blockOpen = 0.65;
-    public double tripodIdle = 0.95, tripodPark = 0.27;
+    public double blockClose = 0.37, blockOpen = 0.46;
+    public double tripodIdle = 1.0, tripodPark = 0.35;
 
 
     //double turretPower=0;
@@ -284,6 +284,7 @@ public class base {
 //        if (desired > maxAngle) return maxAngle;
        // return desired;
         if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
+
 
         //dist = rbg.calcDist(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), targetx, targety);
 
