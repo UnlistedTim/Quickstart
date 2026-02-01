@@ -9,7 +9,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import com.pedropathing.util.Timer;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -34,6 +36,7 @@ public class base {
 
 
 
+
     public final double REDXOFFSET = -7.17 + 96; //TODO
 
     public final double REDYOFFSET = 10.33; //TODO
@@ -41,10 +44,11 @@ public class base {
     public final double BLUEXOFFSET = 48 + 7.17; // TODO
 
     public final double BLUEYOFFSET = 10.33; //TODO
+    private Timer beamtimer;
 
 
 
-    public boolean limelocked=false;
+    public boolean limelocked=false ,intakefirst=false,intakelast=false;
     InterpLUT Flylut = new InterpLUT();
 
     InterpLUT FlylutPP = new InterpLUT();
@@ -59,6 +63,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.37, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
+    private int step=0,beamoncount=0;
 
 
     //double turretPower=0;
@@ -106,7 +111,7 @@ public class base {
     public void init()
 
     {
-
+        beamtimer=new Timer();
         flyPID.setPID(flyp, flyi, flyd);
         turretPID.setPID(turretkP, turretkI, turretkD);
         Flylut.add(-13.5,1720); //far
@@ -227,6 +232,65 @@ public class base {
 
     }
 
+      public boolean beamintakecheck(boolean topon ,boolean boton)
+
+      {
+      switch (step) {
+              case 0:
+                    if (!topon)   step = 1;
+                    break;
+              case 1:
+                    if (!boton) {
+                        beamtimer.resetTimer();
+                        beamoncount=0;
+                        step = 2;
+                         }
+                    break;
+              case 2:
+                    if(beamtimer.getElapsedTime()>300)
+                    {
+                        step=0;
+                        beamoncount=0;
+                        return true;
+                    }
+                    if(boton) beamoncount++; else beamoncount=0;
+
+                    if(beamoncount>2) step=1;
+                    break;
+                  }
+
+            return false;
+      }
+
+    public boolean beamouttakecheck(boolean topon ,boolean boton)
+
+    {
+        switch (step) {
+            case 0:
+                if (boton)   step = 1;
+                break;
+            case 1:
+                if (!boton) {
+                    beamtimer.resetTimer();
+                    beamoncount=0;
+                    step = 2;
+                }
+                break;
+            case 2:
+                if(beamtimer.getElapsedTime()>300)
+                {
+                    step=0;
+                    beamoncount=0;
+                    return true;
+                }
+                if(boton) beamoncount++; else beamoncount=0;
+
+                if(beamoncount>2) step=1;
+                break;
+        }
+
+        return false;
+    }
 
 
 
