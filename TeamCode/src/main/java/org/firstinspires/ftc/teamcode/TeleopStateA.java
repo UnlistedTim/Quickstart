@@ -226,7 +226,7 @@ public class TeleopStateA extends LinearOpMode {
                         intakeStart();
                         rbg.limelocked=false;
                         state = State.INTAKE;
-                        flyprepower(0.3);
+                       // flyprepower(0.3);
                         stoptimers(0,intake);
                         break;
                     }
@@ -249,9 +249,8 @@ public class TeleopStateA extends LinearOpMode {
                     }
                     if(!outtakestate || gamepad2.leftBumperWasPressed()) //||gamepad2.leftBumperWasPressed()
                     {
+                       outtakedone();
                         state=State.IDLE;
-                        outtakestate=false;
-
 
                     }
 
@@ -360,14 +359,28 @@ public class TeleopStateA extends LinearOpMode {
 
 
     public void intakeStart(){
-        flyTop.setPower(0);
-        flyBot.setPower(0);
+        flyTop.setPower(rbg.intakeflypower);
+        flyBot.setPower(rbg.intakeflypower);
         checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
-        Blocker.setPosition(rbg.blockClose);
+
         Intake.setVelocity(rbg.intakeVel);
     }
 
+
+    public void outtakedone()
+
+
+    {
+        drive = true;
+        shooting = false;
+        ball_count = 0;
+        limeValid=false;
+        rbg.limelocked=false;
+        stoptimers(0, intake);
+        outtakestate=false;
+        Blocker.setPosition(rbg.blockClose);
+    }
 
     public void initalize() {
 
@@ -445,6 +458,8 @@ public class TeleopStateA extends LinearOpMode {
 
     }
 
+
+
     public boolean beamBreakCount(){
         BBState = beamBreaker.getState();
         if (!BBState && !debounce){
@@ -477,11 +492,7 @@ public class TeleopStateA extends LinearOpMode {
             openInARow = 0;
 
         }
-
         prevBBState = BBState;
-
-
-
 
 
         return false;
@@ -873,16 +884,12 @@ public class TeleopStateA extends LinearOpMode {
             case SHOOT:
 
                 if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) ){  //TODO OLD 700 vel
-                    shootState = ShootState.DONE;
+                   // shootState = ShootState.DONE;
+                    return true;
                 }
                 break;
             case DONE:
-                drive = true;
-                shooting = false;
-                ball_count = 0;
-                limeValid=false;
-                rbg.limelocked=false;
-                stoptimers(0, intake);
+
                 return true;
 
 

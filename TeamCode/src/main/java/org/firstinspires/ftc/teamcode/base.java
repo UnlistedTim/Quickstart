@@ -29,7 +29,7 @@ public class base {
     public double blueGoalY = 144;
     public double targetGoalY = 144;
     public double targetGoalX = 144;
-    public double Pi=Math.PI;
+    public double Pi=Math.PI,intakeflypower=0.2;
 
 
 
