@@ -58,14 +58,11 @@ public class StateAuto extends OpMode {
     double  rawIntakeCurrent=0,filteredIntakeCurrent,turnPower;
 
 
-    //TeleopStateA.BooleanConfidenceChecker checker = new TeleopStateA.BooleanConfidenceChecker();
-
-
     private int pathState;
     private final Pose startPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose pickup1Pose = new Pose(15, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose pickup1PoseA = new Pose(42, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1Pose = new Pose(14, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose pickup2Pose = new Pose(42, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose pickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose pickup3Pose = new Pose(8, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
@@ -76,15 +73,10 @@ public class StateAuto extends OpMode {
     public base rbga=new base();
 
 
-
-
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-
                 ashoot();
-                //flywheel spee up, ID read,turn table turn right,shoot;
-//                follower.followPath(scorePreload);
                if(adrive) {
                    follower.followPath(approachPickup1, true);
                    setPathState(1);
@@ -93,6 +85,7 @@ public class StateAuto extends OpMode {
                }
                 break;
             case 1:
+
 
                 if (!follower.isBusy()) {
                     /* Grab Sample */
@@ -103,26 +96,12 @@ public class StateAuto extends OpMode {
                     setPathState(2);
                 }
 
-            /* You could check for
-            - Follower State: "if(!follower.isBusy()) {}"
-            - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-            - Robot Position: "if(follower.getPose().getX() > 36) {}"
-            */
 
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-//                if (!follower.isBusy()) {
-                    /* Score Preload */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-
-//                }
                 break;
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if (!follower.isBusy()) {
-                    /* Score Sample */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(scorePickup1, true);
                     setPathState(3);
 
@@ -132,53 +111,35 @@ public class StateAuto extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
 
                 if (!follower.isBusy()) {
-
-
                     setPathState(4);
                 }
-
                 break;
-
-
 
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
 
                 ashoot();
                if(adrive){
-
-                    /* Grab Sample */
                    follower.followPath(approachPickup2, false);
-
+                   Blocker.setPosition(rbga.blockClose);
                    adrive=false;
                    setPathState(5);
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-
-                }
+                 }
                 break;
 
             case 5:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
 
                 if (!follower.isBusy()) {
-                    Blocker.setPosition(rbga.blockClose);
+
                     actionTimer.resetTimer();
-                    /* Grab Sample */
                     follower.followPath(grabPickup2, 0.4,false);
-
-
-
                     setPathState(6);
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-
-                }
+                 }
                 break;
 
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (actionTimer.getElapsedTime()>1500) {
-
-
                     follower.followPath(scorePickup2,true);
                     setPathState(7);
                 }
@@ -188,44 +149,84 @@ public class StateAuto extends OpMode {
             case 7:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
                 if (!follower.isBusy()) setPathState(8);;
-
                 break;
             case 8:
                 ashoot();
                 if (adrive) {
-                    /* Grab Sample */
 
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    if (opmodeTimer.getElapsedTime() > 24) {
+                        follower.followPath(parkEnd, true);
+                        adrive = false;
+                        setPathState(12);
+
+                    }
+                 else    {
+
+                        follower.followPath(approachPickup2, false);
+                        adrive=false;
+                        Blocker.setPosition(rbga.blockClose);
+                        setPathState(9);
+
+                    }
+                }
+                break;
+            case 9:
+            if (!follower.isBusy()) {
+
+                actionTimer.resetTimer();
+                follower.followPath(grabPickup2, 0.4,false);
+                setPathState(10);
+                /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+
+            }
+            break;
+            case 10:
+                if (actionTimer.getElapsedTime()>1500) {
+
+                follower.followPath(scorePickup2,true);
+                setPathState(11);
+            }
+             break;
+
+            case 11:
+                ashoot();
+                if (adrive) {
                     follower.followPath(parkEnd, true);
-                    adrive=false;
-                    setPathState(9);
+                    adrive = false;
+                    setPathState(12);
 
                 }
                 break;
-
-            case 9:  /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+            case 12: /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
                     flypower=0;
                     flyprepower(0);
                     Blocker.setPosition(rbga.blockClose);
+                    actionTimer.resetTimer();
+
+
+
+
+                }
+                break;
+
+            case 16:
+                if(actionTimer.getElapsedTime()>300) {
+
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET );
+                        blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET);
                         blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
 
+                    } else {
+                        blackboard.put("Heading", follower.getPose().getHeading());
+                        blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET);
+                        blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
-
-                    else {
-                        blackboard.put("Heading",follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET );
-                        blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET) ;
-                    }
-
 
 
                     setPathState(-1);
-
                 }
                 break;
         }
