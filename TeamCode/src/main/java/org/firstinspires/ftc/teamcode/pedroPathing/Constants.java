@@ -32,18 +32,18 @@ public class Constants {
 
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(14.83)
+            .mass(15.38)
             .forwardZeroPowerAcceleration(-33.713) // -34.16422 -34.6427
-            .lateralZeroPowerAcceleration(-77.198) // -77.6366
-            .centripetalScaling(0.005)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.01, 0.04))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.03, .050))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0.0,0.00001,0.6,0.01));
+            .lateralZeroPowerAcceleration(-77.198); // -77.6366
+//            .centripetalScaling(0.005)
+//            .translationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.01, 0.04))
+//            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.03, .050))
+//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0.0,0.00001,0.6,0.01));
 
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(3.15)
+            .forwardPodY(-3.15)
             .strafePodX(-5)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("Pinpoint")
