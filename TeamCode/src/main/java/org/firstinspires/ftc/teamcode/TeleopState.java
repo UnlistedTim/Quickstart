@@ -5,6 +5,10 @@ import android.annotation.SuppressLint;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -23,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
 import java.util.List;
@@ -37,6 +42,7 @@ public class TeleopState extends LinearOpMode {
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB;
     private Limelight3A Limelight;
+    private Follower follower;
     public GoBildaPinpointDriver Pinpoint;
     BooleanConfidenceChecker checker = new BooleanConfidenceChecker(); //todo
     Pose2D pose;
@@ -83,6 +89,14 @@ public class TeleopState extends LinearOpMode {
 
     int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
 
+    private final Pose RHPStartPose = new Pose(130, 10, Math.toRadians(0)); //
+    private final Pose BHPStartPose = new Pose(-10, 10, Math.toRadians(180)); //
+    private final Pose RHPShootPose = new Pose(72, 26, Math.toRadians(0)); //
+    private final Pose BHPShootPose = new Pose(72, 26, Math.toRadians(180));
+    private final Pose BlueParkPose = new Pose(14, 22.5, Math.toRadians(0)); //
+    private final Pose RedParkPose = new Pose(14, 22.5, Math.toRadians(0)); //
+
+    private PathChain RHPshoot, BHPshoot;
 
 
     boolean[] flag = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -152,6 +166,8 @@ public class TeleopState extends LinearOpMode {
     @Override
 
     public void runOpMode() {
+
+
 
         //push
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -346,6 +362,8 @@ public class TeleopState extends LinearOpMode {
     public void initalize() {
         Hw_init();
         rbg.init();
+        follower = Constants.createFollower(hardwareMap);
+        buildPaths();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
         if (red) telemetry.addLine("Red Alliance Selected");
@@ -390,6 +408,20 @@ public class TeleopState extends LinearOpMode {
         else telemetry.addLine("Blue Alliance Selected");
         telemetry.update();
         Limelight.start();
+
+    }
+
+    private void buildPaths() {
+
+        RHPshoot = follower.pathBuilder()
+                .addPath(new BezierLine(RHPStartPose, RHPShootPose))
+                .setLinearHeadingInterpolation(RHPShootPose.getHeading(), RHPShootPose.getHeading())
+                .build();
+
+        BHPshoot = follower.pathBuilder()
+                .addPath(new BezierLine(BHPStartPose, BHPShootPose))
+                .setLinearHeadingInterpolation(BHPStartPose.getHeading(), BHPShootPose.getHeading())
+                .build();
 
     }
 
