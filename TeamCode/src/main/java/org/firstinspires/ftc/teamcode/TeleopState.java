@@ -32,13 +32,14 @@ import java.util.List;
 @Config
 public class TeleopState extends LinearOpMode {
 
-    Pose2D pose;
+
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB;
     private Limelight3A Limelight;
     public GoBildaPinpointDriver Pinpoint;
-    BooleanConfidenceChecker checker = new BooleanConfidenceChecker();
+    BooleanConfidenceChecker checker = new BooleanConfidenceChecker(); //todo
+    Pose2D pose;
 
     public base rbg= new base();
 
@@ -49,6 +50,7 @@ public class TeleopState extends LinearOpMode {
     public boolean lift = false;
 
     public boolean BBState = true,BBState0=true,BBState1=true;
+    public boolean topbb=true,botbb=true;
 
     public boolean prevBBState = true,prevBBState2;
 
@@ -139,7 +141,6 @@ public class TeleopState extends LinearOpMode {
 
  //    State state = State.DEBUG;
  State state = State.IDLE;
-
     boolean shooting = false, intakecheck=false;
 
     // --- Timers ---
@@ -156,10 +157,9 @@ public class TeleopState extends LinearOpMode {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
         getAutoVars();
-
-
-        waitForStart();
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+        waitForStart();
+
         afterstart();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -191,7 +191,6 @@ public class TeleopState extends LinearOpMode {
                     BBState1=BBState0;
                     BBState0=BBState;
 
-
                     break;
                 case IDLE:
                     if (stoptimers(300,intake )){
@@ -204,17 +203,15 @@ public class TeleopState extends LinearOpMode {
                     }
 
                 case INTAKE:
-                    if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
-                        state = State.OUTTAKE;
-                        outtakestate=true;
-                        break;
+                   // if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
+                     if ( gamepad2.leftBumperWasPressed() || rbg.beamintakecheck(topbb,botbb)){//(stoptimers(500,intake)
+                            state = State.OUTTAKE;
+                            outtakestate=true;
                     }
 
                     break;
                 case OUTTAKE:
-
                     flywheel();
-
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         if(shoot()) outtakestate=false;
                     }
@@ -223,7 +220,6 @@ public class TeleopState extends LinearOpMode {
                         outtakedone();
                         state=State.IDLE;
                     }
-
                     break;
 
                 case MANUALOUTTAKE:
@@ -269,8 +265,9 @@ public class TeleopState extends LinearOpMode {
         turretPos=turretSpin.getCurrentPosition();
         Pinpoint.update();
         pose = Pinpoint.getPosition();
-
-        dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
+      //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
+        topbb=topBB.getState();
+        botbb=botBB.getState();
         if(outtakestate) {
           if(!pinponit_nav) {
               result = Limelight.getLatestResult();
@@ -281,15 +278,12 @@ public class TeleopState extends LinearOpMode {
             }
 
           }
-//            dashboardTelemetry.addData("Field relative Angle",Math.toDegrees(fieldRelativeAngle));
-//            dashboardTelemetry.addData("Robot relative Turret angle,",Math.toDegrees(robotRelativeTurretAngle));
 
             flyCurrentVel=flyBot.getVelocity();
             rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
             filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
-
 
 
 
@@ -330,7 +324,7 @@ public class TeleopState extends LinearOpMode {
         flyBot.setPower(rbg.intakeflypower);
         checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
-
+        Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
     }
 
@@ -350,18 +344,13 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void initalize() {
-
         Hw_init();
         rbg.init();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
-
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
-        telemetry.addLine("Blue Alliance Selected");
-         telemetry.addLine("*******************************************");
         configinfo();
-        telemetry.update();
 
         while (!isStarted() && !isStopRequested()) {
             if (gamepad1.cross) {
@@ -379,19 +368,17 @@ public class TeleopState extends LinearOpMode {
                 configinfo();
                 telemetry.update();
             }
-            if (gamepad1.right_bumper) break;
+            if (gamepad2.right_bumper) break;
         }
         if (red) {
             Tx_offset = 0;
-            target_id = 24;
+           target_id = 24;
            rbg.targetGoalX=rbg.redGoalX;
            rbg.targetGoalY=rbg.redGoalY;
-
             Limelight.pipelineSwitch(6);
         } else {
             Tx_offset = 0;
             target_id = 20;
-            targetx=0;
             Limelight.pipelineSwitch(7);
             rbg.targetGoalX=rbg.blueGoalX;
             rbg.targetGoalY=rbg.blueGoalY;
@@ -401,16 +388,8 @@ public class TeleopState extends LinearOpMode {
 
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
-        telemetry.addLine("Blue Alliance Selected");
-        //  telemetry.addData(" Patter Green ", pattern_id - 20);
         telemetry.update();
-
-
         Limelight.start();
-
-
-
-
 
     }
 
@@ -467,8 +446,8 @@ public class TeleopState extends LinearOpMode {
     void configinfo() {
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
-        telemetry.addLine("Drive Right Bumper Confrim ");
-
+        telemetry.addLine("Gunner Right Bumper Confrim afters election");
+        telemetry.addLine("*******************************************");
 
     }
 
@@ -582,7 +561,8 @@ public class TeleopState extends LinearOpMode {
 
         double flypower;
         if(pinponit_nav) {
-            flypower=rbg.flyspeedPP(flyCurrentVel,dist);
+         //   dist= Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
+            flypower=rbg.flyspeedPP(flyCurrentVel);
             hoodPos=rbg.flyhoodPP(dist);
         }
         else {
@@ -591,7 +571,7 @@ public class TeleopState extends LinearOpMode {
         }
         flyBot.setPower(flypower);
         flyTop.setPower(flypower);
-        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
+        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.005){
             Hood.setPosition(hoodPos);
             hoodLastPos=hoodPos;
         }
@@ -599,18 +579,18 @@ public class TeleopState extends LinearOpMode {
 
     }
 
-    public void flywheelPP() {
-
-        double flypower=rbg.flyspeedPP(flyCurrentVel,dist);;
-        flyBot.setPower(flypower);
-        flyTop.setPower(flypower);
-        hoodPos=rbg.flyhoodPP(dist);
-        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
-            Hood.setPosition(hoodPos);
-            hoodLastPos=hoodPos;
-        }
-
-    }
+//    public void flywheelPP() {
+//
+//        double flypower=rbg.flyspeedPP(flyCurrentVel,dist);;
+//        flyBot.setPower(flypower);
+//        flyTop.setPower(flypower);
+//        hoodPos=rbg.flyhoodPP(dist);
+//        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
+//            Hood.setPosition(hoodPos);
+//            hoodLastPos=hoodPos;
+//        }
+//
+//    }
 
 
     public void Hw_init() {

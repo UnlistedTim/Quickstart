@@ -171,11 +171,8 @@ public class StaterobotDebug extends LinearOpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
-
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
-
-
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 

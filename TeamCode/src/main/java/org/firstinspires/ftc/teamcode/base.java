@@ -57,7 +57,7 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50,  turnMax=0.3, turnMaxPP = 0.5;
+    public double flyspeedgap=500,Txgap=50,  turnMax=0.3, turnMaxPP = 0.5,dist;
 
 
     public double targetVel=0;
@@ -116,121 +116,41 @@ public class base {
         turretPID.setPID(turretkP, turretkI, turretkD);
         Flylut.add(-13.5,1720); //far
         Flylut.add(-12.7,1680); //far
-//        Flylut.add(-12,1570); //far
-//        Flylut.add(-11.6 , 1530); // far
-
-
         Flylut.add(-12.2,1630); //far
-
         Flylut.add(-11.85,1610); //far
-
-
-
-
-
-
-
-
-
         Flylut.add(-9.27,1400); //close
         Flylut.add(-2.71,1240); //close
         Flylut.add(6.28,1060); //close
         Flylut.add(11 , 1000); // close
-
         Hoodlut.add(-13.5,0.78);   //far
         Hoodlut.add(-12.7,0.75);   //far
-//        Hoodlut.add(-11.6 ,0.7);    //far
-
-
         Hoodlut.add(-12.2,0.75);   //far
-
         Hoodlut.add(-11.8,0.75);   //far
-
-
-
-
         Hoodlut.add(-9.27,0.65);
         Hoodlut.add(-2.71,0.48);
         Hoodlut.add(6.28,0.2);
         Hoodlut.add(11,0.18);
-
-
         Flylut.createLUT();
-
         Hoodlut.createLUT();
-
         FlylutPP.add(0,800);
         FlylutPP.add(49.01,1080);
         FlylutPP.add(69.01,1180);
         FlylutPP.add(89.49,1290);
         FlylutPP.add(109.18,1420);
-
         FlylutPP.add(129.20,1540); //far
         FlylutPP.add(144.66,1630); //far
         FlylutPP.add(162.00,1720); //far
-
-
         HoodlutPP.add(0,0.15);
         HoodlutPP.add(49.01,0.15);
         HoodlutPP.add(69.01,0.48);
         HoodlutPP.add(89.49,0.55);
         HoodlutPP.add(109.18,0.65);
-
         HoodlutPP.add(129.20,0.8);//far
         HoodlutPP.add(144.66,0.8);//far
         HoodlutPP.add(162.00,0.8); //far
-
-
-
-
-
-
-
-
-
         FlylutPP.createLUT();
-
         HoodlutPP.createLUT();
-
-
-
-// far hood pos 0.48 power 0.9
-
-//        Flylut.add(-15, 0.92);  //far 0.89
-//
-//        Flylut.add(-14, 0.895);  //far 0.87
-//        Flylut.add(-13.8, 0.9);  //far 0.85
-//
-//        Flylut.add(-13, 0.878);  //far 0.85
-//        Flylut.add(-12.8, 0.863);  //far   0.82
-//        Flylut.add(-11.5, 0.82);  //far   0.82
-//
-//        Flylut.add(-10.5, 0.77); //+1 // Input camera Ty, Output flywheel power
-//        Flylut.add(-9.55, 0.744);   // - 9.55 0.78 (2.0 hood)
-//        Flylut.add(-9.00, 0.735);   // - 9.55 0.78 (2.0 hood)
-//        Flylut.add(-8.70, 0.73);   // - 9.55 0.78 (2.0 hood)
-//        Flylut.add(-6.55, 0.7);// -6.55 0.74
-//        Flylut.add(-0.59, 0.63); // - 0.59 0.7
-//        Flylut.add(3.65, 0.6); // 3.65 0.67
-//
-//        Flylut.add(11, 0.58); // 10 0.67 ; 0.0 hood
-//
-//        // NEAR HOOD ANGLES
-//        Hoodlut.add(-10.5, 0.59);  //close
-//
-////        Hoodlut.add(-9.5 , 0.5);  //close
-//
-//        Hoodlut.add(-6.5, 0.48);  //close
-//
-//        Hoodlut.add(-0.65, 0.25);  //close
-//        Hoodlut.add(4, 0.19);  //close
-//        Hoodlut.add(11, 0);  //close
-
-
-
-
-
-    }
+   }
 
       public boolean beamintakecheck(boolean topon ,boolean boton)
 
@@ -270,22 +190,18 @@ public class base {
                 if (boton)   step = 1;
                 break;
             case 1:
-                if (!boton) {
+                if (topon) {
                     beamtimer.resetTimer();
-                    beamoncount=0;
                     step = 2;
                 }
                 break;
             case 2:
-                if(beamtimer.getElapsedTime()>300)
+                if(beamtimer.getElapsedTime()>200)
                 {
                     step=0;
-                    beamoncount=0;
                     return true;
                 }
-                if(boton) beamoncount++; else beamoncount=0;
-
-                if(beamoncount>2) step=1;
+                if(!topon)  step=1;
                 break;
         }
 
@@ -339,15 +255,16 @@ public class base {
 
     public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks){
 
-//        double dx = targetGoalX- p.getX(DistanceUnit.INCH);
-//        double dy = targetGoalY -p.getY(DistanceUnit.INCH);
+        double dx = targetGoalX- p.getX(DistanceUnit.INCH);
+        double dy = targetGoalY -p.getY(DistanceUnit.INCH);
 
-        double targetAngle= Math.atan2(targetGoalY -p.getY(DistanceUnit.INCH), targetGoalX- p.getX(DistanceUnit.INCH)) - (p.getHeading(AngleUnit.RADIANS) -Pi);
+        double targetAngle= Math.atan2(dy, dx) - (p.getHeading(AngleUnit.RADIANS) -Pi);
      // desired = Math.atan2(Math.sin(desired), Math.cos(desired));
 //        if (desired < minAngle) return minAngle;
 //        if (desired > maxAngle) return maxAngle;
        // return desired;
         if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
+        dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 
 
         //dist = rbg.calcDist(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), targetx, targety);
@@ -465,12 +382,12 @@ public class base {
 
     }
 
-    public double  flyspeedPP(double currentVel,double calc_dist) {
+    public double  flyspeedPP(double currentVel) {
 
 
-        if (calc_dist < 162 && calc_dist >= 0) {
+        if (dist < 162 && dist >= 0) {
 
-            targetVel = FlylutPP.get(calc_dist);// Tx offset
+            targetVel = FlylutPP.get(dist);// Tx offset
 
 
         }
