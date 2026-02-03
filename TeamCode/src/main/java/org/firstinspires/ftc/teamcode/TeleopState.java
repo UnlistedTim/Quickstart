@@ -332,6 +332,8 @@ public class TeleopState extends LinearOpMode {
         timer.reset();
         outtakeTimer.reset();
         runtime.reset();
+        Blocker.setPosition(rbg.blockClose);
+        Tripod.setPosition(rbg.tripodIdle);
     }
 
 
@@ -642,6 +644,7 @@ public class TeleopState extends LinearOpMode {
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
+        Tripod = hardwareMap.get(Servo.class, "Tripod");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -670,8 +673,7 @@ public class TeleopState extends LinearOpMode {
         turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Blocker.setPosition(rbg.blockClose);
-        Tripod.setPosition(rbg.tripodIdle);
+
     }
 
 
