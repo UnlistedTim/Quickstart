@@ -39,7 +39,7 @@ public class TeleopState extends LinearOpMode {
 
 
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
-    private Servo Hood, Blocker, Tripod;
+    private Servo Hood, Blocker, Tripod,Led;
     private DigitalChannel botBB,topBB;
     private Limelight3A Limelight;
     private Follower follower;
@@ -211,7 +211,7 @@ public class TeleopState extends LinearOpMode {
                 case IDLE:
                     if (stoptimers(300,intake )){
                         intakeStart();
-                        rbg.limelocked=false;
+
                         state = State.INTAKE;
                        // flyprepower(0.3);
                         stoptimers(0,intake);
@@ -222,6 +222,7 @@ public class TeleopState extends LinearOpMode {
                    // if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
                      if ( gamepad2.leftBumperWasPressed() || rbg.beamintakecheck(topbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
+                            Led.setPosition(rbg.ledred);
                             outtakestate=true;
                     }
 
@@ -268,6 +269,11 @@ public class TeleopState extends LinearOpMode {
             turntable();
 
             telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("dist",rbg.dist);
+            telemetry.addData("target",rbg.targetVel);
+            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
+            telemetry.addData("Hood pos", hoodPos);
+
             telemetry.update();
 
 
@@ -338,12 +344,14 @@ public class TeleopState extends LinearOpMode {
 
 
     public void intakeStart(){
+        Blocker.setPosition(rbg.blockClose);
         flyTop.setPower(rbg.intakeflypower);
         flyBot.setPower(rbg.intakeflypower);
-        checker = new BooleanConfidenceChecker();
+       // checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
         Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
+        rbg.limelocked=false;
     }
 
 
@@ -358,7 +366,8 @@ public class TeleopState extends LinearOpMode {
         rbg.limelocked=false;
         stoptimers(0, intake);
         outtakestate=false;
-        Blocker.setPosition(rbg.blockClose);
+        Led.setPosition(rbg.ledgreen);
+
     }
 
     public void initalize() {
@@ -597,7 +606,7 @@ public class TeleopState extends LinearOpMode {
         if(pinponit_nav) {
          //   dist= Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
             flypower=rbg.flyspeedPP(flyCurrentVel);
-            hoodPos=rbg.flyhoodPP(dist);
+            hoodPos=rbg.flyhoodPP();
         }
         else {
             flypower=rbg.flyspeed(flyCurrentVel,Ty);
@@ -605,7 +614,7 @@ public class TeleopState extends LinearOpMode {
         }
         flyBot.setPower(flypower);
         flyTop.setPower(flypower);
-        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.005){
+        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
             Hood.setPosition(hoodPos);
             hoodLastPos=hoodPos;
         }
@@ -644,7 +653,7 @@ public class TeleopState extends LinearOpMode {
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
-        Tripod = hardwareMap.get(Servo.class, "Tripod");
+        Led = hardwareMap.get(Servo.class, "LED");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -696,7 +705,7 @@ public class TeleopState extends LinearOpMode {
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        Pinpoint.setOffsets(-3.15, -5, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+        Pinpoint.setOffsets(-3.15, -4.9, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -713,7 +722,7 @@ public class TeleopState extends LinearOpMode {
          * you move the robot to the left.
          */
         Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         /*
          * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
@@ -788,7 +797,8 @@ public class TeleopState extends LinearOpMode {
             case SHOOT:
 
                 if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) ){  //TODO OLD 700 vel
-                   // shootState = ShootState.DONE;
+                   // shootState = ShootState.DONE;+
+
                     return true;
                 }
                 break;

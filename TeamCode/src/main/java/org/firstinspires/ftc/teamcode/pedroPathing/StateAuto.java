@@ -61,10 +61,10 @@ public class StateAuto extends OpMode {
     private int pathState;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose RFpickup1Pose = new Pose(14, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(42, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup1Pose = new Pose(12, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup1PoseA = new Pose(38, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(42, 0, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(44, 0, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -118,7 +118,6 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     /* Grab Sample */
-
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     if(red) follower.followPath(RFgrabPickup1, 0.31,true);
@@ -210,15 +209,15 @@ public class StateAuto extends OpMode {
             if (!follower.isBusy()) {
 
                 actionTimer.resetTimer();
-                if(red) follower.followPath(RFgrabPickup2, 0.4,false);
-                else follower.followPath(BFgrabPickup2, 0.4,false);
+                if(red) follower.followPath(RFgrabPickup2, 0.3,false);
+                else follower.followPath(BFgrabPickup2, 0.3,false);
                 setPathState(10);
                 /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
 
             }
             break;
             case 10:
-                if (actionTimer.getElapsedTime()>1500) {
+                if (actionTimer.getElapsedTime()>1200) {
 
                 if(red) follower.followPath(RFscorePickup2,true);
                 else follower.followPath(BFscorePickup2,true);
@@ -291,11 +290,11 @@ public class StateAuto extends OpMode {
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.update();
+//        telemetry.addData("path state", pathState);
+//        telemetry.addData("x", follower.getPose().getX());
+//        telemetry.addData("y", follower.getPose().getY());
+//        telemetry.addData("heading", follower.getPose().getHeading());
+//        telemetry.update();
     }
 
     /**
@@ -322,7 +321,7 @@ public class StateAuto extends OpMode {
          telemetry.addLine("Drive Right Bumper Confrim ");
         telemetry.update();
 
-        while(gamepad1.right_bumper ) {
+        while(!gamepad1.right_bumper ) {
             if (gamepad1.cross) {
                 red = false;
                recevieinfo = true;
@@ -409,7 +408,6 @@ public class StateAuto extends OpMode {
         turretPos=turretSpin.getCurrentPosition();
 
         if(shooting) {
-
             result = Limelight.getLatestResult();
             limeValid = result.isValid();
             if(limeValid)  {
@@ -633,77 +631,32 @@ public class StateAuto extends OpMode {
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
-
-        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
-
-
-        //Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
-
-
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
-
-
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
-
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-
-//        imu = hardwareMap.get(IMU.class, "imu");
-//        // This needs to be changed to match the orientation on your robot
-//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-//                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-//                RevHubOrientationOnRobot.UsbFacingDirection.UP;
-//
-//        RevHubOrientationOnRobot orientationOnRobot = new
-//                RevHubOrientationOnRobot(logoDirection, usbDirection);
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
-//     .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-//                .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-//                .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-//                .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
-
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Intake.setVelocity(0);
         Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-//        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flyBot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
         flyBot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flyTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         flyBot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flyTop.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
-
         Hood.setDirection(Servo.Direction.REVERSE);
-
-
-
-
         turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Blocker.setPosition(rbga.blockClose);

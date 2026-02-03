@@ -44,6 +44,7 @@ public class base {
     public final double BLUEXOFFSET = 48 + 7.17; // TODO
 
     public final double BLUEYOFFSET = 10.33; //TODO
+    public final double  ledgreen=0.5, ledred=0.28;
     private Timer beamtimer;
 
 
@@ -57,7 +58,7 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50,  turnMax=0.3, turnMaxPP = 0.5,dist;
+    public double flyspeedgap=500,Txgap=50,  turnMax=0.3, turnMaxPP = 0.5,dist=50;
 
 
     public double targetVel=0;
@@ -316,13 +317,13 @@ public class base {
 
     }
 
-    public double flyhoodPP(double calc_dist) {
+    public double flyhoodPP() {
 
         double hoodLutGet;
-        if (calc_dist < 162 && calc_dist >= 0) {
+        if (dist < 162 && dist >= 0) {
 
 
-            hoodLutGet = HoodlutPP.get(calc_dist);
+            hoodLutGet = HoodlutPP.get(dist);
         }
 
         else hoodLutGet=0.8;
@@ -366,7 +367,7 @@ public class base {
 //            Tx_offset=0;
 
         }
-        else targetVel = 0.75;
+        else targetVel = 1600;
 
 
 

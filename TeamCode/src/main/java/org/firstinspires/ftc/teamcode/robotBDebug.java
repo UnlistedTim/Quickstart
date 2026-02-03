@@ -154,7 +154,7 @@ public class robotBDebug extends LinearOpMode {
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
 
-        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
+//        beamBreaker = hardwareMap.get(DigitalChannel.class, "beamBreaker");
 
 
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
@@ -280,7 +280,7 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-            boolean BBState = beamBreaker.getState();
+//            boolean BBState = beamBreaker.getState();
 
 //
 //

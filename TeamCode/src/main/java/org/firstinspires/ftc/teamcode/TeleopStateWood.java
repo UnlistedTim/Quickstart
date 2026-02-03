@@ -696,7 +696,7 @@ public class TeleopStateWood extends LinearOpMode {
 //        flypower=rbg.flyspeedPP(flyCurrentVel,dist);
 //        flyBot.setPower(flypower);
 //        flyTop.setPower(flypower);
-        hoodPos=rbg.flyhoodPP(dist);
+        hoodPos=rbg.flyhoodPP();
         if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
 
             Hood.setPosition(hoodPos);
