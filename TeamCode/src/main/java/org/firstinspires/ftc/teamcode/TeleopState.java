@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import java.util.List;
 
 
-@TeleOp(name="TeleopStateA", group="A")
+@TeleOp(name="TeleopState", group="A")
 @Config
 public class TeleopState extends LinearOpMode {
 

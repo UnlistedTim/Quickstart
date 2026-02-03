@@ -39,6 +39,8 @@ public class StateAuto extends OpMode {
 
     private Servo Hood, Blocker, Tripod;
 
+    int shootstep=0;
+
     private DigitalChannel beamBreaker;
 
     private Limelight3A Limelight;
@@ -73,11 +75,11 @@ public class StateAuto extends OpMode {
     private final Pose BFpickup2Pose = new Pose(-42, 1, Math.toRadians(200)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BFpickup2PoseA = new Pose(-45, 1, Math.toRadians(200)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BFendPose = new Pose(-12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
-    private final Pose RNscorePose = new Pose(1, 7, Math.toRadians(290)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose RNpickup1Pose = new Pose(14, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RNpickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RNpickup2Pose = new Pose(42, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
+    private final Pose RNscorePose = new Pose(-26, -28, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNpickup1Pose = new Pose(-4, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RNgatePose = new Pose(0, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup2Pose = new Pose(-4, 46.5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup3Pose = new Pose(8, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
@@ -317,8 +319,7 @@ public class StateAuto extends OpMode {
         follower.setStartingPose(RFstartPose);
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
-
-         telemetry.addLine("Drive Right Bumper Confrim ");
+        telemetry.addLine("Drive Right Bumper Confrim ");
         telemetry.update();
 
         while(!gamepad1.right_bumper ) {
@@ -413,7 +414,6 @@ public class StateAuto extends OpMode {
             if(limeValid)  {
                 Tx=result.getTx();
                 Ty=result.getTy();
-
             }
             flyCurrentVel=flyBot.getVelocity();
             rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
@@ -430,9 +430,7 @@ public class StateAuto extends OpMode {
     public void  turntable()
 
     {
-
         turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, 0);
-        turnPower= Range.clip(turnPower,-rbga.turnMax,rbga.turnMax);
         turretSpin.setPower(turnPower);
     }
 
@@ -468,7 +466,52 @@ public class StateAuto extends OpMode {
 
     }
 
+
+
+
     public void ashoot() {
+
+        flywheel();
+        if (firstshoot) { Ty = -12.2;}
+
+        switch (shootstep) {
+            case 0:
+                shooting = true;
+                rbga.Txgap = 30;//avoid to use last time valu
+                shootstep = 1;
+                break;
+
+
+            case 1:
+                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 2) {
+                    Intake.setVelocity(rbga.outtakVel);
+                    Blocker.setPosition(rbga.blockOpen);
+                    outtaketimer.resetTimer();
+                    shootstep = 2;
+                }
+                break;
+            case 2:
+//                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+//                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+                outtaketime = outtaketimer.getElapsedTime();
+                if ((outtaketime > 700 && filteredIntakeCurrent < 650) || outtaketime > 2500) {
+                    shootstep = 3;
+                }
+
+                break;
+            case 3:
+                shooting = false;
+                limeValid = false;
+                rbga.limelocked = false;
+                adrive = true;
+                firstshoot = false;
+                break;
+
+        }
+
+    }
+
+    public void ashootb() {
 
 
         if (!shooting){

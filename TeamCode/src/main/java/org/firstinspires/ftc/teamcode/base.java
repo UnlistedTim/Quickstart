@@ -58,7 +58,7 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public double flyspeedgap=500,Txgap=50,  turnMax=0.3, turnMaxPP = 0.5,dist=50;
+    public double flyspeedgap=500,Txgap=50,  turnMax=0.4,dist=50;
 
 
     public double targetVel=0;
@@ -75,7 +75,7 @@ public class base {
     int turretCcwlim=750;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
-    public double intakeVel = 2500,outtakVel=2599;
+    public double intakeVel = 2500,outtakVel=2500;
 
 
 
@@ -229,7 +229,7 @@ public class base {
                     limelocked = false;
                 }
 
-
+                turretPower = Range.clip(turretPower,-turnMax,turnMax);
                 return  turretPower ;
             }
 
@@ -241,15 +241,11 @@ public class base {
 
         }
 
-
-
-
         turretPower = turretPID.calculate( turretPos*0.35,  target*0.35);
 
-        turretPower= Range.clip(turretPower,-turnMaxPP,turnMaxPP);
+        turretPower= Range.clip(turretPower,-turnMax,turnMax);
 
         return turretPower;
-
 
 
     }
@@ -286,15 +282,15 @@ public class base {
 
             }
 
-            turretPower= Range.clip(turretPower,-turnMaxPP,turnMaxPP);
-            return  turretPower ;
+
+
         }
 
 
 
-        turretPower = turretPID.calculate( turretTicks*0.35,  0);
+       else  turretPower = turretPID.calculate( turretTicks*0.35,  0);
 
-
+        turretPower= Range.clip(turretPower,-turnMax,turnMax);
         return turretPower;
 
 
