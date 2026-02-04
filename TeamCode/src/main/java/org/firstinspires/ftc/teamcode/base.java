@@ -62,7 +62,7 @@ public class base {
 
 
     public double targetVel=0;
-    public double blockClose = 0.37, blockOpen = 0.46;
+    public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
     private int step=0,beamoncount=0;
 
@@ -168,7 +168,7 @@ public class base {
                          }
                     break;
               case 2:
-                    if(beamtimer.getElapsedTime()>300)
+                    if(beamtimer.getElapsedTime()>750)
                     {
                         step=0;
                         beamoncount=0;
@@ -197,12 +197,12 @@ public class base {
                 }
                 break;
             case 2:
-                if(beamtimer.getElapsedTime()>200)
+                if(beamtimer.getElapsedTime()>800)
                 {
                     step=0;
                     return true;
                 }
-                if(!topon)  step=1;
+                if(!topon||!boton)  step=1;
                 break;
         }
 

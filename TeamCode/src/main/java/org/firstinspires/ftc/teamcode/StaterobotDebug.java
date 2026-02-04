@@ -306,9 +306,6 @@ public class StaterobotDebug extends LinearOpMode {
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
 
-        dashboardTelemetry.addData("Top CUrrent", flyTop.getCurrent(CurrentUnit.MILLIAMPS));
-        dashboardTelemetry.addData("Bot CUrrent", flyBot.getCurrent(CurrentUnit.MILLIAMPS));
-
         dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
         dashboardTelemetry.update();
 

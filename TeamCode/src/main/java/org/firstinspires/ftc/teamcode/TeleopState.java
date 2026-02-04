@@ -371,9 +371,9 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void initalize() {
+        follower = Constants.createFollower(hardwareMap);
         Hw_init();
         rbg.init();
-        follower = Constants.createFollower(hardwareMap);
         buildPaths();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
@@ -796,7 +796,7 @@ public class TeleopState extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if ((filteredIntakeCurrent < 700 && stoptimers(500,outtake)) ){  //TODO OLD 700 vel
+                if ((rbg.beamouttakecheck(topbb,botbb) && stoptimers(1000,outtake)) ){  //TODO OLD 700 vel
                    // shootState = ShootState.DONE;+
 
                     return true;
