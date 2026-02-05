@@ -272,6 +272,8 @@ public class base {
                 if(beamtimer.getElapsedTime()>500)
                 {
                     step=0;
+                    ballcount=0;
+                    beamoncount=0;
                     return true;
                 }
                 if(!topon||!boton)  step=1;
