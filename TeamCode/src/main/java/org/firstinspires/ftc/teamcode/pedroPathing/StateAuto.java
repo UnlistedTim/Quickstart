@@ -511,14 +511,15 @@ public class StateAuto extends OpMode {
 
                 break;
             case 3:
-                if(outtaketimer.getElapsedTimeSeconds()>300)
-                shooting = false;
-                limeValid = false;
-                rbga.limelocked = false;
-                adrive = true;
-                firstshoot = false;
-                shootstep=0;
-                break;
+                if(outtaketimer.getElapsedTime()>300) {
+                    shooting = false;
+                    limeValid = false;
+                    rbga.limelocked = false;
+                    adrive = true;
+                    firstshoot = false;
+                    shootstep = 0;
+                    break;
+                }
 
         }
 
