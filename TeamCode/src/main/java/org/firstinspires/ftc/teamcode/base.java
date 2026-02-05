@@ -64,7 +64,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
-    private int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0;
+    private int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0,beamtimecount=0;
 
 
     //double turretPower=0;
@@ -190,26 +190,55 @@ public class base {
     public boolean beamintakecheck1(boolean topon,boolean boton)
 
     {
-        if(ballcount>1){beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
+        if(ballcount>1){
+            beamtimecount=0;
+            beamoffcount=0;
+            beamoncount1=0;
+            ballcount=0;
+            beamcheck=false;
+            return true;
+        }
        //if(ballcount==0&&!topon) ballcount=1;
+        if(!beamcheck&&!topon&!boton) {
+            beamtimer.resetTimer();
+            beamcheck=true;
+            beamtimecount=0;
+        }
+        if(beamcheck&&boton)  {
+            beamtimecount++;
+            if(beamtimecount>2) beamcheck=false;
+            if(beamtimer.getElapsedTime()>500) {
+                beamtimecount=0;
+                beamoffcount=0;
+                beamoncount1=0;
+                ballcount=0;
+                beamcheck=false;
+                return true;
+            }
+
+        }
+
+
         switch (step1) {
             case 0:
                 if (!boton)   {
                     beamoffcount++;
                 }
                 else beamoffcount=0;
-                if(beamoffcount>4) {step1=1;beamtimer.resetTimer();beamcheck=true;}
+                if(beamoffcount>3) {step1=1;}
                 break;
 
             case 1:
-                if(beamcheck &&!topon&&!boton&&beamtimer.getElapsedTime()>500)  {beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
+
                 if (beamoncount1>2){
                     beamcheck=false;
                     if(!boton)  {ballcount++; step1=0;}
                 }
 
-               if(boton) beamoncount1++; else {beamoncount1=0;beamcheck=true;}
+               if(boton) beamoncount1++; else {beamoncount1=0;}
                break;
+
+
 
         }
 
