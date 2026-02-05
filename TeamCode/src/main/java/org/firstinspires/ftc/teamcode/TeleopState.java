@@ -56,7 +56,7 @@ public class TeleopState extends LinearOpMode {
     public boolean lift = false;
 
     public boolean BBState = true,BBState0=true,BBState1=true;
-    public boolean topbb=true,botbb=true;
+    public boolean topbb=true,botbb=true,intakefirst=false;
 
     public boolean prevBBState = true,prevBBState2;
 
@@ -74,7 +74,7 @@ public class TeleopState extends LinearOpMode {
 
     public double hoodLastPos = 0.0,targetx=144,targety=144;
 
-    public double hoodPos = 0, currentime=0,previoustime=0;
+    public double hoodPos = 0, currentime=0,previoustime=0,flypower=0.3;
 
     int i = 0;
 
@@ -106,7 +106,7 @@ public class TeleopState extends LinearOpMode {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     boolean limeValid = false,pinponit_nav=true;
-    boolean outtakestate=false;
+    boolean outtakestate=false,intakestate=true;
     boolean drive = true, present = false;
     int  shoot_count = 0;
     int id = 1,intakecount=0,withball=0;
@@ -209,7 +209,7 @@ public class TeleopState extends LinearOpMode {
 
                     break;
                 case IDLE:
-                    if (stoptimers(300,intake )){
+                    if (stoptimers(500,intake )){
                         intakeStart();
 
                         state = State.INTAKE;
@@ -220,10 +220,12 @@ public class TeleopState extends LinearOpMode {
 
                 case INTAKE:
                    // if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
-                     if ( gamepad2.leftBumperWasPressed() || rbg.beamintakecheck(topbb,botbb)){//(stoptimers(500,intake)
+                     if ( gamepad2.leftBumperWasPressed() || rbg.beamintakecheck1(topbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
+                            Intake.setVelocity(0);
                             outtakestate=true;
+                            intakestate=false;
                     }
 
                     break;
@@ -265,16 +267,17 @@ public class TeleopState extends LinearOpMode {
             statusupdate();//caputure all the hardware reading info.
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
             else stopDriveMotors();
+           // if(gamepad2.right_trigger>0.4) Intake.
 
             turntable();
 
-            telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
-            telemetry.addData("dist",rbg.dist);
-            telemetry.addData("target",rbg.targetVel);
-            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
-            telemetry.addData("Hood pos", hoodPos);
-
-            telemetry.update();
+//            telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
+//            telemetry.addData("dist",rbg.dist);
+//            telemetry.addData("target",rbg.targetVel);
+//            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
+//            telemetry.addData("Hood pos", hoodPos);
+//
+//            telemetry.update();
 
 
 
@@ -314,7 +317,7 @@ public class TeleopState extends LinearOpMode {
     public void  turntable()
 
     {
-        if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
+        if(pinponit_nav)  turnPower= rbg.turretturnPP(!intakestate,pose,turretPos);
        else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
 
        turretSpin.setPower(turnPower);
@@ -344,14 +347,15 @@ public class TeleopState extends LinearOpMode {
 
 
     public void intakeStart(){
-        Blocker.setPosition(rbg.blockClose);
-        flyTop.setPower(rbg.intakeflypower);
-        flyBot.setPower(rbg.intakeflypower);
+       // Blocker.setPosition(rbg.blockClose);
+       flypower=rbg.intakeflypower1;
+       intakefirst=true;
        // checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
-        Blocker.setPosition(rbg.blockClose);
+      //  Blocker.setPosition(rbg.blockClose);
         Intake.setVelocity(rbg.intakeVel);
         rbg.limelocked=false;
+        intakestate=true;
     }
 
 
@@ -602,23 +606,30 @@ public class TeleopState extends LinearOpMode {
 
     public void flywheel() {
 
-        double flypower;
-        if(pinponit_nav) {
-         //   dist= Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
-            flypower=rbg.flyspeedPP(flyCurrentVel);
-            hoodPos=rbg.flyhoodPP();
+
+        if(outtakestate) {
+
+            if (pinponit_nav) {
+                //   dist= Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
+                flypower = rbg.flyspeedPP(flyCurrentVel);
+                hoodPos = rbg.flyhoodPP();
+            } else {
+                flypower = rbg.flyspeed(flyCurrentVel, Ty);
+                hoodPos = rbg.flyhood(Ty);
+            }
+
+            if (hoodPos > 0 && Math.abs(hoodPos - hoodLastPos) > 0.01) {
+                Hood.setPosition(hoodPos);
+                hoodLastPos = hoodPos;
+            }
         }
-        else {
-            flypower=rbg.flyspeed(flyCurrentVel,Ty);
-            hoodPos=rbg.flyhood(Ty);
+        else
+
+        {
+            if(intakefirst&&!botbb) {Blocker.setPosition(rbg.blockClose);flypower=rbg.intakeflypower2;intakefirst=false;}
         }
         flyBot.setPower(flypower);
         flyTop.setPower(flypower);
-        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
-            Hood.setPosition(hoodPos);
-            hoodLastPos=hoodPos;
-        }
-
 
     }
 
@@ -646,7 +657,7 @@ public class TeleopState extends LinearOpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
-        topBB = hardwareMap.get(DigitalChannel.class, "botBB");
+        topBB = hardwareMap.get(DigitalChannel.class, "topBB");
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
         configurePinpoint();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo

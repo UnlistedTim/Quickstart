@@ -31,7 +31,7 @@ public class base {
     public double blueGoalY = 144;
     public double targetGoalY = 144;
     public double targetGoalX = 144;
-    public double Pi=Math.PI,intakeflypower=0.2;
+    public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.6;
 
 
 
@@ -64,7 +64,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
-    private int step=0,beamoncount=0;
+    private int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0;
 
 
     //double turretPower=0;
@@ -157,8 +157,13 @@ public class base {
 
       {
       switch (step) {
-              case 0:
-                    if (!topon)   step = 1;
+
+
+          case 0:
+                    if (!topon)   {
+                        step = 1;
+                    }
+
                     break;
               case 1:
                     if (!boton) {
@@ -168,7 +173,7 @@ public class base {
                          }
                     break;
               case 2:
-                    if(beamtimer.getElapsedTime()>750)
+                    if(beamtimer.getElapsedTime()>500)
                     {
                         step=0;
                         beamoncount=0;
@@ -182,11 +187,40 @@ public class base {
 
             return false;
       }
+    public boolean beamintakecheck1(boolean topon,boolean boton)
 
+    {
+        if(ballcount>1){beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
+       //if(ballcount==0&&!topon) ballcount=1;
+        switch (step1) {
+            case 0:
+                if (!boton)   {
+                    beamoffcount++;
+                }
+                else beamoffcount=0;
+                if(beamoffcount>4) {step1=1;beamtimer.resetTimer();}
+                break;
+
+            case 1:
+                if(topon&&beamtimer.getElapsedTime()>500)  {beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
+                if (beamoncount1>3&&!boton ) {ballcount++; step1=0;}
+               if(boton) beamoncount1++; else beamoncount1=0;
+               break;
+
+        }
+
+        return false;
+    }
     public boolean beamouttakecheck(boolean topon ,boolean boton)
 
     {
+        if(ballcount>1&& beamoncount>15) {ballcount=0;beamoncount=0;return true;}
+        if(beamoncount>2&&!topon) {ballcount++;}
+        if (topon) beamoncount++; else beamoncount=0;
+
         switch (step) {
+
+
             case 0:
                 if (boton)   step = 1;
                 break;
@@ -197,7 +231,7 @@ public class base {
                 }
                 break;
             case 2:
-                if(beamtimer.getElapsedTime()>800)
+                if(beamtimer.getElapsedTime()>500)
                 {
                     step=0;
                     return true;
@@ -256,10 +290,6 @@ public class base {
         double dy = targetGoalY -p.getY(DistanceUnit.INCH);
 
         double targetAngle= Math.atan2(dy, dx) - (p.getHeading(AngleUnit.RADIANS) -Pi);
-     // desired = Math.atan2(Math.sin(desired), Math.cos(desired));
-//        if (desired < minAngle) return minAngle;
-//        if (desired > maxAngle) return maxAngle;
-       // return desired;
         if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
         dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 

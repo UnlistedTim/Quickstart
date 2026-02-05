@@ -359,8 +359,8 @@ public class TeleopStateWood extends LinearOpMode {
 
 
     public void intakeStart(){
-        flyTop.setPower(rbg.intakeflypower);
-        flyBot.setPower(rbg.intakeflypower);
+        flyTop.setPower(rbg.intakeflypower1);
+        flyBot.setPower(rbg.intakeflypower1);
         checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
 
