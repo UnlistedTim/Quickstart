@@ -49,7 +49,7 @@ public class base {
 
 
 
-    public boolean limelocked=false ,intakefirst=false,intakelast=false;
+    public boolean limelocked=false ,intakefirst=false,intakelast=false,beamcheck=false;
     InterpLUT Flylut = new InterpLUT();
 
     InterpLUT FlylutPP = new InterpLUT();
@@ -198,13 +198,17 @@ public class base {
                     beamoffcount++;
                 }
                 else beamoffcount=0;
-                if(beamoffcount>4) {step1=1;beamtimer.resetTimer();}
+                if(beamoffcount>4) {step1=1;beamtimer.resetTimer();beamcheck=true;}
                 break;
 
             case 1:
-                if(topon&&beamtimer.getElapsedTime()>500)  {beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
-                if (beamoncount1>3&&!boton ) {ballcount++; step1=0;}
-               if(boton) beamoncount1++; else beamoncount1=0;
+                if(beamcheck &&!topon&&!boton&&beamtimer.getElapsedTime()>500)  {beamoffcount=0;beamoncount1=0;ballcount=0;return true;}
+                if (beamoncount1>2){
+                    beamcheck=false;
+                    if(!boton)  {ballcount++; step1=0;}
+                }
+
+               if(boton) beamoncount1++; else {beamoncount1=0;beamcheck=true;}
                break;
 
         }
