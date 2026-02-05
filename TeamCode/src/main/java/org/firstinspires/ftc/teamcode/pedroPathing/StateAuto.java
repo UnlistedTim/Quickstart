@@ -38,6 +38,7 @@ public class StateAuto extends OpMode {
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
 
     private Servo Hood, Blocker, Tripod;
+    private DigitalChannel botBB,topBB;
 
     int shootstep=0;
 
@@ -45,6 +46,7 @@ public class StateAuto extends OpMode {
 
     private Limelight3A Limelight;
     LLResult result;
+    private boolean atopbb,abotbb;
 
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
 
@@ -254,12 +256,12 @@ public class StateAuto extends OpMode {
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
                         blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET);
-                        blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
+                     //   blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
 
                     } else {
                         blackboard.put("Heading", follower.getPose().getHeading());
                         blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET);
-                        blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
+                    //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
 
 
@@ -322,17 +324,8 @@ public class StateAuto extends OpMode {
         telemetry.addLine("Drive Right Bumper Confrim ");
         telemetry.update();
 
-        while(!gamepad1.right_bumper ) {
-            if (gamepad1.cross) {
-                red = false;
-               recevieinfo = true;
-                telemetry.addLine("Blue Selected");
-            }
-            if (gamepad1.circle) {
-                red = true;
-               recevieinfo = true;
-                telemetry.addLine("Red  Selected");
-            }
+
+
 //            if (gamepad2.triangleWasPressed()) {
 //                pattern_id = 21;
 //                recevieinfo = true;
@@ -348,14 +341,45 @@ public class StateAuto extends OpMode {
 //                recevieinfo = true;
 //                telemetry.addLine(" Green 3 selected");
 //            }
-            if (recevieinfo) {
-              //  configinfo();
-                telemetry.update();
-            }
+
 
         }
 
 
+
+
+
+
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
+
+
+
+    @Override
+    public void init_loop() {
+
+        if (gamepad1.cross) {
+            red = false;
+            recevieinfo = true;
+            telemetry.addLine("Blue Selected");
+            telemetry.update();
+        }
+        if (gamepad1.circle) {
+            red = true;
+            recevieinfo = true;
+            telemetry.addLine("Red  Selected");
+            telemetry.update();
+        }
+
+    }
+
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
+    @Override
+    public void start() {
         blackboard.put("COLOR",   red);
 
 
@@ -368,28 +392,6 @@ public class StateAuto extends OpMode {
         }
         Limelight.start();
 
-    }
-
-    /**
-     * This method is called continuously after Init while waiting for "play".
-     **/
-
-
-
-    @Override
-    public void init_loop() {
-
-
-
-
-    }
-
-    /**
-     * This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system
-     **/
-    @Override
-    public void start() {
         opmodeTimer.resetTimer();
         setPathState(0);
 
@@ -402,11 +404,21 @@ public class StateAuto extends OpMode {
      **/
     @Override
     public void stop() {
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+        flyBot.setPower(0);
+        flyTop.setPower(0);
+        Intake.setPower(0);
+        turretSpin.setPower(0);
     }
     public void statusupdate()
 
     {
         turretPos=turretSpin.getCurrentPosition();
+        atopbb=topBB.getState();
+        abotbb=botBB.getState();
 
         if(shooting) {
             result = Limelight.getLatestResult();
@@ -416,8 +428,8 @@ public class StateAuto extends OpMode {
                 Ty=result.getTy();
             }
             flyCurrentVel=flyBot.getVelocity();
-            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-            filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+//            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+//            filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
 
@@ -452,8 +464,7 @@ public class StateAuto extends OpMode {
 
     public void flywheel() {
 
-        double fpower;
-        fpower=rbga.flyspeed(flyCurrentVel,Ty);
+        double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
         flyBot.setPower(fpower);
         flyTop.setPower(fpower);
         hoodPos=rbga.flyhood(Ty);
@@ -470,9 +481,8 @@ public class StateAuto extends OpMode {
 
 
     public void ashoot() {
-
+        if (firstshoot) Ty = -12.2;
         flywheel();
-        if (firstshoot) { Ty = -12.2;}
 
         switch (shootstep) {
             case 0:
@@ -493,13 +503,15 @@ public class StateAuto extends OpMode {
             case 2:
 //                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
 //                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
-                outtaketime = outtaketimer.getElapsedTime();
-                if ((outtaketime > 700 && filteredIntakeCurrent < 650) || outtaketime > 2500) {
+
+                if (rbga.beamouttakecheck(atopbb,abotbb) || outtaketimer.getElapsedTime() > 2000) {
                     shootstep = 3;
+                    outtaketimer.resetTimer();
                 }
 
                 break;
             case 3:
+                if(outtaketimer.getElapsedTimeSeconds()>300)
                 shooting = false;
                 limeValid = false;
                 rbga.limelocked = false;
@@ -675,6 +687,8 @@ public class StateAuto extends OpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
+        botBB = hardwareMap.get(DigitalChannel.class, "botBB");
+        topBB = hardwareMap.get(DigitalChannel.class, "topBB");
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");

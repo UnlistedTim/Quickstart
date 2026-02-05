@@ -37,13 +37,18 @@ public class base {
 
 
 
-    public final double REDXOFFSET = -7.17 + 96; //TODO
 
-    public final double REDYOFFSET = 10.33; //TODO
 
-    public final double BLUEXOFFSET = 48 + 7.17; // TODO
+    public final double YOFFSET = 7.25; //TODO
 
-    public final double BLUEYOFFSET = 10.33; //TODO
+    public final double HEADINGOFFSET = Math.PI/2; // TODO
+
+
+    public final double REDXOFFSET = 144-7.5; //TODO
+
+    public final double BLUEXOFFSET = 7.5; // TODO
+
+
     public final double  ledgreen=0.5, ledred=0.28;
     private Timer beamtimer;
 
@@ -64,7 +69,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
-    private int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0,beamtimecount=0;
+    public int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0,beamtimecount=0;
 
 
     //double turretPower=0;
@@ -75,7 +80,7 @@ public class base {
     int turretCcwlim=750;
     public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
-    public double intakeVel = 2500,outtakVel=2500;
+    public double intakeVel = 2500,outtakVel=2200;
 
 
 
@@ -204,10 +209,10 @@ public class base {
             beamcheck=true;
             beamtimecount=0;
         }
-        if(beamcheck&&boton)  {
-            beamtimecount++;
-            if(beamtimecount>2) beamcheck=false;
-            if(beamtimer.getElapsedTime()>500) {
+        if(beamcheck) {
+         if(boton)  beamtimecount++; else beamtimecount=0;
+         if(beamtimecount>2) beamcheck=false;
+        if(beamtimer.getElapsedTime()>600) {
                 beamtimecount=0;
                 beamoffcount=0;
                 beamoncount1=0;
@@ -215,8 +220,8 @@ public class base {
                 beamcheck=false;
                 return true;
             }
-
         }
+
 
 
         switch (step1) {

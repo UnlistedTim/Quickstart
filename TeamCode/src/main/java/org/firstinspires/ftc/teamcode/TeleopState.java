@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-
 import android.annotation.SuppressLint;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -21,15 +19,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-
 import java.util.List;
 
 
@@ -37,15 +32,15 @@ import java.util.List;
 @Config
 public class TeleopState extends LinearOpMode {
 
-
+    Pose2D pose;
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
     private Servo Hood, Blocker, Tripod,Led;
     private DigitalChannel botBB,topBB;
     private Limelight3A Limelight;
     private Follower follower;
     public GoBildaPinpointDriver Pinpoint;
-    BooleanConfidenceChecker checker = new BooleanConfidenceChecker(); //todo
-    Pose2D pose;
+   // BooleanConfidenceChecker checker = new BooleanConfidenceChecker(); //todo
+
 
     public base rbg= new base();
 
@@ -132,9 +127,7 @@ public class TeleopState extends LinearOpMode {
 
     public int turretPos = 0;
 
-    public double fieldRelativeAngle = 0;
 
-    public double robotRelativeTurretAngle = 0;
     public int turretTarget=0;
     public double turnPower=0 ;
     public double flyCurrentVel = 0;
@@ -167,13 +160,11 @@ public class TeleopState extends LinearOpMode {
 
     public void runOpMode() {
 
-
-
-        //push
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
         getAutoVars();
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
+        pose = Pinpoint.getPosition();
         waitForStart();
 
         afterstart();
@@ -191,29 +182,12 @@ public class TeleopState extends LinearOpMode {
             switch (state) {
                 case DEBUG:
 
-                  //  intakecount++;
-                    if(BBState0&&BBState1) {
-                        intakecheck=false;
-                        if(!BBState){
-                            startime=timer.milliseconds();intakecheck=true;
-                        }
-                    }
-
-                    if(intakecheck&&timer.milliseconds()-startime>400) {
-                        Intake.setVelocity(0);
-                        sleep(500000000);
-
-                    }
-                    BBState1=BBState0;
-                    BBState0=BBState;
 
                     break;
                 case IDLE:
                     if (stoptimers(500,intake )){
                         intakeStart();
-
                         state = State.INTAKE;
-                       // flyprepower(0.3);
                         stoptimers(0,intake);
                         break;
                     }
@@ -318,7 +292,7 @@ public class TeleopState extends LinearOpMode {
     public void  turntable()
 
     {
-        if(pinponit_nav)  turnPower= rbg.turretturnPP(!intakestate,pose,turretPos);
+        if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
        else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
 
        turretSpin.setPower(turnPower);
@@ -344,6 +318,7 @@ public class TeleopState extends LinearOpMode {
         runtime.reset();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
+        Led.setPosition(rbg.ledgreen);
     }
 
 
@@ -357,6 +332,11 @@ public class TeleopState extends LinearOpMode {
         Intake.setVelocity(rbg.intakeVel);
         rbg.limelocked=false;
         intakestate=true;
+        rbg.beamtimecount=0;
+        rbg.beamoffcount=0;
+        rbg.beamoncount1=0;
+        rbg.ballcount=0;
+        rbg.beamcheck=false;
     }
 
 
@@ -466,14 +446,14 @@ public class TeleopState extends LinearOpMode {
             debounce = true;
         }
 
-        if (checker.update(!BBState)) {
-//            Intake.setVelocity(100);
-
-            resetIntakeVars();
-            state = State.OUTTAKE;
-            return true;
-
-        }
+//        if (checker.update(!BBState)) {
+////            Intake.setVelocity(100);
+//
+//            resetIntakeVars();
+//            state = State.OUTTAKE;
+//            return true;
+//
+//        }
 
 //
 
@@ -754,7 +734,7 @@ public class TeleopState extends LinearOpMode {
             startHeading = (double) blackboard.get("Heading");
         }
         catch (NullPointerException e){
-            startHeading = 3*Math.PI/2;
+            startHeading = rbg.HEADINGOFFSET;
         }
 
         try {
@@ -762,7 +742,9 @@ public class TeleopState extends LinearOpMode {
         }
 
         catch (NullPointerException e){
-            startX = rbg.REDXOFFSET;
+            if(red)
+                startX = rbg.REDXOFFSET;
+            else startX = rbg.BLUEXOFFSET;
         }
 
         try {
@@ -770,7 +752,7 @@ public class TeleopState extends LinearOpMode {
         }
 
         catch (NullPointerException e){
-            startY = rbg.REDYOFFSET;
+            startY = rbg.YOFFSET;
         }
 
         try{
@@ -808,11 +790,15 @@ public class TeleopState extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if ((rbg.beamouttakecheck(topbb,botbb) && stoptimers(1000,outtake)) ){  //TODO OLD 700 vel
+                if ((rbg.beamouttakecheck(topbb,botbb) ) ){
                    // shootState = ShootState.DONE;+
-
-                    return true;
+                    stoptimers(0, outtake);
+                    shootState = ShootState.DONE;
                 }
+                break;
+            case DONE:
+                if(stoptimers(300, outtake))
+                    return true;
                 break;
 
 

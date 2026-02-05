@@ -845,7 +845,7 @@ public class TeleopStateWood extends LinearOpMode {
         }
 
         catch (NullPointerException e){
-            startY = rbg.REDYOFFSET;
+           // startY = rbg.REDYOFFSET;
         }
 
         try{
