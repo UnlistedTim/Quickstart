@@ -574,13 +574,13 @@ public class TeleopState extends LinearOpMode {
         rightFront.setPower(frontRightPower);
         rightBack.setPower(backRightPower);
 
-//        telemetry.addData("Angle", botHeading);
+        telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
 //        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
 //        telemetry.addData("Y", pose.getY(DistanceUnit.INCH));
 
 
 
-//        telemetry.update();
+        telemetry.update();
     }
 
 
