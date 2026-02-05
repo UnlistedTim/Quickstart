@@ -385,7 +385,7 @@ public class StateAuto extends OpMode {
 
         if (red) {
 
-            Limelight.pipelineSwitch(6);
+            Limelight.pipelineSwitch(2);
         } else {
 
             Limelight.pipelineSwitch(7);
@@ -517,6 +517,7 @@ public class StateAuto extends OpMode {
                 rbga.limelocked = false;
                 adrive = true;
                 firstshoot = false;
+                shootstep=0;
                 break;
 
         }
