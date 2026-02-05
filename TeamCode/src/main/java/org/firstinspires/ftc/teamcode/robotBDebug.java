@@ -207,9 +207,10 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-        waitForStart();
+        waitForStart();  //X 88.3 Y 10.3
 
-        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 88.83, 10.33, AngleUnit.RADIANS, 3*Math.PI/2));
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 144 - 7.5, 7.25, AngleUnit.RADIANS, Math.PI/2));
+        Limelight.pipelineSwitch(2);
 
         Limelight.start();
 
@@ -226,9 +227,9 @@ public class robotBDebug extends LinearOpMode {
 
             double turretPos = turretSpin.getCurrentPosition();
 
-            rawIntakeCurrent = Intake.getCurrent(CurrentUnit.MILLIAMPS);
-
-            filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
+//            rawIntakeCurrent = Intake.getCurrent(CurrentUnit.MILLIAMPS);
+//
+//            filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
 
 
 
@@ -249,34 +250,37 @@ public class robotBDebug extends LinearOpMode {
 
             Tripod.setPosition(tripodPos);
 
-//            LLResult result = Limelight.getLatestResult();
-//            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-//            for (LLResultTypes.FiducialResult fiducial : fiducials) {
-//                id = fiducial.getFiducialId(); // The ID number of the fiducial
-//            }
-//
-//            limeValid = result.isValid();
-//
-//            if (limeValid){
-//
+            LLResult result = Limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                id = fiducial.getFiducialId(); // The ID number of the fiducial
+            }
+
+            limeValid = result.isValid();
+
+            if (limeValid){
+
 //                Tx = result.getTx();
-//                Ty = result.getTy();
-//
-//            }
+                Ty = result.getTy();
+
+            }
 
             double distance = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),144,144);
 
             dashboardTelemetry.addData("X pos", pose.getX(DistanceUnit.INCH));
             dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
-            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
+//            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
+
+//            dashboardTelemetry.addData("Tx", Tx);
+            dashboardTelemetry.addData("ty",Ty);
 
             dashboardTelemetry.addData("Distance to goal",distance);
 
 
-            dashboardTelemetry.addData("Turret Pos",turretPos);
+//            dashboardTelemetry.addData("Turret Pos",turretPos);
 
-            dashboardTelemetry.addData("Intake raw current", rawIntakeCurrent);
-            dashboardTelemetry.addData("Intake filtered current", filteredIntakeCurrent);
+//            dashboardTelemetry.addData("Intake raw current", rawIntakeCurrent);
+//            dashboardTelemetry.addData("Intake filtered current", filteredIntakeCurrent);
 
 
 
@@ -304,7 +308,7 @@ public class robotBDebug extends LinearOpMode {
 
 
 
-            dashboardTelemetry.addData("Intake velocity",Intake.getVelocity());
+//            dashboardTelemetry.addData("Intake velocity",Intake.getVelocity());
 
 
 
@@ -359,7 +363,7 @@ public class robotBDebug extends LinearOpMode {
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        Pinpoint.setOffsets(3.15, -5, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+        Pinpoint.setOffsets(3.15, -4.9, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -376,7 +380,7 @@ public class robotBDebug extends LinearOpMode {
          * you move the robot to the left.
          */
         Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         /*
          * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
