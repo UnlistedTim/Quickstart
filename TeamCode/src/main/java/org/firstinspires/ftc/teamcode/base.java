@@ -120,40 +120,64 @@ public class base {
         beamtimer=new Timer();
         flyPID.setPID(flyp, flyi, flyd);
         turretPID.setPID(turretkP, turretkI, turretkD);
-        Flylut.add(-13.5,1720); //far
+
+        Flylut.add(-13.5,1720); //far old
         Flylut.add(-12.7,1680); //far
         Flylut.add(-12.2,1630); //far
-        Flylut.add(-11.85,1610); //far
-        Flylut.add(-9.27,1400); //close
-        Flylut.add(-2.71,1240); //close
-        Flylut.add(6.28,1060); //close
-        Flylut.add(11 , 1000); // close
-        Hoodlut.add(-13.5,0.78);   //far
-        Hoodlut.add(-12.7,0.75);   //far
-        Hoodlut.add(-12.2,0.75);   //far
-        Hoodlut.add(-11.8,0.75);   //far
-        Hoodlut.add(-9.27,0.65);
-        Hoodlut.add(-2.71,0.48);
-        Hoodlut.add(6.28,0.2);
-        Hoodlut.add(11,0.18);
+        Flylut.add(-11.85,1610); //far old
+
+        Flylut.add(-9.26, 1440); //close
+        Flylut.add(-6.208,1380); //close
+        Flylut.add(-2.31,1420); //close
+        Flylut.add(5.078,1250); //close
+        Flylut.add(15.21 , 1120); // close
+        Flylut.add(16 , 800); // close
+
+
+        Hoodlut.add(-13.5,0.8);   //far old
+        Hoodlut.add(-12.7,0.8);   //far
+        Hoodlut.add(-12.2,0.8);   //far
+        Hoodlut.add(-11.8,0.8);   //far old
+
+        Hoodlut.add(-9.26,0.62); //close
+        Hoodlut.add(-6.208,0.6);
+        Hoodlut.add(-2.31,0.57);
+        Hoodlut.add(5.078,0.32);
+        Hoodlut.add(15.21,0.15);
+        Hoodlut.add(16,0.16); //close
+
+
         Flylut.createLUT();
         Hoodlut.createLUT();
-        FlylutPP.add(0,800);
-        FlylutPP.add(49.01,1080);
-        FlylutPP.add(69.01,1180);
-        FlylutPP.add(89.49,1290);
-        FlylutPP.add(109.18,1420);
-        FlylutPP.add(129.20,1540); //far
-        FlylutPP.add(144.66,1630); //far
-        FlylutPP.add(162.00,1720); //far
+
+        FlylutPP.add(0,800); //close
+        FlylutPP.add(57.724,1120);
+        FlylutPP.add(69.795,1250);
+        FlylutPP.add(85.513,1420);
+        FlylutPP.add(100.717,1380);
+        FlylutPP.add(115.923,1440); //cloe
+
+        FlylutPP.add(129.20,1540); //far old
+        FlylutPP.add(144.66,1630); //far old
+        FlylutPP.add(162.00,1720); //far old
+
+
+
+
         HoodlutPP.add(0,0.15);
-        HoodlutPP.add(49.01,0.15);
-        HoodlutPP.add(69.01,0.48);
-        HoodlutPP.add(89.49,0.55);
-        HoodlutPP.add(109.18,0.65);
-        HoodlutPP.add(129.20,0.8);//far
-        HoodlutPP.add(144.66,0.8);//far
-        HoodlutPP.add(162.00,0.8); //far
+
+        HoodlutPP.add(57.724,0.15); //close
+        HoodlutPP.add(69.795,0.32);
+        HoodlutPP.add(85.513,0.57);
+        HoodlutPP.add(100.717,0.6);
+        HoodlutPP.add(115.923,0.62);
+
+        HoodlutPP.add(129.20,0.8);//far  old
+        HoodlutPP.add(144.66,0.8);//far old
+        HoodlutPP.add(162.00,0.8); //far old
+
+
+
         FlylutPP.createLUT();
         HoodlutPP.createLUT();
    }
