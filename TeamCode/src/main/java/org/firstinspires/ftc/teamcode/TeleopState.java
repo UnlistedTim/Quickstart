@@ -230,7 +230,7 @@ public class TeleopState extends LinearOpMode {
 
                     break;
                 case OUTTAKE:
-                    flywheel();
+
                     if (gamepad2.rightBumperWasPressed() || shooting){
                         if(shoot()) outtakestate=false;
                     }
@@ -263,10 +263,11 @@ public class TeleopState extends LinearOpMode {
                 }
 
             }
-
+            if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);  else stopDriveMotors();
             statusupdate();//caputure all the hardware reading info.
-            if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
-            else stopDriveMotors();
+            flywheel();
+
+
            // if(gamepad2.right_trigger>0.4) Intake.
 
             turntable();
