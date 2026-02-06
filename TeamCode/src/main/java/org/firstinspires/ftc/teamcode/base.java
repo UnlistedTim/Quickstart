@@ -236,7 +236,7 @@ public class base {
         if(!topon&&!midon&&!boton) beamscancount++; else beamscancount--;
         if(beamscancount>4) {beamscancount=0;return true;}
         return false;
-        
+
 
     }
 
