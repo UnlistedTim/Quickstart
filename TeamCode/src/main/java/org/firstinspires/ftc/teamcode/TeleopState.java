@@ -35,7 +35,7 @@ public class TeleopState extends LinearOpMode {
     Pose2D pose;
     private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
     private Servo Hood, Blocker, Tripod,Led;
-    private DigitalChannel botBB,topBB;
+    private DigitalChannel botBB,topBB,midBB;
     private Limelight3A Limelight;
     private Follower follower;
     public GoBildaPinpointDriver Pinpoint;
@@ -50,8 +50,8 @@ public class TeleopState extends LinearOpMode {
 
     public boolean lift = false;
 
-    public boolean BBState = true,BBState0=true,BBState1=true;
-    public boolean topbb=true,botbb=true,intakefirst=false;
+    public boolean BBState = true;
+    public boolean topbb=true,botbb=true,midbb=true,intakefirst=false;
 
     public boolean prevBBState = true,prevBBState2;
 
@@ -639,6 +639,8 @@ public class TeleopState extends LinearOpMode {
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
+       // midBB = hardwareMap.get(DigitalChannel.class, "midBB");
+
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
         configurePinpoint();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo

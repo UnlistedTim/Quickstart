@@ -69,7 +69,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
-    public int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0,beamtimecount=0;
+    public int step=0,beamoncount=0,ballcount=0,beamoffcount=0,beamoncount1=0,step1=0,beamtimecount=0,beamscancount=0;
 
 
     //double turretPower=0;
@@ -216,6 +216,30 @@ public class base {
 
             return false;
       }
+
+    public boolean beamscanouttake (boolean topon, boolean midon,boolean boton)
+
+    {
+        ballcount=0;
+      if(topon&&midon&&boton) beamscancount++; else beamscancount=0;
+      if(beamscancount>4) {beamscancount=0;return true;}
+
+      return false;//no result
+
+    }
+
+
+    public boolean beamscanintake(boolean topon, boolean midon,boolean boton)
+
+    {
+
+        if(!topon&&!midon&&!boton) beamscancount++; else beamscancount--;
+        if(beamscancount>4) {beamscancount=0;return true;}
+        return false;
+        
+
+    }
+
     public boolean beamintakecheck1(boolean topon,boolean boton)
 
     {
@@ -245,6 +269,7 @@ public class base {
                 return true;
             }
         }
+
 
 
 
