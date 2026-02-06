@@ -790,7 +790,7 @@ public class TeleopState extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if ((rbg.beamouttakecheck(topbb,botbb) ) ){
+                if ((rbg.beamouttakecheck(topbb,botbb) )&&stoptimers(1000,outtake) ){
                    // shootState = ShootState.DONE;+
                     stoptimers(0, outtake);
                     shootState = ShootState.DONE;
