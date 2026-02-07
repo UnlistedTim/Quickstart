@@ -115,7 +115,7 @@ public class StaterobotDebug extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
-    private DigitalChannel topBB;
+    private DigitalChannel topBB, midBB;;
 
     private DigitalChannel botBB;
 
@@ -173,6 +173,7 @@ public class StaterobotDebug extends LinearOpMode {
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
+        midBB = hardwareMap.get(DigitalChannel.class, "midBB");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
@@ -258,6 +259,7 @@ public class StaterobotDebug extends LinearOpMode {
 
             telemetry.addData("Bottom BB state",botBB.getState());
             telemetry.addData("top BB state",topBB.getState());
+            telemetry.addData("mid bb state",midBB.getState());
 
             telemetry.update();
 
