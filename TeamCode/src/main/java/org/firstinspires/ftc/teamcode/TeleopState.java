@@ -194,10 +194,10 @@ public class TeleopState extends LinearOpMode {
 
                 case INTAKE:
                    // if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
-                     if ( gamepad2.leftBumperWasPressed() || rbg.beamintakecheck1(topbb,botbb)){//(stoptimers(500,intake)
+                     if ( gamepad2.leftBumperWasPressed() || rbg.beamscanintake(topbb,midbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
-                            Intake.setVelocity(0);
+                           Intake.setVelocity(0);
                             outtakestate=true;
                             intakestate=false;
                     }
@@ -268,6 +268,7 @@ public class TeleopState extends LinearOpMode {
       //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
         topbb=topBB.getState();
         botbb=botBB.getState();
+        midbb=midBB.getState();
         if(outtakestate) {
           if(!pinponit_nav) {
               result = Limelight.getLatestResult();
@@ -639,7 +640,7 @@ public class TeleopState extends LinearOpMode {
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
-       // midBB = hardwareMap.get(DigitalChannel.class, "midBB");
+        midBB = hardwareMap.get(DigitalChannel.class, "midBB");
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
         configurePinpoint();
@@ -792,7 +793,7 @@ public class TeleopState extends LinearOpMode {
                 break;
             case SHOOT:
 
-                if ((rbg.beamouttakecheck(topbb,botbb) )&&stoptimers(1000,outtake) ){
+                if ((rbg.beamscanouttake(topbb,midbb,botbb) )&&stoptimers(1000,outtake) ){
                    // shootState = ShootState.DONE;+
                     stoptimers(0, outtake);
                     shootState = ShootState.DONE;
