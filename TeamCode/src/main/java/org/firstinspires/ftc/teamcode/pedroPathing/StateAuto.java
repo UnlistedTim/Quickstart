@@ -67,7 +67,7 @@ public class StateAuto extends OpMode {
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(40, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(39, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseA = new Pose(44, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
@@ -105,7 +105,174 @@ public class StateAuto extends OpMode {
     boolean shooting=false,firstshoot=true;
     public base rbga=new base();
 
-    public void autonomousPathUpdate() {
+    public void autonomousNearPathUpdate() {
+        switch (pathState) {
+            case 0:
+                ashoot();
+                if(adrive) {
+                    if(red) follower.followPath(RFapproachPickup1, true);
+                    else follower.followPath(BFapproachPickup1, true);
+                    setPathState(1);
+                    Blocker.setPosition(rbga.blockClose);
+                    adrive=false;
+                }
+                break;
+            case 1:
+
+
+                if (!follower.isBusy()) {
+                    /* Grab Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    if(red) follower.followPath(RFgrabPickup1, 0.31,true);
+                    else follower.followPath(BFgrabPickup1, 0.31,true);
+                    setPathState(2);
+                }
+
+
+                break;
+            case 2:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                if (!follower.isBusy()) {
+
+                    if(red) follower.followPath(RFscorePickup1, true);
+                    else follower.followPath(BFscorePickup1, true);
+                    setPathState(3);
+
+                }
+                break;
+            case 3:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+
+                if (!follower.isBusy()) {
+                    setPathState(4);
+                }
+                break;
+
+            case 4:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
+
+                ashoot();
+                if(adrive){
+                    if(red)follower.followPath(RFapproachPickup2, 0.6,false);
+                    else follower.followPath(BFapproachPickup2, 0.6,false);
+                    Blocker.setPosition(rbga.blockClose);
+                    adrive=false;
+                    setPathState(5);
+                }
+                break;
+
+            case 5:
+
+                if (!follower.isBusy()) {
+
+                    actionTimer.resetTimer();
+                    if(red)follower.followPath(RFgrabPickup2, 0.25,false);
+                    else follower.followPath(BFgrabPickup2, 0.25,false);
+                    setPathState(6);
+                }
+                break;
+
+            case 6:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if (actionTimer.getElapsedTime()>1500) {
+                    if(red) follower.followPath(RFscorePickup2,true);
+                    else follower.followPath(BFscorePickup2,true);
+                    setPathState(7);
+                }
+
+                break;
+
+            case 7:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
+                if (!follower.isBusy()) setPathState(8);;
+                break;
+            case 8:
+                ashoot();
+                if (adrive) {
+
+                    if (opmodeTimer.getElapsedTime() > 24000) {
+                        if(red)follower.followPath(RFparkEnd, true);
+                        else follower.followPath(BFparkEnd, true);
+                        adrive = false;
+                        setPathState(12);
+
+                    }
+                    else    {
+
+                        if(red)follower.followPath(RFapproachPickup2, 0.6,false);
+                        else follower.followPath(BFapproachPickup2, 0.6,false);
+                        adrive=false;
+                        Blocker.setPosition(rbga.blockClose);
+                        setPathState(9);
+
+                    }
+                }
+                break;
+            case 9:
+                if (!follower.isBusy()) {
+
+                    actionTimer.resetTimer();
+                    if(red) follower.followPath(RFgrabPickup2, 0.25,false);
+                    else follower.followPath(BFgrabPickup2, 0.25,false);
+                    setPathState(10);
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+
+                }
+                break;
+            case 10:
+                if (actionTimer.getElapsedTime()>1200) {
+
+                    if(red) follower.followPath(RFscorePickup2,true);
+                    else follower.followPath(BFscorePickup2,true);
+                    setPathState(11);
+                }
+                break;
+
+            case 11:
+                ashoot();
+                if (adrive) {
+                    if(red) follower.followPath(RFparkEnd, true);
+                    else follower.followPath(BFparkEnd, true);
+                    adrive = false;
+                    setPathState(12);
+
+                }
+                break;
+            case 12: /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if (!follower.isBusy()) {
+                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
+                    flypower=0;
+                    flyprepower(0);
+                    Blocker.setPosition(rbga.blockClose);
+                    actionTimer.resetTimer();
+
+                }
+                break;
+
+            case 16:
+                if(actionTimer.getElapsedTime()>300) {
+
+                    if (red) {
+                        blackboard.put("Heading", follower.getPose().getHeading());
+                        blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET);
+                        //   blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
+
+                    } else {
+                        blackboard.put("Heading", follower.getPose().getHeading());
+                        blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET);
+                        //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
+                    }
+
+
+                    setPathState(-1);
+                }
+                break;
+        }
+    }
+
+
+    public void autonomousFarPathUpdate() {
         switch (pathState) {
             case 0:
                 ashoot();
@@ -167,8 +334,8 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
 
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.3,false);
-                    else follower.followPath(BFgrabPickup2, 0.3,false);
+                    if(red)follower.followPath(RFgrabPickup2, 0.25,false);
+                    else follower.followPath(BFgrabPickup2, 0.25,false);
                     setPathState(6);
                  }
                 break;
@@ -213,8 +380,8 @@ public class StateAuto extends OpMode {
             if (!follower.isBusy()) {
 
                 actionTimer.resetTimer();
-                if(red) follower.followPath(RFgrabPickup2, 0.3,false);
-                else follower.followPath(BFgrabPickup2, 0.3,false);
+                if(red) follower.followPath(RFgrabPickup2, 0.25,false);
+                else follower.followPath(BFgrabPickup2, 0.25,false);
                 setPathState(10);
                 /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
 
@@ -291,7 +458,8 @@ public class StateAuto extends OpMode {
         follower.update();
         statusupdate();
         turntable();
-        autonomousPathUpdate();
+        autonomousFarPathUpdate();
+     //   autonomousNearPathUpdate();
 
         // Feedback to Driver Hub for debugging
 //        telemetry.addData("path state", pathState);
