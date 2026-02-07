@@ -67,8 +67,8 @@ public class StateAuto extends OpMode {
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(42, 0, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(44, 0, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(40, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(44, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -82,14 +82,14 @@ public class StateAuto extends OpMode {
     private final Pose RNpickup1Pose = new Pose(-4, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(0, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup2Pose = new Pose(-4, 46.5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RNpickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup2PoseA = new Pose(45, 1, Math.toRadians(350)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup3Pose = new Pose(8, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BNstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BNscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose BNpickup1PoseA = new Pose(40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose BNpickup2Pose = new Pose(42, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose BNpickup2PoseA = new Pose(45, 1, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BNpickup2Pose = new Pose(42, 1, Math.toRadians(350)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BNpickup2PoseA = new Pose(45, 1, Math.toRadians(350)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BNpickup3Pose = new Pose(8, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BNendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
@@ -154,8 +154,8 @@ public class StateAuto extends OpMode {
 
                 ashoot();
                if(adrive){
-                   if(red)follower.followPath(RFapproachPickup2, false);
-                   else follower.followPath(BFapproachPickup2, false);
+                   if(red)follower.followPath(RFapproachPickup2, 0.6,false);
+                   else follower.followPath(BFapproachPickup2, 0.6,false);
                    Blocker.setPosition(rbga.blockClose);
                    adrive=false;
                    setPathState(5);
@@ -167,8 +167,8 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
 
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.4,false);
-                    else follower.followPath(BFgrabPickup2, 0.4,false);
+                    if(red)follower.followPath(RFgrabPickup2, 0.3,false);
+                    else follower.followPath(BFgrabPickup2, 0.3,false);
                     setPathState(6);
                  }
                 break;
@@ -191,7 +191,7 @@ public class StateAuto extends OpMode {
                 ashoot();
                 if (adrive) {
 
-                    if (opmodeTimer.getElapsedTime() > 2400) {
+                    if (opmodeTimer.getElapsedTime() > 24000) {
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
                         adrive = false;
@@ -200,8 +200,8 @@ public class StateAuto extends OpMode {
                     }
                  else    {
 
-                        if(red)follower.followPath(RFapproachPickup2, false);
-                        else follower.followPath(BFapproachPickup2, false);
+                        if(red)follower.followPath(RFapproachPickup2, 0.6,false);
+                        else follower.followPath(BFapproachPickup2, 0.6,false);
                         adrive=false;
                         Blocker.setPosition(rbga.blockClose);
                         setPathState(9);
@@ -380,23 +380,15 @@ public class StateAuto extends OpMode {
      **/
     @Override
     public void start() {
+        opmodeTimer.resetTimer();
         blackboard.put("COLOR",   red);
-
-
         if (red) {
-
             Limelight.pipelineSwitch(2);
         } else {
-
             Limelight.pipelineSwitch(7);
         }
         Limelight.start();
-
-        opmodeTimer.resetTimer();
         setPathState(0);
-
-
-
     }
 
     /**
@@ -621,7 +613,7 @@ public class StateAuto extends OpMode {
         RFgrabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFpickup2Pose, RFpickup2PoseA))
                // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setConstantHeadingInterpolation(Math.toRadians(340))
+                .setConstantHeadingInterpolation(Math.toRadians(RFpickup2Pose.getHeading()))
                 .build();
 
         RFparkEnd= follower.pathBuilder()
