@@ -101,6 +101,12 @@ public class StaterobotDebug extends LinearOpMode {
 
     private DcMotorEx Intake, flyBot, flyTop;
 
+    public static double intakeleftPower = 0.0;
+
+    public static double intakerightPower = 0.0;
+
+    private DcMotorEx intakeLeft, intakeRight;
+
     MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
 
@@ -165,7 +171,10 @@ public class StaterobotDebug extends LinearOpMode {
     @Override
 
     public void runOpMode() {
-        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
+//        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
+
+        intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
+        intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
 
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
@@ -178,7 +187,7 @@ public class StaterobotDebug extends LinearOpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
 //        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
+//        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
 
@@ -202,15 +211,24 @@ public class StaterobotDebug extends LinearOpMode {
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Intake.setVelocity(0);
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Intake.setVelocity(0);
+//        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
-        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        intakeLeft.setVelocity(0);
+//        intakeLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        intakeRight.setVelocity(0);
+//        intakeRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+//        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
 
@@ -232,11 +250,16 @@ public class StaterobotDebug extends LinearOpMode {
 
 
         while (opModeIsActive()) { //Main While loop
+
+
+            intakeLeft.setPower(intakeleftPower);
+            intakeRight.setPower(intakerightPower);
+
             Hood.setPosition(hoodPos);
 
             Tripod.setPosition(tripodPos);
 
-            Intake.setVelocity(IntakeVel);
+//            Intake.setVelocity(IntakeVel);
 
             Blocker.setPosition(blockerPos);
 
@@ -246,7 +269,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 
 
-            double turretPos = turretSpin.getCurrentPosition();
+//            double turretPos = turretSpin.getCurrentPosition();
 //
 //            rawIntakeCurrent = Intake.getCurrent(CurrentUnit.MILLIAMPS);
 //
@@ -308,7 +331,7 @@ public class StaterobotDebug extends LinearOpMode {
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
 
-        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
+//        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
         dashboardTelemetry.update();
 
 
