@@ -13,6 +13,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,7 +34,8 @@ import java.util.List;
 public class TeleopState extends LinearOpMode {
 
     Pose2D pose;
-    private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
+    private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,  leftFront, rightFront, leftBack, rightBack;
+    private CRServo leftTurret, rightTurret;
     private Servo Hood, Blocker, Tripod,Led;
     private DigitalChannel botBB,topBB,midBB;
     private Limelight3A Limelight;
@@ -634,7 +636,9 @@ public class TeleopState extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
+        intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
+        intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
+
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
@@ -645,7 +649,10 @@ public class TeleopState extends LinearOpMode {
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
         configurePinpoint();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
+
         Hood = hardwareMap.get(Servo.class, "Hood");
+        leftTurret = hardwareMap.get(CRServo.class,"leftTurret");
+        rightTurret = hardwareMap.get(CRServo.class, "rightTurret");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Led = hardwareMap.get(Servo.class, "LED");
@@ -658,10 +665,10 @@ public class TeleopState extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Intake.setVelocity(0);
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Intake.setVelocity(0);
+//        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -729,6 +736,30 @@ public class TeleopState extends LinearOpMode {
          */
         Pinpoint.resetPosAndIMU();
     }
+
+    public void turretSpin(double power)
+
+    {
+
+
+        leftTurret.setPower(power);
+
+        rightTurret.setPower(power);
+
+
+    }
+    public void Intake(double power)
+
+    {
+
+
+      intakeLeft.setPower(power);
+      intakeRight.setPower(power);
+
+
+    }
+
+
 
     public void getAutoVars(){
 
