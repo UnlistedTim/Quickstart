@@ -8,6 +8,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -121,6 +122,10 @@ public class StaterobotDebug extends LinearOpMode {
 
     private Servo Hood, Blocker, Tripod;
 
+    private DcMotorEx leftFront;
+
+    private CRServo leftTurret, rightTurret;
+
     private DigitalChannel topBB, midBB;;
 
     private DigitalChannel botBB;
@@ -132,6 +137,10 @@ public class StaterobotDebug extends LinearOpMode {
 
 
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+
+    public static double leftTurretPower = 0.0;
+
+    public static double rightTurretPower = 0.0;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
 
@@ -176,6 +185,11 @@ public class StaterobotDebug extends LinearOpMode {
         intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
 
+        leftFront = hardwareMap.get(DcMotorEx.class,"leftFront");
+
+        leftTurret = hardwareMap.get(CRServo.class,"leftTurret");
+        rightTurret = hardwareMap.get(CRServo.class, "rightTurret");
+
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
@@ -210,6 +224,13 @@ public class StaterobotDebug extends LinearOpMode {
 
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+
 
 //        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        Intake.setVelocity(0);
@@ -251,6 +272,10 @@ public class StaterobotDebug extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
+            leftTurret.setPower(leftTurretPower);
+
+            rightTurret.setPower(rightTurretPower);
+
 
             intakeLeft.setPower(intakeleftPower);
             intakeRight.setPower(intakerightPower);
@@ -283,6 +308,8 @@ public class StaterobotDebug extends LinearOpMode {
             telemetry.addData("Bottom BB state",botBB.getState());
             telemetry.addData("top BB state",topBB.getState());
             telemetry.addData("mid bb state",midBB.getState());
+
+            telemetry.addData("Turret pos", leftFront.getCurrentPosition());
 
             telemetry.update();
 
