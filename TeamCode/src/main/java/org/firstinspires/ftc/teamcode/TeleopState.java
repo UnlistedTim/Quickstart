@@ -24,7 +24,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -37,7 +36,7 @@ public class TeleopState extends LinearOpMode {
 
     Pose2D pose;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,  leftFront, rightFront, leftBack, rightBack;
-    private CRServo leftTurret, rightTurret;
+    private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod,Led;
     private DigitalChannel botBB,topBB,midBB;
     private Limelight3A Limelight;
@@ -62,7 +61,7 @@ public class TeleopState extends LinearOpMode {
     public static double intakeMaxVel = 3000;
 
     public final int max_vel = 1800;
-    public int intakevel=0;
+    public double intakevel=0;
 
     public int ball_count = 0;
 
@@ -270,7 +269,7 @@ public class TeleopState extends LinearOpMode {
      //   turretPos=turretSpin.getCurrentPosition();
         Pinpoint.update();
         pose = Pinpoint.getPosition();
-        intakevel=intakeLeft.getCurrentPosition();
+        intakevel=intakeLeft.getVelocity();
       //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
         topbb=topBB.getState();
         botbb=botBB.getState();
@@ -661,8 +660,8 @@ public void turretspin()
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
 
         Hood = hardwareMap.get(Servo.class, "Hood");
-        leftTurret = hardwareMap.get(CRServo.class,"leftTurret");
-        rightTurret = hardwareMap.get(CRServo.class, "rightTurret");
+        turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
+        turretRight = hardwareMap.get(CRServo.class, "turretRight");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Led = hardwareMap.get(Servo.class, "LED");
@@ -675,10 +674,7 @@ public void turretspin()
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        Intake.setVelocity(0);
-//        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -691,9 +687,17 @@ public void turretspin()
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
         Hood.setDirection(Servo.Direction.REVERSE);
-//        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        intakeLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
 
     }
 
@@ -752,9 +756,9 @@ public void turretspin()
     {
 
 
-        leftTurret.setPower(power);
+        turretLeft.setPower(power);
 
-        rightTurret.setPower(power);
+        turretRight.setPower(power);
 
 
     }
@@ -766,7 +770,7 @@ public void turretspin()
         power= Range.clip(power,-0.8,0.8);
 
       intakeLeft.setPower(power);
-      intakeRight.setPower(-power);
+      intakeRight.setPower(power);
 
 
     }

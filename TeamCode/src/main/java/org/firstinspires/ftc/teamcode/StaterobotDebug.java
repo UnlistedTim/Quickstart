@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -16,12 +15,14 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Arrays;
+
+
+//20524 / 180
+
 
 
 //red right = top bb
@@ -60,6 +61,8 @@ public class StaterobotDebug extends LinearOpMode {
 
 
     public static int IntakeVel = 0;
+
+    public static int turretPos = 0;
     int openInARow = 1;
 
 
@@ -76,9 +79,9 @@ public class StaterobotDebug extends LinearOpMode {
     double filteredIntakeCurrent;
 
 
-    public static double hoodPos = 0.0;// 0 vertical angle 1.0 horizontal angle
+    public static double hoodPos = 0.15;// 0 vertical angle 1.0 horizontal angle
 
-    public static double blockerPos = 0.37; // 0.46 open, 0.37 close
+    public static double blockerPos = 0.35; // 0.46 open, 0.35 close
 
     public static double tripodPos = 1.0;   //1.0 collapse 0.35 extend
 
@@ -102,7 +105,7 @@ public class StaterobotDebug extends LinearOpMode {
 
     private DcMotorEx Intake, flyBot, flyTop;
 
-    public static double intakeleftPower = 0.0;
+    public static double intakeleftPower = 0.0;  //theoretical max 2600
 
     public static double intakerightPower = 0.0;
 
@@ -124,7 +127,7 @@ public class StaterobotDebug extends LinearOpMode {
 
     private DcMotorEx leftFront;
 
-    private CRServo leftTurret, rightTurret;
+    private CRServo turretLeft, turretRight;
 
     private DigitalChannel topBB, midBB;;
 
@@ -138,11 +141,19 @@ public class StaterobotDebug extends LinearOpMode {
 
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
+    public static double turretp = 0, turreti = 0, turretd = 0;
+
+    public static double intakep = 0, intakei = 0, intaked = 0, intakef = 0.00045;
+
     public static double leftTurretPower = 0.0;
 
     public static double rightTurretPower = 0.0;
 
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
+
+    PIDController intakePID = new PIDController(intakep, intakei, intaked);
+
+    PIDController turretPID = new PIDController(turretp, turreti, turretd);
 
 
 
@@ -187,8 +198,8 @@ public class StaterobotDebug extends LinearOpMode {
 
         leftFront = hardwareMap.get(DcMotorEx.class,"leftFront");
 
-        leftTurret = hardwareMap.get(CRServo.class,"leftTurret");
-        rightTurret = hardwareMap.get(CRServo.class, "rightTurret");
+        turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
+        turretRight = hardwareMap.get(CRServo.class, "turretRight");
 
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
@@ -228,6 +239,20 @@ public class StaterobotDebug extends LinearOpMode {
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        intakeLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        turretLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        turretRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
 
@@ -272,13 +297,13 @@ public class StaterobotDebug extends LinearOpMode {
 
         while (opModeIsActive()) { //Main While loop
 
-            leftTurret.setPower(leftTurretPower);
+//            turretLeft.setPower(leftTurretPower);
+//
+//            turretRight.setPower(rightTurretPower);
 
-            rightTurret.setPower(rightTurretPower);
 
-
-            intakeLeft.setPower(intakeleftPower);
-            intakeRight.setPower(intakerightPower);
+//            intakeLeft.setPower(intakeleftPower);
+//            intakeRight.setPower(intakerightPower);
 
             Hood.setPosition(hoodPos);
 
@@ -287,6 +312,9 @@ public class StaterobotDebug extends LinearOpMode {
 //            Intake.setVelocity(IntakeVel);
 
             Blocker.setPosition(blockerPos);
+
+
+            double pos = leftFront.getCurrentPosition();
 
 
 
@@ -303,13 +331,37 @@ public class StaterobotDebug extends LinearOpMode {
 
 
 
-            flyPID(flyVel);
+//            flyPID(flyVel);
 
-            telemetry.addData("Bottom BB state",botBB.getState());
-            telemetry.addData("top BB state",topBB.getState());
-            telemetry.addData("mid bb state",midBB.getState());
+//            telemetry.addData("Bottom BB state",botBB.getState());
+//            telemetry.addData("top BB state",topBB.getState());
+//            telemetry.addData("mid bb state",midBB.getState());
 
-            telemetry.addData("Turret pos", leftFront.getCurrentPosition());
+            intakePID(IntakeVel);
+
+            if (Math.abs(turretPos - pos) > 2000){
+                turretLeft.setPower(0.9 * Math.signum (turretPos - pos));
+                turretRight.setPower(0.9 * Math.signum (turretPos - pos));
+            }
+            else if (Math.abs(turretPos - pos) > 300){
+                turretLeft.setPower(0.3 * Math.signum (turretPos - pos));
+                turretRight.setPower(0.3 * Math.signum (turretPos - pos));
+
+            }
+            else{
+                turretLeft.setPower(0);
+                turretRight.setPower(0);
+            }
+
+
+//            turretPID(turretPos);
+
+            dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
+            dashboardTelemetry.addData("Turret Pos",pos);
+
+
+            dashboardTelemetry.update();
+
 
             telemetry.update();
 
@@ -360,6 +412,59 @@ public class StaterobotDebug extends LinearOpMode {
 
 //        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
         dashboardTelemetry.update();
+
+
+
+        //  telemetry.addData("Velocity",vel);
+    }
+
+    public void turretPID(double targ_pos){
+
+
+
+        turretPID.setPID(turretp, turreti, turretp);
+        int pos =  leftFront.getCurrentPosition();
+
+        double power = turretPID.calculate(pos,targ_pos);
+
+        turretLeft.setPower(power);
+        turretRight.setPower(power);
+
+
+        dashboardTelemetry.addData(" Current pos", pos);
+        dashboardTelemetry.addData("turret Power",power);
+
+
+
+        //  telemetry.addData("Velocity",vel);
+    }
+
+
+
+    public void intakePID(double targ_vel){
+
+
+
+        intakePID.setPID(intakep, intakei, intaked);
+
+
+        double vel =  intakeLeft.getVelocity();
+
+        double pid = intakePID.calculate(vel,targ_vel);
+        double ff = intakef * targ_vel;
+//        if (Math.abs(vel - targ_vel) < 40) pid = 0;
+        double power = pid + ff;
+        intakeLeft.setPower(power);
+        intakeRight.setPower(power);
+
+        dashboardTelemetry.addData("Motor power",power);
+
+        dashboardTelemetry.addData("PID power", pid);
+
+
+
+//        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
+
 
 
 
