@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
@@ -316,6 +317,8 @@ public class StaterobotDebug extends LinearOpMode {
 
             double pos = leftFront.getCurrentPosition();
 
+            intakePID(IntakeVel);
+
 
 
 
@@ -353,10 +356,13 @@ public class StaterobotDebug extends LinearOpMode {
 //                turretRight.setPower(0);
 //            }
 //            turretPID(turretPos);
-            turretLeft.setPower(0.3);
-            turretRight.setPower(0.3);
+//            turretLeft.setPower(0.3);
+//            turretRight.setPower(0.3);
            // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
             telemetry.addData("Turret Pos",pos);
+            telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+
           //  dashboardTelemetry.update();
             telemetry.update();
 
@@ -453,8 +459,11 @@ public class StaterobotDebug extends LinearOpMode {
         intakeRight.setPower(power);
 
         dashboardTelemetry.addData("Motor power",power);
+        dashboardTelemetry.addData("Intake vel",vel);
 
         dashboardTelemetry.addData("PID power", pid);
+
+        dashboardTelemetry.update();
 
 
 
