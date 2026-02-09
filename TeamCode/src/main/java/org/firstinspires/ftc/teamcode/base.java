@@ -63,6 +63,8 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+    public static double intakep= 0.002, intakei = 0, intaked = 0, intakef = 0;
+
     public double flyspeedgap=500,Txgap=50,  turnMax=0.4,dist=50;
 
 
@@ -75,6 +77,7 @@ public class base {
     //double turretPower=0;
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
+    PIDController intakePID=new PIDController(intakep, intakei, intaked);
     double Tx_offset=0;
     int turretCwlim=-750;
     int turretCcwlim=750;
@@ -120,6 +123,8 @@ public class base {
         beamtimer=new Timer();
         flyPID.setPID(flyp, flyi, flyd);
         turretPID.setPID(turretkP, turretkI, turretkD);
+        intakePID.setPID(intakep, intakei, intaked);
+
 
         Flylut.add(-13.5,1720); //far old
         Flylut.add(-12.7,1680); //far

@@ -20,6 +20,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -60,6 +62,7 @@ public class TeleopState extends LinearOpMode {
     public static double intakeMaxVel = 3000;
 
     public final int max_vel = 1800;
+    public int intakevel=0;
 
     public int ball_count = 0;
 
@@ -199,7 +202,7 @@ public class TeleopState extends LinearOpMode {
                      if ( gamepad2.leftBumperWasPressed() || rbg.beamscanintake(topbb,midbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
-                           Intake.setVelocity(0);
+                         //  Intake.setVelocity(0);
                             outtakestate=true;
                             intakestate=false;
                     }
@@ -264,9 +267,10 @@ public class TeleopState extends LinearOpMode {
     public void statusupdate()
 
     {
-        turretPos=turretSpin.getCurrentPosition();
+     //   turretPos=turretSpin.getCurrentPosition();
         Pinpoint.update();
         pose = Pinpoint.getPosition();
+        intakevel=intakeLeft.getCurrentPosition();
       //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
         topbb=topBB.getState();
         botbb=botBB.getState();
@@ -283,7 +287,7 @@ public class TeleopState extends LinearOpMode {
           }
 
             flyCurrentVel=flyBot.getVelocity();
-            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
+
             filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
@@ -298,7 +302,7 @@ public class TeleopState extends LinearOpMode {
         if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
        else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
 
-       turretSpin.setPower(turnPower);
+       turretSpin(turnPower);
 
     }
 
@@ -332,7 +336,7 @@ public class TeleopState extends LinearOpMode {
        // checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
       //  Blocker.setPosition(rbg.blockClose);
-        Intake.setVelocity(rbg.intakeVel);
+        Intake(rbg.intakeVel);
         rbg.limelocked=false;
         intakestate=true;
         rbg.beamtimecount=0;
@@ -586,7 +590,13 @@ public class TeleopState extends LinearOpMode {
         telemetry.update();
     }
 
+public void turretspin()
 
+
+{
+
+
+}
 
     public void flywheel() {
 
@@ -641,7 +651,7 @@ public class TeleopState extends LinearOpMode {
 
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
-        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
+      //  turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
         midBB = hardwareMap.get(DigitalChannel.class, "midBB");
@@ -681,9 +691,9 @@ public class TeleopState extends LinearOpMode {
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
         Hood.setDirection(Servo.Direction.REVERSE);
-        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     }
 
@@ -748,13 +758,15 @@ public class TeleopState extends LinearOpMode {
 
 
     }
-    public void Intake(double power)
+    public void Intake(double targetvel)
 
     {
+        double power= rbg.intakePID.calculate(intakevel, targetvel) + rbg.intakef * targetvel;
 
+        power= Range.clip(power,-0.8,0.8);
 
       intakeLeft.setPower(power);
-      intakeRight.setPower(power);
+      intakeRight.setPower(-power);
 
 
     }
@@ -806,7 +818,7 @@ public class TeleopState extends LinearOpMode {
 
         if (!shooting){
             shooting = true;
-            Intake.setVelocity(shootingIntakeVel);  //shootingIntakeVel
+            Intake(rbg.outtakVel) ; //shootingIntakeVel
             rbg.Txgap=30;
             shootState = ShootState.PRE_SHOOT;
 
