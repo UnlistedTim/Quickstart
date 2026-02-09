@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -13,7 +12,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -197,7 +195,7 @@ public class StaterobotDebug extends LinearOpMode {
         intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
 
         leftFront = hardwareMap.get(DcMotorEx.class,"leftFront");
-
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
         turretRight = hardwareMap.get(CRServo.class, "turretRight");
 
@@ -250,9 +248,11 @@ public class StaterobotDebug extends LinearOpMode {
 
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        turretLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        turretLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        turretRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        turretRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
 
 
 
@@ -337,25 +337,27 @@ public class StaterobotDebug extends LinearOpMode {
 //            telemetry.addData("top BB state",topBB.getState());
 //            telemetry.addData("mid bb state",midBB.getState());
 
-            intakePID(IntakeVel);
-
-            if (Math.abs(turretPos - pos) > 2000){
-                turretLeft.setPower(0.9 * Math.signum (turretPos - pos));
-                turretRight.setPower(0.9 * Math.signum (turretPos - pos));
-            }
-            else if (Math.abs(turretPos - pos) > 300){
-                turretLeft.setPower(0.3 * Math.signum (turretPos - pos));
-                turretRight.setPower(0.3 * Math.signum (turretPos - pos));
-
-            }
-            else{
-                turretLeft.setPower(0);
-                turretRight.setPower(0);
-            }
+         //   intakePID(IntakeVel);
+//
+//            if (Math.abs(turretPos - pos) > 2000){
+//                turretLeft.setPower(0.9 * Math.signum (turretPos - pos));
+//                turretRight.setPower(0.9 * Math.signum (turretPos - pos));
+//            }
+//            else if (Math.abs(turretPos - pos) > 300){
+//                turretLeft.setPower(0.3 * Math.signum (turretPos - pos));
+//                turretRight.setPower(0.3 * Math.signum (turretPos - pos));
+//
+//            }
+//            else{
+//                turretLeft.setPower(0);
+//                turretRight.setPower(0);
+//            }
 //            turretPID(turretPos);
-            dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
-            dashboardTelemetry.addData("Turret Pos",pos);
-            dashboardTelemetry.update();
+            turretLeft.setPower(0.3);
+            turretRight.setPower(0.3);
+           // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
+            telemetry.addData("Turret Pos",pos);
+          //  dashboardTelemetry.update();
             telemetry.update();
 
 

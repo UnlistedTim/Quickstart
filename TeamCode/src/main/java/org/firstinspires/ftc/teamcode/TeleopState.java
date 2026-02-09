@@ -61,7 +61,7 @@ public class TeleopState extends LinearOpMode {
     public static double intakeMaxVel = 3000;
 
     public final int max_vel = 1800;
-    public double intakevel=0;
+    public double intakespeed=0;
 
     public int ball_count = 0;
 
@@ -71,7 +71,7 @@ public class TeleopState extends LinearOpMode {
 
     LLResult result;
 
-    public double hoodLastPos = 0.0,targetx=144,targety=144;
+    public double hoodLastPos = 0.0,targetx=144,targety=144,intakepower=0;
 
     public double hoodPos = 0, currentime=0,previoustime=0,flypower=0.3;
 
@@ -131,6 +131,12 @@ public class TeleopState extends LinearOpMode {
 
     public int turretPos = 0;
 
+    public double loop_time = 0;
+
+    public int z = 0;
+
+    public ElapsedTime looptimer = new ElapsedTime();
+
 
     public int turretTarget=0;
     public double turnPower=0 ;
@@ -172,6 +178,8 @@ public class TeleopState extends LinearOpMode {
         waitForStart();
 
         afterstart();
+
+        looptimer.reset();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         } //Bulk reading for faster loop times
@@ -179,6 +187,9 @@ public class TeleopState extends LinearOpMode {
 //        Intake.setVelocity(rbg.intakeVel);
 //        telemetry.clearAll();
         while (opModeIsActive()) { //Main While loop
+
+
+            looptimer.reset();
 
 
            BBState= botBB.getState();
@@ -201,7 +212,7 @@ public class TeleopState extends LinearOpMode {
                      if ( gamepad2.leftBumperWasPressed() || rbg.beamscanintake(topbb,midbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
-                         //  Intake.setVelocity(0);
+                             Intake(0);
                             outtakestate=true;
                             intakestate=false;
                     }
@@ -251,12 +262,34 @@ public class TeleopState extends LinearOpMode {
             turntable();
 
 //            telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
-//            telemetry.addData("dist",rbg.dist);
+            dashboardTelemetry.addData("intakespeed",intakespeed);
+            dashboardTelemetry.addData("Intakeleft",intakepower);
+
+
+            loop_time += looptimer.milliseconds();
+            z++;
+
+
+            if (z>1000000 || loop_time>1000000){
+                loop_time = 0;
+                z = 0;
+            }
+
+            dashboardTelemetry.addData("Avg loop time",loop_time/z);
+
+
+            //            telemetry.addData("mid",midbb);
+//            telemetry.addData("bot",botbb);
+
 //            telemetry.addData("target",rbg.targetVel);
 //            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
 //            telemetry.addData("Hood pos", hoodPos);
+
+            dashboardTelemetry.update();
+
+
 //
-//            telemetry.update();
+         telemetry.update();
 
 
 
@@ -266,10 +299,10 @@ public class TeleopState extends LinearOpMode {
     public void statusupdate()
 
     {
-     //   turretPos=turretSpin.getCurrentPosition();
+       turretPos=leftFront.getCurrentPosition();
         Pinpoint.update();
         pose = Pinpoint.getPosition();
-        intakevel=intakeLeft.getVelocity();
+        intakespeed=intakeLeft.getVelocity();
       //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
         topbb=topBB.getState();
         botbb=botBB.getState();
@@ -287,7 +320,7 @@ public class TeleopState extends LinearOpMode {
 
             flyCurrentVel=flyBot.getVelocity();
 
-            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
+//            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
 
@@ -301,7 +334,8 @@ public class TeleopState extends LinearOpMode {
         if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
        else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
 
-       turretSpin(turnPower);
+       turretLeft.setPower(turnPower);
+       turretRight.setPower(turnPower);
 
     }
 
@@ -362,10 +396,10 @@ public class TeleopState extends LinearOpMode {
     }
 
     public void initalize() {
-        follower = Constants.createFollower(hardwareMap);
+      //  follower = Constants.createFollower(hardwareMap);
         Hw_init();
         rbg.init();
-        buildPaths();
+       // buildPaths();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
         if (red) telemetry.addLine("Red Alliance Selected");
@@ -413,19 +447,19 @@ public class TeleopState extends LinearOpMode {
 
     }
 
-    private void buildPaths() {
-
-        RHPshoot = follower.pathBuilder()
-                .addPath(new BezierLine(RHPStartPose, RHPShootPose))
-                .setLinearHeadingInterpolation(RHPShootPose.getHeading(), RHPShootPose.getHeading())
-                .build();
-
-        BHPshoot = follower.pathBuilder()
-                .addPath(new BezierLine(BHPStartPose, BHPShootPose))
-                .setLinearHeadingInterpolation(BHPStartPose.getHeading(), BHPShootPose.getHeading())
-                .build();
-
-    }
+//    private void buildPaths() {
+//
+//        RHPshoot = follower.pathBuilder()
+//                .addPath(new BezierLine(RHPStartPose, RHPShootPose))
+//                .setLinearHeadingInterpolation(RHPShootPose.getHeading(), RHPShootPose.getHeading())
+//                .build();
+//
+//        BHPshoot = follower.pathBuilder()
+//                .addPath(new BezierLine(BHPStartPose, BHPShootPose))
+//                .setLinearHeadingInterpolation(BHPStartPose.getHeading(), BHPShootPose.getHeading())
+//                .build();
+//
+//    }
 
     public void resetIntakeVars(){
         breakInARow = 0;
@@ -580,13 +614,13 @@ public class TeleopState extends LinearOpMode {
         rightFront.setPower(frontRightPower);
         rightBack.setPower(backRightPower);
 
-        telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
+     //   telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
 //        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
 //        telemetry.addData("Y", pose.getY(DistanceUnit.INCH));
 
 
 
-        telemetry.update();
+      //  telemetry.update();
     }
 
 public void turretspin()
@@ -648,6 +682,8 @@ public void turretspin()
         intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
 
+      //  turretPosition=hardwareMap.get(DcMotorEx.class, "leftFront");
+
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
       //  turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
@@ -674,7 +710,7 @@ public void turretspin()
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -689,14 +725,14 @@ public void turretspin()
         Hood.setDirection(Servo.Direction.REVERSE);
 
         intakeLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        turretLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        turretRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
     }
@@ -751,26 +787,21 @@ public void turretspin()
         Pinpoint.resetPosAndIMU();
     }
 
-    public void turretSpin(double power)
-
-    {
 
 
-        turretLeft.setPower(power);
-
-        turretRight.setPower(power);
 
 
-    }
     public void Intake(double targetvel)
 
     {
-        double power= rbg.intakePID.calculate(intakevel, targetvel) + rbg.intakef * targetvel;
 
-        power= Range.clip(power,-0.8,0.8);
-
-      intakeLeft.setPower(power);
-      intakeRight.setPower(power);
+        rbg.intakePID.setPID(0.0001,0,0);
+        double power= rbg.intakePID.calculate(intakespeed,targetvel) + rbg.intakef * targetvel;   //rbg.intakePID.calculate(intakespeed, targetvel)
+      //  power= Range.clip(power,-0.8,0.8);
+       // if(targetvel==0) power=0;
+        intakepower=power;
+        intakeLeft.setPower(power);
+        intakeRight.setPower(power);
 
 
     }
@@ -840,7 +871,7 @@ public void turretspin()
                 break;
             case SHOOT:
 
-                if ((rbg.beamscanouttake(topbb,midbb,botbb) )&&stoptimers(1000,outtake) ){
+                if (rbg.beamscanouttake(topbb,midbb,botbb )){
                    // shootState = ShootState.DONE;+
                     stoptimers(0, outtake);
                     shootState = ShootState.DONE;

@@ -311,7 +311,7 @@ public class TeleopStateWood extends LinearOpMode {
 
             flyCurrentVel=flyBot.getVelocity();
             rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
+           // filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
 

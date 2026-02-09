@@ -14,6 +14,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -35,10 +36,11 @@ public class StateAuto extends OpMode {
 
     private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
   //  public base rbga;
-    private DcMotorEx Intake, flyBot, flyTop, turretSpin, leftFront, rightFront, leftBack, rightBack;
-
+    private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,leftFront, rightFront, leftBack, rightBack,turretPosition;
+    private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB;
+    double intakevel;
 
     int shootstep=0;
 
@@ -570,15 +572,18 @@ public class StateAuto extends OpMode {
         rightBack.setPower(0);
         flyBot.setPower(0);
         flyTop.setPower(0);
-        Intake.setPower(0);
-        turretSpin.setPower(0);
+        intakeLeft.setPower(0);
+        intakeRight.setPower(0);
+        turretLeft.setPower(0);
+        turretRight.setPower(0);
     }
     public void statusupdate()
 
     {
-        turretPos=turretSpin.getCurrentPosition();
+        turretPos=turretPosition.getCurrentPosition();
         atopbb=topBB.getState();
         abotbb=botBB.getState();
+        intakevel=intakeLeft.getVelocity();
 
         if(shooting) {
             result = Limelight.getLatestResult();
@@ -603,7 +608,8 @@ public class StateAuto extends OpMode {
 
     {
         turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, 0);
-        turretSpin.setPower(turnPower);
+        turretLeft.setPower(turnPower);
+        turretRight.setPower(turnPower);
     }
 
 
@@ -654,7 +660,7 @@ public class StateAuto extends OpMode {
 
             case 1:
                 if (rbga.flyspeedgap <= 40 && rbga.Txgap < 2) {
-                    Intake.setVelocity(rbga.outtakVel);
+                    Intake(rbga.outtakVel);
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
                     shootstep = 2;
@@ -700,7 +706,7 @@ public class StateAuto extends OpMode {
        switch (shootState){
             case preshoot:
                 if(rbga.flyspeedgap <= 40&&rbga.Txgap<2){
-                    Intake.setVelocity(rbga.outtakVel);
+                    Intake(rbga.outtakVel);
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
                     shootState = shoot;
@@ -734,7 +740,18 @@ public class StateAuto extends OpMode {
 
 
 
+    public void Intake(double targetvel)
 
+    {
+        double power= rbga.intakePID.calculate(intakevel, targetvel) + rbga.intakef * targetvel;
+
+        //  power= Range.clip(power,-0.8,0.8);
+
+        intakeLeft.setPower(power);
+        intakeRight.setPower(power);
+
+
+    }
 
 
 
@@ -844,10 +861,16 @@ public class StateAuto extends OpMode {
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
+
+
+        turretPosition=hardwareMap.get(DcMotorEx.class, "leftFront");
+
+      //  Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
-        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
+        intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
+        intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
+//        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
@@ -863,10 +886,11 @@ public class StateAuto extends OpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Intake.setVelocity(0);
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Intake.setVelocity(0);
+//        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         flyBot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flyBot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flyTop.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -875,11 +899,24 @@ public class StateAuto extends OpMode {
         flyBot.setDirection(DcMotorSimple.Direction.REVERSE);
         flyTop.setDirection(DcMotorSimple.Direction.FORWARD);
         Hood.setDirection(Servo.Direction.REVERSE);
-        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        turretSpin.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        turretSpin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretSpin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Blocker.setPosition(rbga.blockClose);
         Tripod.setPosition(rbga.tripodIdle);
+
+        intakeLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        turretLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        turretRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
 //        Flylut.add(-13.5,1750); //far

@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import static org.firstinspires.ftc.teamcode.StaterobotDebug.turretPos;
+
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -23,7 +25,8 @@ import java.util.Arrays;
 public class base {
 
 
-    public final double ticksPerDegree = 957.0/180.0;
+//     public final double ticksPerDegree = 957.0/180.0;
+    public final double ticksPerDegree =114.02;;
 
     public double redGoalX = 144;
     public double redGoalY = 144;
@@ -61,11 +64,11 @@ public class base {
     InterpLUT Hoodlut = new InterpLUT();
     InterpLUT HoodlutPP = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
-    public static double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
-    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public static double intakep= 0.002, intakei = 0, intaked = 0, intakef = 0;
+    public final double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
+    public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+    public final double intakep= 0.0002, intakei = 0, intaked = 0, intakef = 0.00045;
 
-    public double flyspeedgap=500,Txgap=50,  turnMax=0.4,dist=50;
+    public double flyspeedgap=500,Txgap=50,  turnMax=0.8,dist=50;
 
 
     public double targetVel=0;
@@ -77,13 +80,13 @@ public class base {
     //double turretPower=0;
     PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
-    PIDController intakePID=new PIDController(intakep, intakei, intaked);
+    public PIDController intakePID=new PIDController(intakep, intakei, intaked);
     double Tx_offset=0;
-    int turretCwlim=-750;
-    int turretCcwlim=750;
-    public MedianFilter intakeCurrentFilter = new MedianFilter(10);
+    int turretCwlim=-12000;
+    int turretCcwlim=16000;
+   // public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
-    public double intakeVel = 2500,outtakVel=2200;
+    public final int intakeVel = 1500,outtakVel=1500;
 
 
 
@@ -238,7 +241,7 @@ public class base {
 
     {
 
-        if(!topon&&!midon&&!boton) beamscancount++; else beamscancount--;
+        if(!topon&&!midon&&!boton) beamscancount++; else beamscancount=0;
         if(beamscancount>4) {beamscancount=0;return true;}
         return false;
 
@@ -343,21 +346,22 @@ public class base {
         double turretPower;
         if (outtake)  {
             if(valid) {
-                turretPower = turretPID.calculate(tx, offset);
+               // turretPower = turretPID.calculate(tx, offset);
+                turretPower=  Math.signum (offset-tx)*Math.pow(Math.abs(tx-offset)*0.1,1.5);
                 limelocked=true;
                 Txgap=Math.abs(tx-offset);
-                if (turretPos > turretCcwlim- 10 &&  turretPower  > 0) {
-                    turretPower= -0.3;
+                if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
+                    turretPower= -0.5;
 //                    target = 0;
                     limelocked = false;
                 }
-                if (turretPos < (turretCwlim + 10) && turretPower< 0) {
-                    turretPower= 0.3;
+                if (turretPos < (turretCwlim + 300) && turretPower< 0) {
+                    turretPower= 0.5;
 //                    target = 0;
                     limelocked = false;
                 }
 
-                turretPower = Range.clip(turretPower,-turnMax,turnMax);
+//                turretPower = Range.clip(turretPower,-turnMax,turnMax);
                 return  turretPower ;
             }
 
@@ -378,6 +382,53 @@ public class base {
 
     }
 
+    public double turrettickpower(int currentpos,double targetpos)
+
+
+    {
+
+        double posgap=Math.abs(targetpos - currentpos);
+        double powerrate=1;
+
+        if (posgap > 2000){
+            powerrate= Math.signum (turretPos - currentpos);
+
+        }
+        else if (posgap > 300){
+            powerrate= 0.3*Math.signum (turretPos - currentpos);
+        }
+        else{
+           powerrate=0;
+        }
+
+        return powerrate;
+
+    }
+    public double turrettypower(double tygap)
+
+
+    {
+
+
+
+        double abstygap=Math.abs(tygap);
+
+//        if (abstygap > 8){
+//            powerrate= Math.signum (tygap);
+//
+//        }
+//        else if (abstygap > 3){
+//            powerrate= 0.3*Math.signum (tygap);
+//        }
+//        else{
+//            powerrate=0;
+//        }
+//
+     return Math.signum (tygap)*Math.pow(abstygap*0.1,1.5);
+
+    }
+
+
     public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks){
 
         double dx = targetGoalX- p.getX(DistanceUnit.INCH);
@@ -390,29 +441,33 @@ public class base {
 
         //dist = rbg.calcDist(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), targetx, targety);
 
-        double turretPower;
+        double turretPower=0;
         if (outtake)  {
-            turretPower = turretPID.calculate(turretTicks, Math.toDegrees(targetAngle) * ticksPerDegree);
+           // turretPower = turretPID.calculate(turretTicks, Math.toDegrees(targetAngle) * ticksPerDegree);
+            turretPower = turrettickpower(turretTicks,Math.toDegrees(targetAngle) * ticksPerDegree);
             Txgap=Math.abs( (Math.toDegrees(targetAngle)  - (turretTicks / ticksPerDegree)));
 
-            if (turretTicks> turretCcwlim- 10 &&  turretPower  > 0) {
-                turretPower= -0.3;
-
-
+            if (turretTicks> turretCcwlim- 300 &&  turretPower  > 0) {
+                turretPower= -0.4;
             }
-            if (turretTicks < (turretCwlim + 10) && turretPower< 0) {
-                turretPower= 0.3;
-
-
+            if (turretTicks < (turretCwlim + 300) && turretPower< 0) {
+                turretPower= 0.4;
             }
 
+        }
+        if (turretTicks> turretCcwlim- 300 &&  turretPower  > 0) {
+            turretPower= -0.4;
 
 
         }
+        if (turretTicks < (turretCwlim + 300) && turretPower< 0) {
+            turretPower= 0.4;
 
 
+        }
+        //else  turretPower = turretPID.calculate( turretTicks*0.35,  0);
 
-       else  turretPower = turretPID.calculate( turretTicks*0.35,  0);
+       else  turretPower = turrettickpower(turretTicks,0);
 
         turretPower= Range.clip(turretPower,-turnMax,turnMax);
         return turretPower;
