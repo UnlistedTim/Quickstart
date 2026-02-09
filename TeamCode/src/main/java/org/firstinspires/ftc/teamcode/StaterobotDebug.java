@@ -352,17 +352,10 @@ public class StaterobotDebug extends LinearOpMode {
                 turretLeft.setPower(0);
                 turretRight.setPower(0);
             }
-
-
 //            turretPID(turretPos);
-
             dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
             dashboardTelemetry.addData("Turret Pos",pos);
-
-
             dashboardTelemetry.update();
-
-
             telemetry.update();
 
 
