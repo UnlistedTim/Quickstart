@@ -67,7 +67,7 @@ public class base {
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public final double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
-    public final double intakep= 0.0002, intakei = 0, intaked = 0, intakef = 0.00045;
+    public final double intakep= 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
     public double flyspeedgap=500,Txgap=50,  turnMax=0.8,dist=50;
 
@@ -396,11 +396,11 @@ public class base {
 
         }
 
-        else if (posgap > 300){
+        else if (posgap > 250){
             powerrate= 0.3*Math.signum (targetpos - currentpos);
         }
         else{
-           powerrate=0.0008*(targetpos - currentpos);
+           powerrate=0;
         }
 
         return powerrate;
@@ -447,7 +447,7 @@ public class base {
         if (outtake)  {
            // turretPower = turretPID.calculate(turretTicks, Math.toDegrees(targetAngle) * ticksPerDegree);
             turretPower = turrettickpower(turretTicks,Math.toDegrees(targetAngle) * ticksPerDegree);
-            Txgap=Math.abs( (Math.toDegrees(targetAngle)  - (turretTicks / ticksPerDegree)));
+            Txgap=Math.abs( (Math.toDegrees(targetAngle)  - (turretTicks / ticksPerDegree)))*0.7;
 
             if (turretTicks> turretCcwlim- 300 &&  turretPower  > 0) {
                 turretPower= -0.4;

@@ -267,6 +267,7 @@ public class TeleopState extends LinearOpMode  {
             dashboardTelemetry.addData("Intakeleft",intakepower);
 
 
+
             loop_time += looptimer.milliseconds();
             z++;
 
@@ -277,6 +278,8 @@ public class TeleopState extends LinearOpMode  {
             }
 
             dashboardTelemetry.addData("Avg loop time",loop_time/z);
+
+            dashboardTelemetry.addData()
 
 
             //            telemetry.addData("mid",midbb);
@@ -802,7 +805,6 @@ public void turretspin()
 
     {
 
-        rbg.intakePID.setPID(0.0001,0,0);
         double power= rbg.intakePID.calculate(intakespeed,targetvel) + rbg.intakef*targetvel;   //rbg.intakePID.calculate(intakespeed, targetvel)
       //  power= Range.clip(power,-0.8,0.8);
        // if(targetvel==0) power=0;

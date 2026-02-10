@@ -4,6 +4,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,11 +16,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 //20524 / 180
@@ -59,7 +64,7 @@ public class StaterobotDebug extends LinearOpMode {
     public GoBildaPinpointDriver Pinpoint;
 
 
-    public static int IntakeVel = 0;
+    public static int IntakeVel = 1300;
 
     public static int turretPos = 0;
     int openInARow = 1;
@@ -134,7 +139,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 
 
-//    private Limelight3A Limelight;
+    private Limelight3A Limelight;
 
 
 
@@ -142,7 +147,7 @@ public class StaterobotDebug extends LinearOpMode {
 
     public static double turretp = 0, turreti = 0, turretd = 0;
 
-    public static double intakep = 0, intakei = 0, intaked = 0, intakef = 0.00045;
+    public static double intakep = 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
     public static double leftTurretPower = 0.0;
 
@@ -210,12 +215,12 @@ public class StaterobotDebug extends LinearOpMode {
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
 
-//        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 //        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
 
-//        configurePinpoint();
+        configurePinpoint();
 
 
 
@@ -281,7 +286,15 @@ public class StaterobotDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
-//        Limelight.pipelineSwitch(6);
+        Limelight.pipelineSwitch(2);
+
+        double targetGoalX = 140.86;
+        double targetGoalY = 140.86;
+
+        double startX = (93.83-7.5);
+        double startY = 11.17;
+        double startHeading=1.5*Math.PI;
+
 
 
 
@@ -291,12 +304,15 @@ public class StaterobotDebug extends LinearOpMode {
 
         waitForStart();
 
-//        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 88.83, 10.33, AngleUnit.RADIANS, 3*Math.PI/2));
+        Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
 //
-//        Limelight.start();
+        Limelight.start();
 
 
         while (opModeIsActive()) { //Main While loop
+
+            Pinpoint.update();
+            pose = Pinpoint.getPosition();
 
 //            turretLeft.setPower(leftTurretPower);
 //
@@ -319,6 +335,33 @@ public class StaterobotDebug extends LinearOpMode {
 
             intakePID(IntakeVel);
 
+            LLResult result = Limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                id = fiducial.getFiducialId(); // The ID number of the fiducial
+            }
+
+            limeValid = result.isValid();
+
+            if (limeValid){
+
+//                Tx = result.getTx();
+                Ty = result.getTy();
+
+            }
+
+            dashboardTelemetry.addData("X pos", pose.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
+
+            double distance = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),targetGoalX,targetGoalY);
+
+            dashboardTelemetry.addData("Distance", distance);
+
+
+
+
+
+
 
 
 
@@ -334,7 +377,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 
 
-//            flyPID(flyVel);
+            flyPID(flyVel);
 
 //            telemetry.addData("Bottom BB state",botBB.getState());
 //            telemetry.addData("top BB state",topBB.getState());
@@ -411,6 +454,8 @@ public class StaterobotDebug extends LinearOpMode {
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
 
+        dashboardTelemetry.addData("Ty",Ty);
+
 //        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
         dashboardTelemetry.update();
 
@@ -463,8 +508,6 @@ public class StaterobotDebug extends LinearOpMode {
 
         dashboardTelemetry.addData("PID power", pid);
 
-        dashboardTelemetry.update();
-
 
 
 //        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
@@ -485,7 +528,7 @@ public class StaterobotDebug extends LinearOpMode {
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        Pinpoint.setOffsets(3.15, -5, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+        Pinpoint.setOffsets(3.15, -4.9, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -502,7 +545,7 @@ public class StaterobotDebug extends LinearOpMode {
          * you move the robot to the left.
          */
         Pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         /*
          * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
