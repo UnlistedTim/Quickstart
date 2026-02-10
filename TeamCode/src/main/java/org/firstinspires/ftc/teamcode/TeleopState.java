@@ -32,7 +32,7 @@ import java.util.List;
 
 @TeleOp(name="TeleopState", group="A")
 @Config
-public class TeleopState extends LinearOpMode {
+public class TeleopState extends LinearOpMode  {
 
     Pose2D pose;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,  leftFront, rightFront, leftBack, rightBack;
@@ -172,14 +172,15 @@ public class TeleopState extends LinearOpMode {
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         initalize();
-        getAutoVars();
+
+
         Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, startX, startY, AngleUnit.RADIANS, startHeading));
         pose = Pinpoint.getPosition();
         waitForStart();
 
         afterstart();
 
-        looptimer.reset();
+//        looptimer.reset();
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         } //Bulk reading for faster loop times
@@ -399,6 +400,8 @@ public class TeleopState extends LinearOpMode {
       //  follower = Constants.createFollower(hardwareMap);
         Hw_init();
         rbg.init();
+        getAutoVars();
+
        // buildPaths();
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
@@ -428,20 +431,25 @@ public class TeleopState extends LinearOpMode {
             Tx_offset = 0;
            target_id = 24;
            rbg.targetGoalX=rbg.redGoalX;
-           rbg.targetGoalY=rbg.redGoalY;
+           startY=startY+rbg.rfyoffset;
+           startX=startX+rbg.rfxoffet;
+
             Limelight.pipelineSwitch(6);
         } else {
             Tx_offset = 0;
             target_id = 20;
-            Limelight.pipelineSwitch(7);
+            startY=startY+rbg.bfyoffset;
+            startX=startX+rbg.bfxoffset;
             rbg.targetGoalX=rbg.blueGoalX;
-            rbg.targetGoalY=rbg.blueGoalY;
+            Limelight.pipelineSwitch(7);
         }
+        if(startHeading==0) startHeading=1.5*Math.PI;
 
         telemetry.clear();
 
         if (red) telemetry.addLine("Red Alliance Selected");
         else telemetry.addLine("Blue Alliance Selected");
+
         telemetry.update();
         Limelight.start();
 
@@ -730,7 +738,6 @@ public void turretspin()
 
         intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
         turretLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         turretRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -796,7 +803,7 @@ public void turretspin()
     {
 
         rbg.intakePID.setPID(0.0001,0,0);
-        double power= rbg.intakePID.calculate(intakespeed,targetvel) + rbg.intakef * targetvel;   //rbg.intakePID.calculate(intakespeed, targetvel)
+        double power= rbg.intakePID.calculate(intakespeed,targetvel) + rbg.intakef*targetvel;   //rbg.intakePID.calculate(intakespeed, targetvel)
       //  power= Range.clip(power,-0.8,0.8);
        // if(targetvel==0) power=0;
         intakepower=power;
@@ -815,7 +822,7 @@ public void turretspin()
             startHeading = (double) blackboard.get("Heading");
         }
         catch (NullPointerException e){
-            startHeading = rbg.HEADINGOFFSET;
+            startHeading = 0;
         }
 
         try {
@@ -823,9 +830,9 @@ public void turretspin()
         }
 
         catch (NullPointerException e){
-            if(red)
-                startX = rbg.REDXOFFSET;
-            else startX = rbg.BLUEXOFFSET;
+
+                startX = 0;
+
         }
 
         try {
@@ -833,7 +840,7 @@ public void turretspin()
         }
 
         catch (NullPointerException e){
-            startY = rbg.YOFFSET;
+            startY =0;
         }
 
         try{
@@ -842,7 +849,6 @@ public void turretspin()
         catch (NullPointerException e){
             allianceRed = true;
         }
-
 
 
 

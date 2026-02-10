@@ -28,13 +28,14 @@ public class base {
 //     public final double ticksPerDegree = 957.0/180.0;
     public final double ticksPerDegree =114.02;;
 
-    public double redGoalX = 144;
-    public double redGoalY = 144;
+    public double redGoalX = 140.86;
+   // public double redGoalY = 140.86;
     public double blueGoalX = 0;
-    public double blueGoalY = 144;
-    public double targetGoalY = 144;
-    public double targetGoalX = 144;
+   // public double blueGoalY = 140.86;
+    public double targetGoalY = 140.86;
+    public double targetGoalX = 140.86;
     public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.6;
+    public double rfxoffet=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
 
 
 
@@ -390,15 +391,16 @@ public class base {
         double posgap=Math.abs(targetpos - currentpos);
         double powerrate=1;
 
-        if (posgap > 2000){
-            powerrate= Math.signum (turretPos - currentpos);
+        if ((posgap) > 2000){
+            powerrate= Math.signum (targetpos - currentpos);
 
         }
+
         else if (posgap > 300){
-            powerrate= 0.3*Math.signum (turretPos - currentpos);
+            powerrate= 0.3*Math.signum (targetpos - currentpos);
         }
         else{
-           powerrate=0;
+           powerrate=0.0008*(targetpos - currentpos);
         }
 
         return powerrate;
@@ -455,17 +457,6 @@ public class base {
             }
 
         }
-        if (turretTicks> turretCcwlim- 300 &&  turretPower  > 0) {
-            turretPower= -0.4;
-
-
-        }
-        if (turretTicks < (turretCwlim + 300) && turretPower< 0) {
-            turretPower= 0.4;
-
-
-        }
-        //else  turretPower = turretPID.calculate( turretTicks*0.35,  0);
 
        else  turretPower = turrettickpower(turretTicks,0);
 
