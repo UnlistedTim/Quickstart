@@ -157,7 +157,7 @@ public class TeleopState extends LinearOpMode  {
 
  //    State state = State.DEBUG;
  State state = State.IDLE;
-    boolean shooting = false, intakecheck=false;
+    boolean shooting = false, fardis=false;
 
     // --- Timers ---
     private ElapsedTime deltaT = new ElapsedTime();
@@ -215,6 +215,7 @@ public class TeleopState extends LinearOpMode  {
                              Intake(0);
                             outtakestate=true;
                             intakestate=false;
+                            shootState=ShootState.START;
                     }
 
                     break;
@@ -315,11 +316,12 @@ public class TeleopState extends LinearOpMode  {
               if(limeValid)  {
                   Tx=result.getTx();
                   Ty=result.getTy();
+                 // fardis= Ty < -10.5;// simpify
             }
 
           }
-
-            flyCurrentVel=flyBot.getVelocity();
+         // else fardis= rbg.dist >110;
+          flyCurrentVel=flyBot.getVelocity();
 
 //            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
@@ -645,16 +647,17 @@ public void turretspin()
             if (pinponit_nav) {
 
                 flypower = rbg.flyspeedPP(flyCurrentVel);
-                hoodPos = rbg.flyhoodPP();
+               // hoodPos = rbg.flyhoodPP();
             } else {
                 flypower = rbg.flyspeed(flyCurrentVel, Ty);
-                hoodPos = rbg.flyhood(Ty);
+               // hoodPos = rbg.flyhood(Ty);
             }
 
-            if (hoodPos > 0 && Math.abs(hoodPos - hoodLastPos) > 0.01) {
-                Hood.setPosition(hoodPos);
-                hoodLastPos = hoodPos;
-            }
+//            if (hoodPos > 0 && Math.abs(hoodPos - hoodLastPos) > 0.01) {
+//                Hood.setPosition(hoodPos);
+//                hoodLastPos = hoodPos;
+//            }
+
         }
         else
 
@@ -853,18 +856,13 @@ public void turretspin()
 
 
     public boolean shoot(){
-
-
         switch (shootState){
-
-
             case START:
-
+                Hood.setPosition(rbg.hoodposition(pinponit_nav,Ty));
                 shooting = true;
-               //shootingIntakeVel
                 rbg.Txgap=30;
+                shootState = ShootState.PRE_SHOOT;
                 break;
-
             case PRE_SHOOT:
                 if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1){  // rbg.Txgap < 1
                     drive = false;
@@ -883,8 +881,7 @@ public void turretspin()
                 }
                 break;
             case DONE:
-                if(stoptimers(300, outtake))
-                    return true;
+                if(stoptimers(300, outtake)) return true;
                 break;
 
 

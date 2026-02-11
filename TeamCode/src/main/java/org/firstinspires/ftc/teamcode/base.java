@@ -53,17 +53,17 @@ public class base {
     public final double BLUEXOFFSET = 7.5; // TODO
 
 
-    public final double  ledgreen=0.5, ledred=0.28;
+    public final double  ledgreen=0.5, ledred=0.28,hoodfarpos=0.31,hoodnearpose=0.15;
     private Timer beamtimer;
 
 
 
-    public boolean limelocked=false ,intakefirst=false,intakelast=false,beamcheck=false;
+    public boolean limelocked=false ,intakefirst=false,intakelast=false,beamcheck=false,disfar=true;
     InterpLUT Flylut = new InterpLUT();
 
     InterpLUT FlylutPP = new InterpLUT();
-    InterpLUT Hoodlut = new InterpLUT();
-    InterpLUT HoodlutPP = new InterpLUT();
+//    InterpLUT Hoodlut = new InterpLUT();
+//    InterpLUT HoodlutPP = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
     public final double turretkP = 0.025, turretkI = 0.0, turretkD = 0.001;//
     public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
@@ -88,7 +88,6 @@ public class base {
    // public MedianFilter intakeCurrentFilter = new MedianFilter(10);
 
     public final int intakeVel = 1500,outtakVel=1500;
-
 
 
 
@@ -195,6 +194,24 @@ public class base {
     }
 
 
+    public double hoodposition(boolean pinpoint , double ty)
+
+    {
+        double hoodpos;
+        if(pinpoint)
+        {
+        if(dist>110) hoodpos=hoodfarpos;
+        else hoodpos=hoodnearpose;
+        }
+
+        else {
+            if(ty<-10.5) hoodpos=hoodfarpos;
+            else hoodpos=hoodnearpose;
+        }
+
+
+        return hoodpos;
+    }
 
 
 
@@ -298,42 +315,42 @@ public class base {
 
     }
 
-    public double flyhood(double Ty) {
+//    public double flyhood(double Ty) {
+//
+//        double hoodLutGet;
+//        if (Ty < 11 && Ty > -13.5) {
+//
+//
+//            hoodLutGet = Hoodlut.get(Ty);
+//        }
+//
+//        else hoodLutGet=0;
+//
+//        return hoodLutGet;
+//
+//
+//    }
 
-        double hoodLutGet;
-        if (Ty < 11 && Ty > -13.5) {
-
-
-            hoodLutGet = Hoodlut.get(Ty);
-        }
-
-        else hoodLutGet=0;
-
-        return hoodLutGet;
-
-
-    }
-
-    public double flyhoodPP() {
-
-        double hoodLutGet;
-        if (dist < 162 && dist >= 0) {
-
-
-            hoodLutGet = HoodlutPP.get(dist);
-        }
-
-        else hoodLutGet=0.8;
-
-        return hoodLutGet;
-
-
-    }
+//    public double flyhoodPP() {
+//
+//        double hoodLutGet;
+//        if (dist < 162 && dist >= 0) {
+//
+//
+//            hoodLutGet = HoodlutPP.get(dist);
+//        }
+//
+//        else hoodLutGet=0.8;
+//
+//        return hoodLutGet;
+//
+//
+//    }
 
     public double  flyspeed(double currentVel,double ty) {
 
 
-        if (ty < 11 && ty > -13.5) {
+        if (ty < 11 && ty > -13.58) {
 
             targetVel = Flylut.get(ty);// Tx offset
 

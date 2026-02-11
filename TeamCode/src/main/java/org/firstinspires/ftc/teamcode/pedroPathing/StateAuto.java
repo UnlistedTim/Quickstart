@@ -44,7 +44,7 @@ public class StateAuto extends OpMode {
     public int shootState=0 ,turretTarget=0 ;
    public final int preshoot=0,shoot=1,done=2;
     int  turretPos;
-    public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false;
+    public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
     private boolean row3=true;
     double turnPower;
 
@@ -612,12 +612,12 @@ public class StateAuto extends OpMode {
         double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
         flyBot.setPower(fpower);
         flyTop.setPower(fpower);
-        hoodPos=rbga.flyhood(Ty);
-        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
-
-            Hood.setPosition(hoodPos);
-            hoodLastPos=hoodPos;
-        }
+       // hoodPos=rbga.flyhood(Ty);
+//        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
+//
+//            Hood.setPosition(hoodPos);
+//            hoodLastPos=hoodPos;
+//        }
 
 
     }
@@ -631,7 +631,10 @@ public class StateAuto extends OpMode {
 
         switch (shootstep) {
             case 0:
+                if(fardis) Hood.setPosition(rbga.hoodfarpos);
+                else Hood.setPosition(rbga.hoodnearpose);
                 shooting = true;
+
                 rbga.Txgap = 30;//avoid to use last time valu
                 shootstep = 1;
                 break;
@@ -665,6 +668,7 @@ public class StateAuto extends OpMode {
                     Blocker.setPosition(rbga.blockClose);
                     return true;
                 }
+                break;
 
         }
 
