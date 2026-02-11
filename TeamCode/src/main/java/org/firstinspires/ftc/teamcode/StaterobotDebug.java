@@ -59,6 +59,8 @@ public class StaterobotDebug extends LinearOpMode {
 
     public DcMotorEx turretSpin;
 
+    int pos;
+
     Pose2D pose;
 
     public GoBildaPinpointDriver Pinpoint;
@@ -68,6 +70,10 @@ public class StaterobotDebug extends LinearOpMode {
 
     public static int turretPos = 0;
     int openInARow = 1;
+
+    double power;
+
+    public static double  test_power = 0.0;
 
 
     boolean limeValid = false;
@@ -145,7 +151,7 @@ public class StaterobotDebug extends LinearOpMode {
 
     public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
 
-    public static double turretp = 0, turreti = 0, turretd = 0;
+    public static double turretp = 0.0002, turreti = 0, turretd = 0, turretkS = 0.04;
 
     public static double intakep = 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
@@ -331,7 +337,7 @@ public class StaterobotDebug extends LinearOpMode {
             Blocker.setPosition(blockerPos);
 
 
-            double pos = leftFront.getCurrentPosition();
+//            double pos = leftFront.getCurrentPosition();
 
             intakePID(IntakeVel);
 
@@ -401,9 +407,7 @@ public class StaterobotDebug extends LinearOpMode {
 //            turretPID(turretPos);
 //            turretLeft.setPower(0.3);
 //            turretRight.setPower(0.3);
-           // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());
-            telemetry.addData("Turret Pos",pos);
-            telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+           // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
             telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
           //  dashboardTelemetry.update();
@@ -469,16 +473,24 @@ public class StaterobotDebug extends LinearOpMode {
 
 
         turretPID.setPID(turretp, turreti, turretp);
-        int pos =  leftFront.getCurrentPosition();
+        pos=  leftFront.getCurrentPosition();
 
-        double power = turretPID.calculate(pos,targ_pos);
+        double error = targ_pos - pos;
+
+        power =  error * turretp + Math.signum(error) * turretkS;
 
         turretLeft.setPower(power);
         turretRight.setPower(power);
 
 
+
         dashboardTelemetry.addData(" Current pos", pos);
         dashboardTelemetry.addData("turret Power",power);
+
+        dashboardTelemetry.update();
+
+//        sleep(20);
+
 
 
 
