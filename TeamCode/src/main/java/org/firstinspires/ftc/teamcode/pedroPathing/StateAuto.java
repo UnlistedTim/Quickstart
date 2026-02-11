@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing; // make sure this aligns with class location
 
-import static java.lang.Thread.sleep;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
@@ -31,40 +29,26 @@ import org.firstinspires.ftc.teamcode.base;
 public class StateAuto extends OpMode {
 
     private Follower follower;
-
-
-
     private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
-  //  public base rbga;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,leftFront, rightFront, leftBack, rightBack,turretPosition;
     private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod;
-    private DigitalChannel botBB,topBB;
+    private DigitalChannel botBB,topBB,midBB;
     double intakevel;
-
     int shootstep=0;
-
-    private DigitalChannel beamBreaker;
-
     private Limelight3A Limelight;
     LLResult result;
-    private boolean atopbb,abotbb;
-
+    private boolean atopbb,abotbb,amidbb,configured=false;
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
-
     public double hoodPos = 0,outtaketime=0;
-
     public int shootState=0 ,turretTarget=0 ;
    public final int preshoot=0,shoot=1,done=2;
-
     int  turretPos;
-
-   // private GoBildaPinpointDriver Pinpoint;
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false;
-    double  rawIntakeCurrent=0,filteredIntakeCurrent,turnPower;
+    double turnPower;
 
 
-    private int pathState;
+    private int pathState=0 ,i=0;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -115,7 +99,7 @@ public class StateAuto extends OpMode {
                     if(red) follower.followPath(RFapproachPickup1, true);
                     else follower.followPath(BFapproachPickup1, true);
                     setPathState(1);
-                    Blocker.setPosition(rbga.blockClose);
+                    //Blocker.setPosition(rbga.blockClose);
                     adrive=false;
                 }
                 break;
@@ -124,7 +108,6 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     /* Grab Sample */
-
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     if(red) follower.followPath(RFgrabPickup1, 0.31,true);
                     else follower.followPath(BFgrabPickup1, 0.31,true);
@@ -135,7 +118,7 @@ public class StateAuto extends OpMode {
                 break;
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if (!follower.isBusy()) {
+                if (!follower.isBusy()|| rbga.beamscanintake(atopbb,amidbb,abotbb)) {
 
                     if(red) follower.followPath(RFscorePickup1, true);
                     else follower.followPath(BFscorePickup1, true);
@@ -158,8 +141,7 @@ public class StateAuto extends OpMode {
                 if(adrive){
                     if(red)follower.followPath(RFapproachPickup2, 0.6,false);
                     else follower.followPath(BFapproachPickup2, 0.6,false);
-                    Blocker.setPosition(rbga.blockClose);
-                    adrive=false;
+                     adrive=false;
                     setPathState(5);
                 }
                 break;
@@ -177,7 +159,7 @@ public class StateAuto extends OpMode {
 
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (actionTimer.getElapsedTime()>1500) {
+                if (actionTimer.getElapsedTime()>1200||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
                     setPathState(7);
@@ -223,7 +205,7 @@ public class StateAuto extends OpMode {
                 }
                 break;
             case 10:
-                if (actionTimer.getElapsedTime()>1200) {
+                if (actionTimer.getElapsedTime()>1200||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
 
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
@@ -476,70 +458,78 @@ public class StateAuto extends OpMode {
      **/
     @Override
     public void init() {
-      //  rbga=new base();
+        //  rbga=new base();
         Hw_init();
         pathTimer = new Timer();
         opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-        outtaketimer=new Timer();
-        actionTimer=new Timer();
-
+        outtaketimer = new Timer();
+        actionTimer = new Timer();
         rbga.init();
-
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setStartingPose(RFstartPose);
+        telemetry.addLine("Turn the camera to the shooting target");
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
-        telemetry.addLine("Drive Right Bumper Confrim ");
-        telemetry.update();
+//        telemetry.addLine("Drive Right Bumper Confrim ");
+       telemetry.update();
+    }
 
 
-
-//            if (gamepad2.triangleWasPressed()) {
-//                pattern_id = 21;
-//                recevieinfo = true;
-//                telemetry.addLine(" Green 1 selected");
-//            }
-//            if (gamepad2.circleWasPressed()) {
-//                pattern_id = 22;
-//                recevieinfo = true;
-//                telemetry.addLine("  Green 2  selected");
-//            }
-//            if (gamepad2.crossWasPressed()) {
-//                pattern_id = 23;
-//                recevieinfo = true;
-//                telemetry.addLine(" Green 3 selected");
-//            }
-
-
-        }
-
-
-
-
-
-
-    /**
-     * This method is called continuously after Init while waiting for "play".
-     **/
 
 
 
     @Override
     public void init_loop() {
 
-        if (gamepad1.cross) {
+        if (gamepad1.crossWasPressed()) {
             red = false;
+            i=0;
+            configured = true;
             recevieinfo = true;
-            telemetry.addLine("Blue Selected");
-            telemetry.update();
+            ;
         }
-        if (gamepad1.circle) {
+
+        if (gamepad1.circleWasPressed()) {
             red = true;
+            i=0;
             recevieinfo = true;
-            telemetry.addLine("Red  Selected");
-            telemetry.update();
+            configured=true;
+        }
+        if(configured){
+            if(i==0) {
+
+                if (red) {
+                    Limelight.pipelineSwitch(2);
+                    Limelight.start();
+                    rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
+                    rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
+                    telemetry.addLine("Red  Selected");
+                } else {
+                    Limelight.pipelineSwitch(7);
+                    Limelight.start();
+                    rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
+                    rbga.targetGoalX=0-rbga.bfxoffset;
+                    telemetry.addLine("Blue Selected");
+                }
+
+                blackboard.put("COLOR",  red);
+                setPathState(0);
+            }
+
+            if(Limelight.getLatestResult().isValid()){
+                configured=false;
+                telemetry.addLine("Camera good");
+                telemetry.update();
+
+            }
+            i++;
+            if(i>5) {
+                telemetry.addLine("Camera issue, pls restart!!!!!!!");
+                configured=false;
+                i=0;
+                telemetry.update();}
+
         }
 
     }
@@ -550,15 +540,27 @@ public class StateAuto extends OpMode {
      **/
     @Override
     public void start() {
-        opmodeTimer.resetTimer();
-        blackboard.put("COLOR",   red);
-        if (red) {
-            Limelight.pipelineSwitch(2);
-        } else {
-            Limelight.pipelineSwitch(7);
+        if(i==0){
+            if (red) {
+                Limelight.pipelineSwitch(2);
+                rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
+                rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
+                telemetry.addLine("Red  Selected");
+            } else {
+                Limelight.pipelineSwitch(7);
+                rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
+                rbga.targetGoalX=0-rbga.bfxoffset;
+                telemetry.addLine("Blue Selected");
+            }
+            Limelight.start();
+            blackboard.put("COLOR",  red);
+            setPathState(0);
+            telemetry.update();
+
         }
-        Limelight.start();
-        setPathState(0);
+        opmodeTimer.resetTimer();
+
+
     }
 
     /**
@@ -580,9 +582,12 @@ public class StateAuto extends OpMode {
     public void statusupdate()
 
     {
-        turretPos=turretPosition.getCurrentPosition();
+
+
+        turretPos=leftFront.getCurrentPosition();;
         atopbb=topBB.getState();
         abotbb=botBB.getState();
+        amidbb=midBB.getState();
         intakevel=intakeLeft.getVelocity();
 
         if(shooting) {
@@ -667,10 +672,9 @@ public class StateAuto extends OpMode {
                 }
                 break;
             case 2:
-//                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-//                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
 
-                if (rbga.beamouttakecheck(atopbb,abotbb) || outtaketimer.getElapsedTime() > 2000) {
+
+                if (rbga.beamscanouttake(atopbb,amidbb,abotbb) || outtaketimer.getElapsedTime() > 2000) {
                     shootstep = 3;
                     outtaketimer.resetTimer();
                 }
@@ -684,6 +688,7 @@ public class StateAuto extends OpMode {
                     adrive = true;
                     firstshoot = false;
                     shootstep = 0;
+                    Blocker.setPosition(rbga.blockClose);
                     break;
                 }
 
@@ -691,51 +696,7 @@ public class StateAuto extends OpMode {
 
     }
 
-    public void ashootb() {
 
-
-        if (!shooting){
-            shooting = true;
-            shootState = preshoot;
-            rbga.Txgap=30;//avoid to use last time value
-        }
-        if(firstshoot) {Ty=-12.2;}
-
-        flywheel();
-
-       switch (shootState){
-            case preshoot:
-                if(rbga.flyspeedgap <= 40&&rbga.Txgap<2){
-                    Intake(rbga.outtakVel);
-                    Blocker.setPosition(rbga.blockOpen);
-                    outtaketimer.resetTimer();
-                    shootState = shoot;
-
-                }
-                break;
-            case shoot:
-//                rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-//                filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
-                outtaketime=outtaketimer.getElapsedTime();
-
-                if ((outtaketime>700&&filteredIntakeCurrent < 650 ) ||outtaketime>2500){
-                    shootState = done;
-                }
-
-
-                break;
-            case done:
-                shooting = false;
-                limeValid=false;
-                rbga.limelocked=false;
-                adrive=true;
-                firstshoot=false;
-               // return true;
-
-
-        }
-        // return false;
-    }
 
 
 
@@ -863,7 +824,7 @@ public class StateAuto extends OpMode {
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
 
 
-        turretPosition=hardwareMap.get(DcMotorEx.class, "leftFront");
+      //  turretPosition=hardwareMap.get(DcMotorEx.class, "leftFront");
 
       //  Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
@@ -874,6 +835,7 @@ public class StateAuto extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
         topBB = hardwareMap.get(DigitalChannel.class, "topBB");
+        midBB = hardwareMap.get(DigitalChannel.class, "midBB");
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
@@ -882,10 +844,10 @@ public class StateAuto extends OpMode {
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        Intake.setVelocity(0);

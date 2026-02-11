@@ -42,7 +42,6 @@ public class TeleopState extends LinearOpMode  {
     private Limelight3A Limelight;
     private Follower follower;
     public GoBildaPinpointDriver Pinpoint;
-   // BooleanConfidenceChecker checker = new BooleanConfidenceChecker(); //todo
 
 
     public base rbg= new base();
@@ -152,9 +151,9 @@ public class TeleopState extends LinearOpMode  {
     }
 
     private enum ShootState {
-        PRE_SHOOT, SHOOT, DONE
+        START,PRE_SHOOT, SHOOT, DONE
     }
-    ShootState shootState = ShootState.PRE_SHOOT;
+    ShootState shootState = ShootState.START;
 
  //    State state = State.DEBUG;
  State state = State.IDLE;
@@ -277,9 +276,7 @@ public class TeleopState extends LinearOpMode  {
                 z = 0;
             }
 
-            dashboardTelemetry.addData("Avg loop time",loop_time/z);
 
-            dashboardTelemetry.addData()
 
 
             //            telemetry.addData("mid",midbb);
@@ -344,9 +341,7 @@ public class TeleopState extends LinearOpMode  {
     }
 
 
-    public double calcDist(double x0, double y0,double x1, double y1){
-        return Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
-    }
+
 
     public void stopDriveMotors(){
         leftFront.setPower(0);
@@ -435,7 +430,7 @@ public class TeleopState extends LinearOpMode  {
            target_id = 24;
            rbg.targetGoalX=rbg.redGoalX;
            startY=startY+rbg.rfyoffset;
-           startX=startX+rbg.rfxoffet;
+           startX=startX+rbg.rfxoffset;
 
             Limelight.pipelineSwitch(6);
         } else {
@@ -648,7 +643,7 @@ public void turretspin()
         if(outtakestate) {
 
             if (pinponit_nav) {
-                //   dist= Math.sqrt(Math.pow(x1-x0,2) + Math.pow(y1-y0,2));
+
                 flypower = rbg.flyspeedPP(flyCurrentVel);
                 hoodPos = rbg.flyhoodPP();
             } else {
@@ -859,22 +854,24 @@ public void turretspin()
 
     public boolean shoot(){
 
-        if (!shooting){
-            shooting = true;
-            Intake(rbg.outtakVel) ; //shootingIntakeVel
-            rbg.Txgap=30;
-            shootState = ShootState.PRE_SHOOT;
 
-
-        }
         switch (shootState){
+
+
+            case START:
+
+                shooting = true;
+               //shootingIntakeVel
+                rbg.Txgap=30;
+                break;
+
             case PRE_SHOOT:
                 if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1){  // rbg.Txgap < 1
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
                     shootState = ShootState.SHOOT;
-                    break;
+                    Intake(rbg.outtakVel) ;
                 }
                 break;
             case SHOOT:
