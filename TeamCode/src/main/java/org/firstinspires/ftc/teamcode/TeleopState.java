@@ -151,13 +151,13 @@ public class TeleopState extends LinearOpMode  {
     }
 
     private enum ShootState {
-        START,PRE_SHOOT, SHOOT, DONE
+        START,PRE_SHOOT, UNLOCK,SHOOT, DONE
     }
     ShootState shootState = ShootState.START;
 
  //    State state = State.DEBUG;
  State state = State.IDLE;
-    boolean shooting = false, fardis=false;
+    boolean shooting = false;
 
     // --- Timers ---
     private ElapsedTime deltaT = new ElapsedTime();
@@ -189,18 +189,18 @@ public class TeleopState extends LinearOpMode  {
         while (opModeIsActive()) { //Main While loop
 
 
-            looptimer.reset();
+         //   looptimer.reset();
 
 
-           BBState= botBB.getState();
+         //  BBState= botBB.getState();
 
             switch (state) {
-                case DEBUG:
-
-
-                    break;
+//                case DEBUG:
+//
+//
+//                    break;
                 case IDLE:
-                    if (stoptimers(500,intake )){
+                    if (stoptimers(300,intake )){
                         intakeStart();
                         state = State.INTAKE;
                         stoptimers(0,intake);
@@ -372,12 +372,7 @@ public class TeleopState extends LinearOpMode  {
       //  Blocker.setPosition(rbg.blockClose);
         Intake(rbg.intakeVel);
         rbg.limelocked=false;
-        intakestate=true;
-        rbg.beamtimecount=0;
-        rbg.beamoffcount=0;
-        rbg.beamoncount1=0;
-        rbg.ballcount=0;
-        rbg.beamcheck=false;
+        rbg.beamscancount=0;
     }
 
 
@@ -662,7 +657,7 @@ public void turretspin()
         else
 
         {
-            if(intakefirst&&!botbb) {Blocker.setPosition(rbg.blockClose);flypower=rbg.intakeflypower2;intakefirst=false;}
+            if(intakefirst&&!topbb) {flypower=rbg.intakeflypower2;intakefirst=false;}
         }
         flyBot.setPower(flypower);
         flyTop.setPower(flypower);
@@ -861,6 +856,7 @@ public void turretspin()
                 Hood.setPosition(rbg.hoodposition(pinponit_nav,Ty));
                 shooting = true;
                 rbg.Txgap=30;
+                rbg.beamscancount=0;
                 shootState = ShootState.PRE_SHOOT;
                 break;
             case PRE_SHOOT:
@@ -868,20 +864,28 @@ public void turretspin()
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
-                    shootState = ShootState.SHOOT;
-                    Intake(rbg.outtakVel) ;
+                    shootState = ShootState.UNLOCK;
                 }
                 break;
+
+            case UNLOCK:
+
+                if(stoptimers(150,outtake))  {
+                    Intake(rbg.outtakVel) ;
+                    shootState = ShootState.SHOOT;
+                }
+                break;
+
             case SHOOT:
 
-                if (rbg.beamscanouttake(topbb,midbb,botbb )){
-                   // shootState = ShootState.DONE;+
+                if (rbg.beamscanouttake(topbb,midbb,botbb )){//todo
                     stoptimers(0, outtake);
                     shootState = ShootState.DONE;
+                    drive=true;
                 }
                 break;
             case DONE:
-                if(stoptimers(300, outtake)) return true;
+                if(stoptimers(200, outtake)) return true;
                 break;
 
 
