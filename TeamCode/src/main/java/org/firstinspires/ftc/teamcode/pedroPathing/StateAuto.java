@@ -116,8 +116,8 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
                     /* Grab Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    if(red) follower.followPath(RFgrabPickup1, 0.31,true);
-                    else follower.followPath(BFgrabPickup1, 0.31,true);
+                    if(red) follower.followPath(RFgrabPickup1, 0.35,true);
+                    else follower.followPath(BFgrabPickup1, 0.35,true);
                     setPathState(6);
                 }
                 break;
@@ -149,7 +149,6 @@ public class StateAuto extends OpMode {
                   else {
                       if (red) follower.followPath(RFapproachPickup2, 0.6, false);
                       else follower.followPath(BFapproachPickup2, 0.6, false);
-                      adrive = false;
                       setPathState(14);
                   }
 
@@ -213,15 +212,15 @@ public class StateAuto extends OpMode {
 
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.REDXOFFSET);
+                        blackboard.put("X", follower.getPose().getX() + rbga.rfxoffset);
                         //   blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
 
                     } else {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.BLUEXOFFSET);
+                        blackboard.put("X", follower.getPose().getX() + rbga.bfxoffset);
                         //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
-
+                    blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
 
                     setPathState(-1);
                 }

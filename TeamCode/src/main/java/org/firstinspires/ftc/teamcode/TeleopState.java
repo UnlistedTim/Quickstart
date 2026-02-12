@@ -125,7 +125,7 @@ public class TeleopState extends LinearOpMode  {
 
     public static double  shootingIntakeVel = 2500;
 
-    boolean red = true;
+    boolean red = true ,calibrate=false;
 
 
     public int turretPos = 0;
@@ -253,6 +253,17 @@ public class TeleopState extends LinearOpMode  {
                 }
 
             }
+            if(gamepad2.psWasPressed()){
+
+                pinponit_nav=!pinponit_nav;
+            }
+
+            if(gamepad2.shareWasPressed()){
+
+                calibrate=true;
+
+            }
+
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);  else stopDriveMotors();
             statusupdate();//caputure all the hardware reading info.
             flywheel();
@@ -476,43 +487,7 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-    public boolean beamBreakCount(){
-        BBState = botBB.getState();
-        if (!BBState && !debounce){
-            ball_count++;
-            if (ball_count == 3){
-//                Intake.setVelocity(100);
-                resetIntakeVars();
-                // state = State.OUTTAKE;
-                return true;
-            }
-            debounce = true;
-        }
 
-//        if (checker.update(!BBState)) {
-////            Intake.setVelocity(100);
-//
-//            resetIntakeVars();
-//            state = State.OUTTAKE;
-//            return true;
-//
-//        }
-
-//
-
-        if (BBState && prevBBState) openInARow++;
-        else openInARow = 0;
-
-        if (debounce && openInARow > 10){
-            debounce = false;
-            openInARow = 0;
-
-        }
-        prevBBState = BBState;
-
-
-        return false;
-    }
 
     void configinfo() {
         telemetry.addLine("Driver Cross select Blue side");
