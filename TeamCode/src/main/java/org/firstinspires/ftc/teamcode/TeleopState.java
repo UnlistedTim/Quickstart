@@ -164,6 +164,7 @@ public class TeleopState extends LinearOpMode  {
     private ElapsedTime outtakeTimer = new ElapsedTime();
 
 
+
     @SuppressLint("SuspiciousIndentation")
     @Override
 
@@ -258,9 +259,10 @@ public class TeleopState extends LinearOpMode  {
                 pinponit_nav=!pinponit_nav;
             }
 
-            if(gamepad2.shareWasPressed()){
+            if(gamepad2.shareWasPressed()||calibrate){
 
                 calibrate=true;
+
 
             }
 
