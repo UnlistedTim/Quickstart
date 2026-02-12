@@ -803,6 +803,9 @@ public class StateAuto extends OpMode {
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
 
 
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
       //  turretPosition=hardwareMap.get(DcMotorEx.class, "leftFront");
 
       //  Intake = hardwareMap.get(DcMotorEx.class, "Intake");
@@ -810,6 +813,9 @@ public class StateAuto extends OpMode {
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
         intakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
+
+        turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
+        turretRight = hardwareMap.get(CRServo.class, "turretRight");
 //        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
         botBB = hardwareMap.get(DigitalChannel.class, "botBB");
@@ -855,9 +861,9 @@ public class StateAuto extends OpMode {
 
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        turretLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        turretLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        turretRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        turretRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 //        Flylut.add(-13.5,1750); //far

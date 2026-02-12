@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -113,7 +114,7 @@ public class TeleopState extends LinearOpMode  {
 
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
-    double  startime=0;
+    double  startime=0, intaketargetvel=1500;
     double Tx = 100;
     public static double Tx_offset = 0;
 
@@ -213,7 +214,7 @@ public class TeleopState extends LinearOpMode  {
                      if ( gamepad2.leftBumperWasPressed() || rbg.beamscanintake(topbb,midbb,botbb)){//(stoptimers(500,intake)
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
-                             Intake(0);
+                             intaketargetvel=0;
                             outtakestate=true;
                             intakestate=false;
                             shootState=ShootState.START;
@@ -279,16 +280,26 @@ public class TeleopState extends LinearOpMode  {
             dashboardTelemetry.addData("intakespeed",intakespeed);
             dashboardTelemetry.addData("Intakeleft",intakepower);
 
+            dashboardTelemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+            dashboardTelemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+
+            dashboardTelemetry.addData("Tx gap", rbg.Txgap);
+            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
+
+            dashboardTelemetry.addData("X pos",pose.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
 
 
-            loop_time += looptimer.milliseconds();
-            z++;
 
-
-            if (z>1000000 || loop_time>1000000){
-                loop_time = 0;
-                z = 0;
-            }
+//
+//            loop_time += looptimer.milliseconds();
+//            z++;
+//
+//
+//            if (z>1000000 || loop_time>1000000){
+//                loop_time = 0;
+//                z = 0;
+//            }
 
 
 
@@ -315,9 +326,11 @@ public class TeleopState extends LinearOpMode  {
 
     {
        turretPos=leftFront.getCurrentPosition();
+
         Pinpoint.update();
         pose = Pinpoint.getPosition();
         intakespeed=intakeLeft.getVelocity();
+        Intake(intaketargetvel);
       //  dist = calcDist(pose.getX(DistanceUnit.INCH),pose.getY(DistanceUnit.INCH),rbg.redGoalX,rbg.redGoalY);
         topbb=topBB.getState();
         botbb=botBB.getState();
@@ -335,6 +348,7 @@ public class TeleopState extends LinearOpMode  {
           }
          // else fardis= rbg.dist >110;
           flyCurrentVel=flyBot.getVelocity();
+
 
 //            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
@@ -382,8 +396,9 @@ public class TeleopState extends LinearOpMode  {
        intakefirst=true;
        // checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
-      //  Blocker.setPosition(rbg.blockClose);
-        Intake(rbg.intakeVel);
+        Blocker.setPosition(rbg.blockClose);
+      //  Intake(rbg.intakeVel);
+        intaketargetvel=rbg.intakeVel;
         rbg.limelocked=false;
         rbg.beamscancount=0;
     }
@@ -709,6 +724,9 @@ public void turretspin()
         intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
         turretLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -775,9 +793,10 @@ public void turretspin()
 
     {
 
-        double power= rbg.intakePID.calculate(intakespeed,targetvel) + rbg.intakef*targetvel;   //rbg.intakePID.calculate(intakespeed, targetvel)
+        double power=  rbg.intakePID.calculate(intakespeed,targetvel)+ rbg.intakef*targetvel;
+        power=Range.clip(power,-0.9,0.9);
       //  power= Range.clip(power,-0.8,0.8);
-       // if(targetvel==0) power=0;
+        if(targetvel==0) power=0;
         intakepower=power;
         intakeLeft.setPower(power);
         intakeRight.setPower(power);
@@ -830,6 +849,8 @@ public void turretspin()
     public boolean shoot(){
         switch (shootState){
             case START:
+                intaketargetvel=rbg.outtakVel;
+
                 Hood.setPosition(rbg.hoodposition(pinponit_nav,Ty));
                 shooting = true;
                 rbg.Txgap=30;
@@ -841,14 +862,15 @@ public void turretspin()
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
-                    shootState = ShootState.UNLOCK;
+                    shootState = ShootState.SHOOT;  //Unlock
+
                 }
                 break;
 
             case UNLOCK:
 
                 if(stoptimers(150,outtake))  {
-                    Intake(rbg.outtakVel) ;
+
                     shootState = ShootState.SHOOT;
                 }
                 break;
