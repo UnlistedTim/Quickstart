@@ -277,17 +277,17 @@ public class TeleopState extends LinearOpMode  {
             turntable();
 
 //            telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
-            dashboardTelemetry.addData("intakespeed",intakespeed);
-            dashboardTelemetry.addData("Intakeleft",intakepower);
-
-            dashboardTelemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
-            dashboardTelemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
-
-            dashboardTelemetry.addData("Tx gap", rbg.Txgap);
-            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
-
-            dashboardTelemetry.addData("X pos",pose.getX(DistanceUnit.INCH));
-            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
+//            dashboardTelemetry.addData("intakespeed",intakespeed);
+//            dashboardTelemetry.addData("Intakeleft",intakepower);
+//
+//            dashboardTelemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+//            dashboardTelemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+//
+//            dashboardTelemetry.addData("Tx gap", rbg.Txgap);
+//            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
+//
+//            dashboardTelemetry.addData("X pos",pose.getX(DistanceUnit.INCH));
+//            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
 
 
 
@@ -311,11 +311,14 @@ public class TeleopState extends LinearOpMode  {
 //            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
 //            telemetry.addData("Hood pos", hoodPos);
 
-            dashboardTelemetry.update();
+          //  dashboardTelemetry.update();
+
+            telemetry.addData("Tx",Tx);
+            telemetry.addData("Ty",Ty);
 
 
 //
-         telemetry.update();
+            telemetry.update();
 
 
 
@@ -326,7 +329,6 @@ public class TeleopState extends LinearOpMode  {
 
     {
        turretPos=leftFront.getCurrentPosition();
-
         Pinpoint.update();
         pose = Pinpoint.getPosition();
         intakespeed=intakeLeft.getVelocity();
@@ -346,11 +348,9 @@ public class TeleopState extends LinearOpMode  {
             }
 
           }
-         // else fardis= rbg.dist >110;
           flyCurrentVel=flyBot.getVelocity();
 
 
-//            filteredIntakeCurrent = rbg.intakeCurrentFilter.update(rawIntakeCurrent);
 
         }
 
@@ -457,7 +457,7 @@ public class TeleopState extends LinearOpMode  {
            startY=startY+rbg.rfyoffset;
            startX=startX+rbg.rfxoffset;
 
-            Limelight.pipelineSwitch(6);
+            Limelight.pipelineSwitch(2);
         } else {
             Tx_offset = 0;
             target_id = 20;
