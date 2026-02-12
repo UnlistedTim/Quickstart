@@ -49,25 +49,25 @@ public class TeleopState extends LinearOpMode  {
 
     double startHeading, startX, startY;
 
-    boolean allianceRed = false;
+
 
     public boolean lift = false;
 
-    public boolean BBState = true;
+
     public boolean topbb=true,botbb=true,midbb=true,intakefirst=false;
 
     public boolean prevBBState = true,prevBBState2;
 
-    public static double intakeMaxVel = 3000;
 
-    public final int max_vel = 1800;
+
+
     public double intakespeed=0;
 
     public int ball_count = 0;
 
     public boolean debounce = false;
 
-    public boolean debouncearr[] = {false,false,false};
+
 
     LLResult result;
 
@@ -83,8 +83,7 @@ public class TeleopState extends LinearOpMode  {
 
     double[] stoptime = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    //    double[] Tydata = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//    double[] Tyempty = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
 
     int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
 
@@ -104,11 +103,10 @@ public class TeleopState extends LinearOpMode  {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-    boolean limeValid = false,pinponit_nav=true;
+    boolean limeValid = false,pinpoint_nav=true;
     boolean outtakestate=false,intakestate=true;
     boolean drive = true, present = false;
-    int  shoot_count = 0;
-    int id = 1,intakecount=0,withball=0;
+
     int target_id = 24;
 
 
@@ -118,9 +116,7 @@ public class TeleopState extends LinearOpMode  {
     double Tx = 100;
     public static double Tx_offset = 0;
 
-    double rawIntakeCurrent;
 
-    double filteredIntakeCurrent;
 
     double Ty = 0.0, dist = 0.0;
 
@@ -131,9 +127,8 @@ public class TeleopState extends LinearOpMode  {
 
     public int turretPos = 0;
 
-    public double loop_time = 0;
 
-    public int z = 0;
+
 
     public ElapsedTime looptimer = new ElapsedTime();
 
@@ -144,7 +139,7 @@ public class TeleopState extends LinearOpMode  {
 
 
     public enum State {
-        DEBUG,
+
         IDLE,
         INTAKE,
         OUTTAKE,
@@ -257,15 +252,25 @@ public class TeleopState extends LinearOpMode  {
             }
             if(gamepad2.psWasPressed()){
 
-                pinponit_nav=!pinponit_nav;
+               pinpoint_nav=!pinpoint_nav;
+               telemetry.addData("pinpoint-nav",pinpoint_nav);
+               telemetry.update();
             }
 
-            if(gamepad2.shareWasPressed()||calibrate){
+            if(gamepad1.shareWasReleased()||calibrate) {
+                if (!calibrate) {
+                    calibrate = true;
+                    timer.reset();
+                }
+                if (timer.milliseconds() > 1000 && gamepad2.share) {
+                    gamepad1.rumble(200);
+                      calibrate();
+                      calibrate=false;
 
-                calibrate=true;
-
-
+                }
+                if (timer.milliseconds() > 3000 )calibrate=false;
             }
+
 
             if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);  else stopDriveMotors();
             statusupdate();//caputure all the hardware reading info.
@@ -315,14 +320,29 @@ public class TeleopState extends LinearOpMode  {
 
             telemetry.addData("Tx",Tx);
             telemetry.addData("Ty",Ty);
+            telemetry.addData("turnpower",turnPower);
 
 
 //
-            telemetry.update();
+            telemetry.update();//to do
 
 
 
         }
+    }
+
+
+    void calibrate()
+
+    {
+        stopDriveMotors();
+        sleep(150);
+        if(red) Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.rcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+
+
+        else Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.bcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+
+
     }
 
     public void statusupdate()
@@ -338,16 +358,18 @@ public class TeleopState extends LinearOpMode  {
         botbb=botBB.getState();
         midbb=midBB.getState();
         if(outtakestate) {
-          if(!pinponit_nav) {
+         // if(!pinpoint_nav) {
               result = Limelight.getLatestResult();
               limeValid = result.isValid();
               if(limeValid)  {
                   Tx=result.getTx();
                   Ty=result.getTy();
-                 // fardis= Ty < -10.5;// simpify
-            }
+                  if(pinpoint_nav) Tx_offset=rbg.txoffset;
 
-          }
+                 // fardis= Ty < -10.5;// simpify
+           }
+
+         // }
           flyCurrentVel=flyBot.getVelocity();
 
 
@@ -361,9 +383,8 @@ public class TeleopState extends LinearOpMode  {
     public void  turntable()
 
     {
-        if(pinponit_nav)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos);
-       else  turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-
+        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
+       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
        turretLeft.setPower(turnPower);
        turretRight.setPower(turnPower);
 
@@ -380,13 +401,15 @@ public class TeleopState extends LinearOpMode  {
     }
 
     public void afterstart() {
-        deltaT.reset();
+       // deltaT.reset();
         timer.reset();
         outtakeTimer.reset();
         runtime.reset();
+
         Blocker.setPosition(rbg.blockClose);
         Tripod.setPosition(rbg.tripodIdle);
         Led.setPosition(rbg.ledgreen);
+        Limelight.start();
     }
 
 
@@ -426,38 +449,47 @@ public class TeleopState extends LinearOpMode  {
         getAutoVars();
 
        // buildPaths();
-        Blocker.setPosition(rbg.blockClose);
-        Tripod.setPosition(rbg.tripodIdle);
-        if (red) telemetry.addLine("Red Alliance Selected");
-        else telemetry.addLine("Blue Alliance Selected");
+
+        if (red) telemetry.addLine("Red  Selected");
+        else telemetry.addLine("Blue  Selected");
         configinfo();
 
         while (!isStarted() && !isStopRequested()) {
             if (gamepad1.cross) {
                 red = false;
                 recevieinfo = true;
-                telemetry.addLine("Blue Selected");
+              //  telemetry.addLine("Blue Selected");
+
             }
             if (gamepad1.circle) {
                 red = true;
                 recevieinfo = true;
-                telemetry.addLine("Red  Selected");
+               // telemetry.addLine("Red  Selected");
             }
 
             if (recevieinfo) {
-                configinfo();
-                telemetry.update();
+
+                break;
+
+               // telemetry.update();
             }
-            if (gamepad2.right_bumper) break;
+
         }
+
+
+       // telemetry.clear();
+
+        if (red) telemetry.addLine("Red Alliance Selected");
+        else telemetry.addLine("Blue Alliance Selected");
+
+        telemetry.update();
         if (red) {
             Tx_offset = 0;
-           target_id = 24;
-           rbg.targetGoalX=rbg.redGoalX;
-           startY=startY+rbg.rfyoffset;
-           startX=startX+rbg.rfxoffset;
-
-            Limelight.pipelineSwitch(2);
+            target_id = 24;
+            rbg.targetGoalX=rbg.redGoalX;
+            startY=startY+rbg.rfyoffset;
+            startX=startX+rbg.rfxoffset;
+            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
@@ -467,13 +499,6 @@ public class TeleopState extends LinearOpMode  {
             Limelight.pipelineSwitch(7);
         }
         if(startHeading==0) startHeading=1.5*Math.PI;
-
-        telemetry.clear();
-
-        if (red) telemetry.addLine("Red Alliance Selected");
-        else telemetry.addLine("Blue Alliance Selected");
-
-        telemetry.update();
         Limelight.start();
 
     }
@@ -511,6 +536,7 @@ public class TeleopState extends LinearOpMode  {
         telemetry.addLine("Driver Circle select  Red  side");
         telemetry.addLine("Gunner Right Bumper Confrim afters election");
         telemetry.addLine("*******************************************");
+        telemetry.update();
 
     }
 
@@ -631,7 +657,7 @@ public void turretspin()
 
         if(outtakestate) {
 
-            if (pinponit_nav) {
+            if (pinpoint_nav) {
 
                 flypower = rbg.flyspeedPP(flyCurrentVel);
                // hoodPos = rbg.flyhoodPP();
@@ -835,10 +861,10 @@ public void turretspin()
         }
 
         try{
-            allianceRed = (boolean) blackboard.get("Color");
+            red = (boolean) blackboard.get("Color");
         }
         catch (NullPointerException e){
-            allianceRed = true;
+            red = true;
         }
 
 
@@ -851,7 +877,7 @@ public void turretspin()
             case START:
                 intaketargetvel=rbg.outtakVel;
 
-                Hood.setPosition(rbg.hoodposition(pinponit_nav,Ty));
+                Hood.setPosition(rbg.hoodposition(pinpoint_nav,Ty));
                 shooting = true;
                 rbg.Txgap=30;
                 rbg.beamscancount=0;

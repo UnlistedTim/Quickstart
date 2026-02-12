@@ -95,6 +95,7 @@ public class StateAuto extends OpMode {
     public void FarPathUpdate() {
         switch (pathState) {
             case 1:
+                Ty = -12.2;
                 if(ashoot()) {
 
                 if(row3)  setPathState(3);
@@ -118,6 +119,7 @@ public class StateAuto extends OpMode {
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     if(red) follower.followPath(RFgrabPickup1, 0.35,true);
                     else follower.followPath(BFgrabPickup1, 0.35,true);
+                    flypower=rbga.flypower2;
                     setPathState(6);
                 }
                 break;
@@ -158,8 +160,8 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.25,false);
-                    else follower.followPath(BFgrabPickup2, 0.25,false);
+                    if(red)follower.followPath(RFgrabPickup2, 0.3,false);
+                    else follower.followPath(BFgrabPickup2, 0.3,false);
                     setPathState(17);
                 }
                 break;
@@ -169,6 +171,7 @@ public class StateAuto extends OpMode {
                 if (actionTimer.getElapsedTime()>1200||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
+                    flypower=rbga.flypower2;
                     setPathState(19);
                 }
 
@@ -177,12 +180,12 @@ public class StateAuto extends OpMode {
             case 19:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
 
-                if (!follower.isBusy()) {//cyble wall grab and shooting
+                if (!follower.isBusy()) {//cycle wall grab and shooting
                     setPathState(10);
                 }
                 break;
             case 101:
-
+                        flypower=0;
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
 
@@ -200,6 +203,7 @@ public class StateAuto extends OpMode {
                     flypower=0;
                     flyprepower(0);
                     Blocker.setPosition(rbga.blockClose);
+                    Intake(0);
                     actionTimer.resetTimer();
                     setPathState(105);
 
@@ -625,7 +629,7 @@ public class StateAuto extends OpMode {
 
 
     public boolean ashoot() {
-        if (firstshoot) Ty = -12.2;
+       // if (firstshoot) Ty = -12.2;
         flywheel();
 
         switch (shootstep) {
@@ -657,12 +661,13 @@ public class StateAuto extends OpMode {
 
                 break;
             case 3:
-                if(outtaketimer.getElapsedTime()>300) {
+                if(outtaketimer.getElapsedTime()>200) {
                     shooting = false;
                     limeValid = false;
+                    flypower= rbga.flypower1;;
                     rbga.limelocked = false;
                     adrive = true;
-                    firstshoot = false;
+                   // firstshoot = false;
                     shootstep = 0;
                     Blocker.setPosition(rbga.blockClose);
                     return true;

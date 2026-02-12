@@ -36,8 +36,8 @@ public class base {
     public double targetGoalX = 140.86;
     public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.6;
     public double rfxoffset=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
-
-
+    public double  rcalxoffset=140.86-7.5, calheading=0.5*Math.PI;
+    public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.8;
 
 
 
@@ -82,7 +82,7 @@ public class base {
     //PIDController turretPID = new PIDController(turretkP, turretkI, turretkD);
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     public PIDController intakePID=new PIDController(intakep, intakei, intaked);
-    double Tx_offset=0;
+ //   double Tx_offset=0;
     int turretCwlim=-12000;
     int turretCcwlim=16000;
     public final int intakeVel = 1500,outtakVel=1500;
@@ -300,12 +300,16 @@ public class base {
 
 
 
-    public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks){
+    public double  turretturnPP(boolean outtake , Pose2D p, int turretTicks,boolean red){
 
         double dx = targetGoalX- p.getX(DistanceUnit.INCH);
         double dy = targetGoalY -p.getY(DistanceUnit.INCH);
+        double goalangle=Math.atan2(dy, dx);
 
-        double targetAngle= Math.atan2(dy, dx) - (p.getHeading(AngleUnit.RADIANS) -Pi);
+      if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*2;
+      else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*2;
+
+        double targetAngle= goalangle- (p.getHeading(AngleUnit.RADIANS) -Pi);
         if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
         dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 
