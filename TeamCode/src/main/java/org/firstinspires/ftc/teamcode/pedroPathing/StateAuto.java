@@ -477,7 +477,7 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(2);
+                    Limelight.pipelineSwitch(6);
                     Limelight.start();
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
@@ -519,7 +519,7 @@ public class StateAuto extends OpMode {
     public void start() {
         if(i==0){
             if (red) {
-                Limelight.pipelineSwitch(2);
+                Limelight.pipelineSwitch(6);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");

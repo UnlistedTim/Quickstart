@@ -264,7 +264,6 @@ public class base {
 
     {
 
-
         double error;
 
        if (pinpoint){

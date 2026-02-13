@@ -322,6 +322,10 @@ public class TeleopState extends LinearOpMode  {
             telemetry.addData("Ty",Ty);
             telemetry.addData("turnpower",turnPower);
 
+            telemetry.addData("Pose x",pose.getX(DistanceUnit.INCH));
+
+            telemetry.addData("Turret Pos", leftFront.getCurrentPosition());
+
 
 //
             telemetry.update();//to do
