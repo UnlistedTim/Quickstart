@@ -149,7 +149,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 
 
-    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
+    public static double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005, flyS = 0.0, flyON = 0.9;
 
     public static double turretp = 0.0002, turreti = 0, turretd = 0, turretkS = 0.04;
 
@@ -385,7 +385,7 @@ public class StaterobotDebug extends LinearOpMode {
 //            filteredIntakeCurrent = intakeCurrentFilter.update(rawIntakeCurrent);
 
 
-
+//            flyBANGBANG(flyVel);
 
             flyPID(flyVel);
 
@@ -451,7 +451,7 @@ public class StaterobotDebug extends LinearOpMode {
         double vel =  flyBot.getVelocity();
 
         double pid = flyPID.calculate(vel,targ_vel);
-        double ff = flyf *targ_vel;
+        double ff = flyf *targ_vel + flyS;
 //        if (Math.abs(vel - targ_vel) < 40) pid = 0;
         double power = pid + ff;
         flyBot.setPower(power);
@@ -463,6 +463,36 @@ public class StaterobotDebug extends LinearOpMode {
         dashboardTelemetry.addData("Power",power);
 
         dashboardTelemetry.addData("Ty",Ty);
+
+//        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
+        dashboardTelemetry.update();
+
+
+
+        //  telemetry.addData("Velocity",vel);
+    }
+
+
+    public void flyBANGBANG(double targ_vel){
+
+        double vel =  flyBot.getVelocity();
+
+
+        double ff = flyf *targ_vel + flyS;
+//        if (Math.abs(vel - targ_vel) < 40) pid = 0;
+
+        double power = ff + (targ_vel - vel > 20 ? flyON : 0);
+
+        if (targ_vel > vel ) power += flyON;
+
+        flyBot.setPower(power);
+        flyTop.setPower(power);
+
+
+        dashboardTelemetry.addData(" Current velocity", vel);
+        dashboardTelemetry.addData("Target velocity",targ_vel);
+        dashboardTelemetry.addData("Power",power);
+
 
 //        dashboardTelemetry.addData("Intake vel",Intake.getVelocity());
         dashboardTelemetry.update();
