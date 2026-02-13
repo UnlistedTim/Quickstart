@@ -351,10 +351,14 @@ public class StaterobotDebug extends LinearOpMode {
 
             if (limeValid){
 
-//                Tx = result.getTx();
+                Tx = result.getTx();
                 Ty = result.getTy();
 
             }
+
+            limelightturretPID();
+
+//            telemetry.addData("Tx",Tx);
 
             dashboardTelemetry.addData("X pos", pose.getX(DistanceUnit.INCH));
             dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
@@ -485,6 +489,35 @@ public class StaterobotDebug extends LinearOpMode {
 
 
         dashboardTelemetry.addData(" Current pos", pos);
+        dashboardTelemetry.addData("turret Power",power);
+
+        dashboardTelemetry.update();
+
+//        sleep(20);
+
+
+
+
+        //  telemetry.addData("Velocity",vel);
+    }
+
+
+    public void limelightturretPID(){
+
+
+
+//        turretPID.setPID(turretp, turreti, turretp);
+
+        double error = -Tx;
+
+        power =  error * turretp + Math.signum(error) * turretkS;
+
+        turretLeft.setPower(power);
+        turretRight.setPower(power);
+
+
+
+        dashboardTelemetry.addData(" Error", Tx);
         dashboardTelemetry.addData("turret Power",power);
 
         dashboardTelemetry.update();

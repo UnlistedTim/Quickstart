@@ -65,7 +65,7 @@ public class base {
 //    InterpLUT Hoodlut = new InterpLUT();
 //    InterpLUT HoodlutPP = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
-    public final double turretkP = 0.0002, turretkI = 0.0, turretkD = 0,turretkS = 0.04,turretkPtx=0.025;//
+    public final double turretkP = 0.0002, turretkI = 0.0, turretkD = 0,turretkS = 0.03,turretkPtx=0.015;// 0.025
     public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
     public final double intakep= 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
