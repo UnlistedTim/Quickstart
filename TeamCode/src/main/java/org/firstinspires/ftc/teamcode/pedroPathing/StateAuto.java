@@ -151,8 +151,8 @@ public class StateAuto extends OpMode {
 
                   if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
                   else {
-                      if (red) follower.followPath(RFapproachPickup2, 0.9, false);
-                      else follower.followPath(BFapproachPickup2, 0.9, false);
+                      if (red) follower.followPath(RFapproachPickup2, false);
+                      else follower.followPath(BFapproachPickup2, false);
                       setPathState(14);
                   }
 
@@ -162,8 +162,8 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.4,false);
-                    else follower.followPath(BFgrabPickup2, 0.4,false);
+                    if(red)follower.followPath(RFgrabPickup2, 0.25,false);
+                    else follower.followPath(BFgrabPickup2, 0.25,false);
                     setPathState(17);
                 }
                 break;
