@@ -34,29 +34,29 @@ public class StateAuto extends OpMode {
     private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB,midBB;
-    double intakevel,intaketargtvel=0,intakestdvel=1500;
+    double intakevel,intaketargtvel=0,intakestdvel=1500,outakestdvel=1500,outtakebstvel=1700;
     int shootstep=0;
     private Limelight3A Limelight;
     LLResult result;
-    private boolean atopbb,abotbb,amidbb,configured=false;
+    private boolean atopbb,abotbb,amidbb,configured=false,intakefull=false;
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
     public double hoodPos = 0,outtaketime=0;
     public int shootState=0 ,turretTarget=0 ;
    public final int preshoot=0,shoot=1,done=2;
     int  turretPos;
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
-    private boolean row3=true;
+    private boolean row3=false;
     double turnPower;
 
 
     private int pathState=1 ,i=0;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
-    private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RFscorePose = new Pose(0, 9, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(38, 2, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(35, 12, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseB = new Pose(42, -12, Math.toRadians(0));
+    private final Pose RFpickup2Pose = new Pose(39, -5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(37, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseB = new Pose(43, 8, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -97,6 +97,7 @@ public class StateAuto extends OpMode {
         switch (pathState) {
             case 1:
                 Ty = -12.2;
+                if(fardis) Hood.setPosition(rbga.hoodfarpos);
                 if(ashoot()) {
 
                 if(row3)  setPathState(3);
@@ -162,18 +163,20 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.25,false);
-                    else follower.followPath(BFgrabPickup2, 0.25,false);
+                    if(red)follower.followPath(RFgrabPickup2, false);
+                    else follower.followPath(BFgrabPickup2, false);
                     setPathState(17);
+                    flypower=rbga.flypower2;
+
                 }
                 break;
 
             case 17:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (actionTimer.getElapsedTime()>3000||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
+                    intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (intakefull||actionTimer.getElapsedTime()>1800) {
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
-                    flypower=rbga.flypower2;
                     setPathState(19);
                 }
 
@@ -619,16 +622,17 @@ public class StateAuto extends OpMode {
 
 
     public boolean ashoot() {
-       // if (firstshoot) Ty = -12.2;
+
         flywheel();
 
         switch (shootstep) {
             case 0:
-                if(fardis) Hood.setPosition(rbga.hoodfarpos);
-                else Hood.setPosition(rbga.hoodnearpose);
+
                 shooting = true;
-                intaketargtvel=intakestdvel;
-                rbga.Txgap = 30;//avoid to use last time valu
+               if(intakefull) intaketargtvel=outakestdvel;
+               else intaketargtvel=outtakebstvel;
+               intakefull=false;
+               rbga.Txgap = 30;//avoid to use last time valu
                 shootstep = 1;
                 break;
 
@@ -721,7 +725,7 @@ public class StateAuto extends OpMode {
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
        RFapproachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFscorePose, RFpickup2Pose))
-                .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.4)
+                .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.5)
                 .build();
 
         RFgrabPickup2 = follower.pathBuilder()
@@ -826,6 +830,8 @@ public class StateAuto extends OpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight.pipelineSwitch(6);
+        Limelight.start();
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);

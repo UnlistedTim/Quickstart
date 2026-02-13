@@ -37,7 +37,7 @@ public class base {
     public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.65;
     public double rfxoffset=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
     public double  rcalxoffset=140.86-7.5, calheading=0.5*Math.PI;
-    public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.8;//todo
+    public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.75;//todo
 
 
 
