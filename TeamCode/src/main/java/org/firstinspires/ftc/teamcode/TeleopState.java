@@ -277,57 +277,18 @@ public class TeleopState extends LinearOpMode  {
             flywheel();
 
 
-           // if(gamepad2.right_trigger>0.4) Intake.
 
             turntable();
 
-//            telemetry.addData("pose",pose.getHeading(AngleUnit.DEGREES));
-//            dashboardTelemetry.addData("intakespeed",intakespeed);
-//            dashboardTelemetry.addData("Intakeleft",intakepower);
-//
-//            dashboardTelemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
-//            dashboardTelemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
-//
-//            dashboardTelemetry.addData("Tx gap", rbg.Txgap);
-//            dashboardTelemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
-//
-//            dashboardTelemetry.addData("X pos",pose.getX(DistanceUnit.INCH));
-//            dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
 
-
-
-//
-//            loop_time += looptimer.milliseconds();
-//            z++;
-//
-//
-//            if (z>1000000 || loop_time>1000000){
-//                loop_time = 0;
-//                z = 0;
-//            }
-
-
-
-
-            //            telemetry.addData("mid",midbb);
-//            telemetry.addData("bot",botbb);
-
-//            telemetry.addData("target",rbg.targetVel);
-//            telemetry.addData("Current velocity flyweel speed",flyCurrentVel);
-//            telemetry.addData("Hood pos", hoodPos);
-
-          //  dashboardTelemetry.update();
 
             telemetry.addData("Tx",Tx);
             telemetry.addData("Ty",Ty);
             telemetry.addData("turnpower",turnPower);
 
-            telemetry.addData("Pose x",pose.getX(DistanceUnit.INCH));
-
-            telemetry.addData("Turret Pos", leftFront.getCurrentPosition());
+            telemetry.addData("Turret Pos", turretPos);
 
 
-//
             telemetry.update();//to do
 
 
@@ -376,8 +337,6 @@ public class TeleopState extends LinearOpMode  {
          // }
           flyCurrentVel=flyBot.getVelocity();
 
-
-
         }
 
 
@@ -387,8 +346,9 @@ public class TeleopState extends LinearOpMode  {
     public void  turntable()
 
     {
-        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
-       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
+//        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
+//       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
+        turnPower=rbg.turret(outtakestate,pose,turretPos,red,pinpoint_nav,limeValid,Tx,shooting);
        turretLeft.setPower(turnPower);
        turretRight.setPower(turnPower);
 
@@ -493,7 +453,7 @@ public class TeleopState extends LinearOpMode  {
             rbg.targetGoalX=rbg.redGoalX;
             startY=startY+rbg.rfyoffset;
             startX=startX+rbg.rfxoffset;
-            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
+            Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
@@ -878,7 +838,6 @@ public void turretspin()
         switch (shootState){
             case START:
                 intaketargetvel=rbg.outtakVel;
-
                 Hood.setPosition(rbg.hoodposition(pinpoint_nav,Ty));
                 shooting = true;
                 rbg.Txgap=30;
@@ -886,7 +845,7 @@ public void turretspin()
                 shootState = ShootState.PRE_SHOOT;
                 break;
             case PRE_SHOOT:
-                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1){  // rbg.Txgap < 1
+                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1&&gamepad1.right_bumper){  // rbg.Txgap < 1
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);

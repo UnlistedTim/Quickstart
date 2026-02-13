@@ -34,7 +34,7 @@ public class StateAuto extends OpMode {
     private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB,midBB;
-    double intakevel;
+    double intakevel,intaketargtvel=0,intakestdvel=1500;
     int shootstep=0;
     private Limelight3A Limelight;
     LLResult result;
@@ -52,10 +52,10 @@ public class StateAuto extends OpMode {
     private int pathState=1 ,i=0;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose RFpickup1Pose = new Pose(12, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup1PoseA = new Pose(38, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(39, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(44, 0, Math.toRadians(340)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(30, 10, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(44, -1, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -129,6 +129,7 @@ public class StateAuto extends OpMode {
 
                     if(red) follower.followPath(RFscorePickup1, true);
                     else follower.followPath(BFscorePickup1, true);
+                    intaketargtvel=0;
                     setPathState(7);
 
                 }
@@ -149,8 +150,8 @@ public class StateAuto extends OpMode {
 
                   if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
                   else {
-                      if (red) follower.followPath(RFapproachPickup2, 0.6, false);
-                      else follower.followPath(BFapproachPickup2, 0.6, false);
+                      if (red) follower.followPath(RFapproachPickup2, 0.9, false);
+                      else follower.followPath(BFapproachPickup2, 0.9, false);
                       setPathState(14);
                   }
 
@@ -160,15 +161,15 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, 0.3,false);
-                    else follower.followPath(BFgrabPickup2, 0.3,false);
+                    if(red)follower.followPath(RFgrabPickup2, 0.4,false);
+                    else follower.followPath(BFgrabPickup2, 0.4,false);
                     setPathState(17);
                 }
                 break;
 
             case 17:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (actionTimer.getElapsedTime()>1200||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
+                if (actionTimer.getElapsedTime()>3000||rbga.beamscanintake(atopbb,amidbb,abotbb)) {
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
                     flypower=rbga.flypower2;
@@ -413,8 +414,6 @@ public class StateAuto extends OpMode {
     @Override
     public void loop() {
 
-        // These loop the movements of the robot, these must be called continuously in order to work
-
 
         follower.update();
         statusupdate();
@@ -477,17 +476,19 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(6);
-                    Limelight.start();
+                    Limelight.pipelineSwitch(2);
+
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                     telemetry.addLine("Red  Selected");
+                    Limelight.start();
                 } else {
                     Limelight.pipelineSwitch(7);
-                    Limelight.start();
+
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                     rbga.targetGoalX=0-rbga.bfxoffset;
                     telemetry.addLine("Blue Selected");
+                    Limelight.start();
                 }
 
                 blackboard.put("COLOR",  red);
@@ -519,7 +520,7 @@ public class StateAuto extends OpMode {
     public void start() {
         if(i==0){
             if (red) {
-                Limelight.pipelineSwitch(6);
+                Limelight.pipelineSwitch(2);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");
@@ -559,14 +560,12 @@ public class StateAuto extends OpMode {
     public void statusupdate()
 
     {
-
-
         turretPos=leftFront.getCurrentPosition();;
         atopbb=topBB.getState();
         abotbb=botBB.getState();
         amidbb=midBB.getState();
         intakevel=intakeLeft.getVelocity();
-
+        Intake(intaketargtvel);
         if(shooting) {
             result = Limelight.getLatestResult();
             limeValid = result.isValid();
@@ -575,11 +574,9 @@ public class StateAuto extends OpMode {
                 Ty=result.getTy();
             }
             flyCurrentVel=flyBot.getVelocity();
-//            rawIntakeCurrent= Intake.getCurrent(CurrentUnit.MILLIAMPS);
-//            filteredIntakeCurrent = rbga.intakeCurrentFilter.update(rawIntakeCurrent);
+//
 
         }
-
         else   flyprepower(flypower);
 
 
@@ -611,17 +608,9 @@ public class StateAuto extends OpMode {
 
 
     public void flywheel() {
-
         double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
         flyBot.setPower(fpower);
         flyTop.setPower(fpower);
-       // hoodPos=rbga.flyhood(Ty);
-//        if(hoodPos>0 &&Math.abs(hoodPos-hoodLastPos)>0.01){
-//
-//            Hood.setPosition(hoodPos);
-//            hoodLastPos=hoodPos;
-//        }
-
 
     }
 
@@ -637,7 +626,7 @@ public class StateAuto extends OpMode {
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
                 else Hood.setPosition(rbga.hoodnearpose);
                 shooting = true;
-
+                intaketargtvel=intakestdvel;
                 rbga.Txgap = 30;//avoid to use last time valu
                 shootstep = 1;
                 break;
@@ -645,7 +634,7 @@ public class StateAuto extends OpMode {
 
             case 1:
                 if (rbga.flyspeedgap <= 40 && rbga.Txgap < 2) {
-                    Intake(rbga.outtakVel);
+
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
                     shootstep = 2;
@@ -670,6 +659,7 @@ public class StateAuto extends OpMode {
                    // firstshoot = false;
                     shootstep = 0;
                     Blocker.setPosition(rbga.blockClose);
+                    intaketargtvel=intakestdvel;
                     return true;
                 }
                 break;
@@ -694,6 +684,8 @@ public class StateAuto extends OpMode {
 
         intakeLeft.setPower(power);
         intakeRight.setPower(power);
+
+
 
 
     }
@@ -728,7 +720,8 @@ public class StateAuto extends OpMode {
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
        RFapproachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFscorePose, RFpickup2Pose))
-                .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading())
+                .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.4)
+
                 .build();
 
 
@@ -861,6 +854,8 @@ public class StateAuto extends OpMode {
 
         intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         intakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
 

@@ -37,7 +37,7 @@ public class base {
     public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.65;
     public double rfxoffset=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
     public double  rcalxoffset=140.86-7.5, calheading=0.5*Math.PI;
-    public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.8;
+    public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.8;//todo
 
 
 
@@ -69,7 +69,7 @@ public class base {
     public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
     public final double intakep= 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
-    public double flyspeedgap=500,Txgap=50,  turnMax=0.8,dist=50;
+    public double flyspeedgap=500,Txgap=50,  turnMax=0.9,dist=50;
 
 
     public double targetVel=0;
@@ -261,13 +261,11 @@ public class base {
 
     public double turretpid(int currentpos,double targetpos,double tx, double offset, boolean pinpoint)
 
-
     {
-
         double error;
-
        if (pinpoint){
            error = targetpos-currentpos;
+           if(Math.abs(error)<100) error=0.0001;
            return error * turretkP + Math.signum(error) * turretkS;
        }
        else
@@ -275,26 +273,6 @@ public class base {
            error = offset-tx;
            return error * turretkPtx + Math.signum(error) * turretkS;
        }
-
-
-//
-//        double posgap=Math.abs(targetpos - currentpos);
-//        double powerrate=1;
-//
-//        if ((posgap) > 2000){
-//            powerrate= Math.signum (targetpos - currentpos);
-//
-//        }
-//
-//        else if (posgap > 250){
-//            powerrate= 0.3*Math.signum (targetpos - currentpos);
-//        }
-//        else{
-//           powerrate=0;
-//        }
-//
-//        return powerrate;
-
     }
 
 
@@ -337,39 +315,50 @@ public class base {
 
     }
 
+    public double  turret(boolean outtake , Pose2D p, int turretTicks,boolean red,boolean nav,boolean valid ,double tx,boolean shooting){
+
+        double turretPower=0;
+        if (outtake)  {
+
+                        if(nav&&!shooting){//pinpoint aiming
+                            double dx = targetGoalX- p.getX(DistanceUnit.INCH);
+                            double dy = targetGoalY -p.getY(DistanceUnit.INCH);
+                            double goalangle=Math.atan2(dy, dx);
+                            if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*2;
+                            else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*2;
+                            double targetAngle= goalangle- (p.getHeading(AngleUnit.RADIANS) -Pi);
+                            if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
+                            dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+                            turretPower = turretpid(turretTicks,Math.toDegrees(targetAngle) * ticksPerDegree,0,0,true);
+                            Txgap=Math.abs( (Math.toDegrees(targetAngle)  - (turretTicks/ticksPerDegree)));
+                              }
+                         else {//Limelight aiming
+                                 if (valid) {
+                                    turretPower = turretpid(0, 0, tx, txoffset, false);
+                                    limelocked = true;
+                                    Txgap = Math.abs(tx - txoffset);
+                                     }
+                                 else   if (limelocked) turretPower=0;
+
+                              if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
+                                turretPower= -0.5;//
+                                limelocked = false;
+                                  }
+                               if (turretPos < (turretCwlim + 300) && turretPower< 0) {
+                                turretPower= 0.5;//
+                                limelocked = false;
+                                  }
+                          }
+
+              }
+
+        else  turretPower = turretpid(turretTicks,0,0,0,true);
+        turretPower= Range.clip(turretPower,-turnMax,turnMax);
+        return turretPower;
 
 
-//    public double flyhood(double Ty) {
-//
-//        double hoodLutGet;
-//        if (Ty < 11 && Ty > -13.5) {
-//
-//
-//            hoodLutGet = Hoodlut.get(Ty);
-//        }
-//
-//        else hoodLutGet=0;
-//
-//        return hoodLutGet;
-//
-//
-//    }
+    }
 
-//    public double flyhoodPP() {
-//
-//        double hoodLutGet;
-//        if (dist < 162 && dist >= 0) {
-//
-//
-//            hoodLutGet = HoodlutPP.get(dist);
-//        }
-//
-//        else hoodLutGet=0.8;
-//
-//        return hoodLutGet;
-//
-//
-//    }
 
     public double  flyspeed(double currentVel,double ty) {
 
