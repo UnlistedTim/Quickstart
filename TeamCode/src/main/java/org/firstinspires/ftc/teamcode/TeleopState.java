@@ -56,7 +56,7 @@ public class TeleopState extends LinearOpMode  {
 
     public boolean topbb=true,botbb=true,midbb=true,intakefirst=false;
 
-    public boolean prevBBState = true,prevBBState2;
+    public boolean prevBBState = true,outscan;
 
 
 
@@ -656,11 +656,9 @@ public void turretspin()
 
 
         if(outtakestate) {
-
             if (pinpoint_nav) {
-
                 flypower = rbg.flyspeedPP(flyCurrentVel);
-               // hoodPos = rbg.flyhoodPP();
+
             } else {
                 flypower = rbg.flyspeed(flyCurrentVel, Ty);
                // hoodPos = rbg.flyhood(Ty);
@@ -889,17 +887,17 @@ public void turretspin()
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
                     shootState = ShootState.SHOOT;  //Unlock
-
+                    outscan=false;
                 }
                 break;
 
             case UNLOCK:
-
-                if(stoptimers(150,outtake))  {
-
-                    shootState = ShootState.SHOOT;
+                while(!outscan&&opModeIsActive()&&!gamepad2.left_bumper) {
+                    outscan = topBB.getState() && midBB.getState() && botBB.getState();
+                    flyCurrentVel=flyBot.getVelocity();
+                    flywheel();
                 }
-                break;
+
 
             case SHOOT:
 
