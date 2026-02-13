@@ -54,8 +54,9 @@ public class StateAuto extends OpMode {
     private final Pose RFscorePose = new Pose(1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(30, 10, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(44, -1, Math.toRadians(330)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(38, 2, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(35, 12, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseB = new Pose(42, -12, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -721,10 +722,16 @@ public class StateAuto extends OpMode {
        RFapproachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFscorePose, RFpickup2Pose))
                 .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.4)
-
                 .build();
 
-
+        RFgrabPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(RFpickup2Pose, RFpickup2PoseA))
+                // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                //.setConstantHeadingInterpolation(Math.toRadians(RFpickup2Pose.getHeading()))
+                .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
+                .setConstantHeadingInterpolation( 0)
+                .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
@@ -733,11 +740,7 @@ public class StateAuto extends OpMode {
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        RFgrabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(RFpickup2Pose, RFpickup2PoseA))
-               // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setConstantHeadingInterpolation(Math.toRadians(RFpickup2Pose.getHeading()))
-                .build();
+
 
         RFparkEnd= follower.pathBuilder()
                 .addPath(new BezierLine(RFscorePose, RFendPose))
