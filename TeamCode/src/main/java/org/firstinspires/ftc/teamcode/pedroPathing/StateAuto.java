@@ -85,6 +85,8 @@ public class StateAuto extends OpMode {
     private Path scorePreload;
     private PathChain RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
     private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
+   // private PathChain RNstartScor1, RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
+   // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
 //    private PathChain approachPickup1, grabPickup1,scorePickup1, approachPickup2,grabPickup2, scorePickup2;
 //    private PathChain approachPickup1, grabPickup1,scorePickup1, approachPickup2,grabPickup2, scorePickup2;
 
@@ -238,17 +240,15 @@ public class StateAuto extends OpMode {
     }
 
 
-    public void FarPathUpdatebackup() {
+    public void NearPathUpdatebackup() {
         switch (pathState) {
             case 0:// START TO SHOOT
-                ashoot();
-               if(adrive) {
-                  if(red) follower.followPath(RFapproachPickup1, true);
-                  else follower.followPath(BFapproachPickup1, true);
+
+
+//                  if(red) follower.followPath(RNapproachPickup1, true);
+//                  else follower.followPath(BFapproachPickup1, true);
                    setPathState(1);
-                   Blocker.setPosition(rbga.blockClose);
-                   adrive=false;
-               }
+
                 break;
             case 1:
 
