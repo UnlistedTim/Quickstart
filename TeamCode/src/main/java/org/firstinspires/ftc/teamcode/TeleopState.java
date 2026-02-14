@@ -451,14 +451,14 @@ public class TeleopState extends LinearOpMode  {
             Tx_offset = 0;
             target_id = 24;
             rbg.targetGoalX=rbg.redGoalX;
-            startY=startY+rbg.rfyoffset;
-            startX=startX+rbg.rfxoffset;
+              if(startY==0)  { startY=startY+rbg.rfyoffset;}
+            if(startX==0){ startX=startX+rbg.rfxoffset;}
             Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
-            startY=startY+rbg.bfyoffset;
-            startX=startX+rbg.bfxoffset;
+           if(startY==0) startY=startY+rbg.bfyoffset;
+           if(startX==0) startX=startX+rbg.bfxoffset;
             rbg.targetGoalX=rbg.blueGoalX;
             Limelight.pipelineSwitch(7);
         }

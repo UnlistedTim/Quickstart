@@ -265,7 +265,7 @@ public class base {
         double error;
        if (pinpoint){
            error = targetpos-currentpos;
-           if(Math.abs(error)<100) error=0.0001;
+           if(Math.abs(error)<50) error=0.0001;
            return error * turretkP + Math.signum(error) * turretkS;
        }
        else

@@ -605,7 +605,7 @@ public class StateAuto extends OpMode {
     public void  turntable()
 
     {
-        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, 0);
+        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, -0.5);
         turretLeft.setPower(turnPower);
         turretRight.setPower(turnPower);
     }
