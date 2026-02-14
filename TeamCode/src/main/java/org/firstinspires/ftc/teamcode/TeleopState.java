@@ -846,7 +846,7 @@ public void turretspin()
                 shootState = ShootState.PRE_SHOOT;
                 break;
             case PRE_SHOOT:
-                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1&&gamepad1.right_bumper){  // rbg.Txgap < 1
+                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1){  // rbg.Txgap < 1
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);

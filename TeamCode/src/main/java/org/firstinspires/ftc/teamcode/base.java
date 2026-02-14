@@ -83,7 +83,7 @@ public class base {
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     public PIDController intakePID=new PIDController(intakep, intakei, intaked);
  //   double Tx_offset=0;
-    int turretCwlim=-12000;
+    int turretCwlim=-14000;
     int turretCcwlim=16000;
     public final int intakeVel = 1500,outtakVel=1500;
 
@@ -96,10 +96,10 @@ public class base {
         intakePID.setPID(intakep, intakei, intaked);
 
 
-        Flylut.add(-13.59,1640); //far
-        Flylut.add(-12.79,1600); //far
+        Flylut.add(-13.59,1660); //far         1640
+        Flylut.add(-12.79,1620); //far    1600
 
-        Flylut.add(-11.65,1460); //far
+        Flylut.add(-11.65,1480); //far    1460
 
         Flylut.add(-9.26, 1340); //close
         Flylut.add(-5.5,1260); //close
@@ -134,9 +134,9 @@ public class base {
 
 
 
-        FlylutPP.add(124.33,1460); //far
-        FlylutPP.add(140.74,1600); //far
-        FlylutPP.add(156.09,1640); //far
+        FlylutPP.add(124.33,1480); //far   1460
+        FlylutPP.add(140.74,1620); //far  1600
+        FlylutPP.add(156.09,1660); //far 1640
         FlylutPP.add(200,1700);// only for data leak
 
 
@@ -239,7 +239,7 @@ public class base {
 
         }
 
-       turretPower = turretpid(turretPos,0,tx,0,true);
+       turretPower = turretpid(turretPos,target,tx,0,true);
 
         turretPower= Range.clip(turretPower,-turnMax,turnMax);
 
@@ -271,7 +271,8 @@ public class base {
        else
        {
            error = offset-tx;
-           return error * turretkPtx + Math.signum(error) * turretkS;
+           if (currentpos < -10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
+           else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }
 
@@ -283,8 +284,8 @@ public class base {
         double dy = targetGoalY -p.getY(DistanceUnit.INCH);
         double goalangle=Math.atan2(dy, dx);
 
-      if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*2;
-      else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*2;
+      if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*3;
+      else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*3;
 
         double targetAngle= goalangle- (p.getHeading(AngleUnit.RADIANS) -Pi);
         if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
@@ -324,8 +325,8 @@ public class base {
                             double dx = targetGoalX- p.getX(DistanceUnit.INCH);
                             double dy = targetGoalY -p.getY(DistanceUnit.INCH);
                             double goalangle=Math.atan2(dy, dx);
-                            if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*2;
-                            else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*2;
+                            if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*3;
+                            else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*3;
                             double targetAngle= goalangle- (p.getHeading(AngleUnit.RADIANS) -Pi);
                             if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
                             dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));

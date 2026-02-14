@@ -51,10 +51,10 @@ public class StateAuto extends OpMode {
 
     private int pathState=1 ,i=0;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
-    private final Pose RFscorePose = new Pose(0, 9, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RFscorePose = new Pose(0, 6, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(39, -5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(38, -5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseA = new Pose(37, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseB = new Pose(43, 8, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
@@ -83,7 +83,7 @@ public class StateAuto extends OpMode {
 
 
     private Path scorePreload;
-    private PathChain RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
+    private PathChain RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
     private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
    // private PathChain RNstartScor1, RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
@@ -98,7 +98,7 @@ public class StateAuto extends OpMode {
     public void FarPathUpdate() {
         switch (pathState) {
             case 1:
-                Ty = -12.2;
+                Ty = -12.5;
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
                 if(ashoot()) {
 
@@ -152,11 +152,23 @@ public class StateAuto extends OpMode {
 
            case 11:
 
+               if(firstshoot) {
+                   if (red) follower.followPath(RF1approchPickup2, false);
+                   //      else follower.followPath(BFapproachPickup2, false);
+                   firstshoot=false;
+                   setPathState(14);
+                   flypower=rbga.flypower2;
+                   turretTarget=-12000;
+                   break;
+               }
+
                   if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
                   else {
                       if (red) follower.followPath(RFapproachPickup2, false);
                       else follower.followPath(BFapproachPickup2, false);
                       setPathState(14);
+                      flypower=rbga.flypower2;
+                      turretTarget=-12000;
                   }
 
                 break;
@@ -168,7 +180,7 @@ public class StateAuto extends OpMode {
                     if(red)follower.followPath(RFgrabPickup2, false);
                     else follower.followPath(BFgrabPickup2, false);
                     setPathState(17);
-                    flypower=rbga.flypower2;
+
 
                 }
                 break;
@@ -195,7 +207,7 @@ public class StateAuto extends OpMode {
                         flypower=0;
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
-
+                        turretTarget=0;
                         setPathState(103);
 
 
@@ -421,8 +433,9 @@ public class StateAuto extends OpMode {
 
         follower.update();
         statusupdate();
-        turntable();
+
         FarPathUpdate();
+        turntable();
      //   autonomousNearPathUpdate();
 
         // Feedback to Driver Hub for debugging
@@ -493,6 +506,8 @@ public class StateAuto extends OpMode {
                     rbga.targetGoalX=0-rbga.bfxoffset;
                     telemetry.addLine("Blue Selected");
                     Limelight.start();
+
+
                 }
 
                 blackboard.put("COLOR",  red);
@@ -506,7 +521,7 @@ public class StateAuto extends OpMode {
 
             }
             i++;
-            if(i>5) {
+            if(i>30) {
                 telemetry.addLine("Camera issue, pls restart!!!!!!!");
                 configured=false;
                 i=0;
@@ -644,6 +659,10 @@ public class StateAuto extends OpMode {
                     outtaketimer.resetTimer();
                     shootstep = 2;
                 }
+
+                telemetry.addData("fly speed gap", rbga.flyspeedgap);
+                telemetry.addData("Angle", rbga.Txgap);
+                telemetry.update();
                 break;
             case 2:
 
@@ -723,7 +742,13 @@ public class StateAuto extends OpMode {
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-       RFapproachPickup2 = follower.pathBuilder()
+        RF1approchPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(RFstartPose, RFpickup2Pose))
+                .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFpickup2Pose.getHeading(),0.5)
+                .build();
+
+
+        RFapproachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFscorePose, RFpickup2Pose))
                 .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.5)
                 .build();
@@ -830,7 +855,7 @@ public class StateAuto extends OpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-        Limelight.pipelineSwitch(6);
+        Limelight.pipelineSwitch(2);
         Limelight.start();
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);

@@ -414,6 +414,8 @@ public class StaterobotDebug extends LinearOpMode {
            // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
             telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
+            telemetry.addData("Left front pos", leftFront.getCurrentPosition());
+
           //  dashboardTelemetry.update();
             telemetry.update();
 
