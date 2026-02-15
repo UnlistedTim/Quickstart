@@ -66,18 +66,27 @@ public class StateAuto extends OpMode {
     private final Pose RFpickup2PoseA = new Pose(37, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseB = new Pose(40, 8, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
-    private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose BFpickup1Pose = new Pose(-14, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup1PoseA = new Pose(-40, 22.5, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup2Pose = new Pose(-42, 1, Math.toRadians(200)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup2PoseA = new Pose(-45, 1, Math.toRadians(200)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose BFendPose = new Pose(-12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+
+
+    // BLUE FAR Positions
+    private final Pose BFstartPose =   new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
+
+    private final Pose BFstart1Pose = new Pose(0, 6, Math.toRadians(270)); // Start Pose of our robot.
+
+    private final Pose BFscorePose = new Pose(0, 6, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose BFpickup1Pose = new Pose(-12, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup1PoseA = new Pose(-38, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup2Pose = new Pose(-36, -3, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup2PoseA = new Pose(-37, 8, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+
+    private final Pose BFpickup2PoseB = new Pose(-40, 8, Math.toRadians(180));
+
+    private final Pose BFendPose = new Pose(-12, 10, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
 
     private Path scorePreload;
     private PathChain RFStart1,    RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
-    private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
+    private PathChain BFStart1,    BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BF1approchPickup2,BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
     private PathChain RNscorstart0;
   //          RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
@@ -186,6 +195,8 @@ public class StateAuto extends OpMode {
 
 
 
+
+
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(BFpickup2Pose, BFscorePose))
@@ -224,7 +235,7 @@ public class StateAuto extends OpMode {
 
 
                 if(red) follower.followPath(RFStart1, 0.5,true);
-                else follower.followPath(BFapproachPickup1,0.5, true);
+                else follower.followPath(BFStart1,0.5, true);
 
 
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
@@ -292,7 +303,7 @@ public class StateAuto extends OpMode {
 
                if(firstshoot) {
                    if (red) follower.followPath(RF1approchPickup2, false);
-                   //      else follower.followPath(BFapproachPickup2, false);
+                         else follower.followPath(BF1approchPickup2, false);
                    firstshoot=false;
                    setPathState(14);
                    flypower=rbga.flypower2;
@@ -639,14 +650,14 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(6);
+                    Limelight.pipelineSwitch(2);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                     telemetry.addLine("Red  Selected");
                     Limelight.start();
                 } else {
-                    Limelight.pipelineSwitch(7);
+                    Limelight.pipelineSwitch(3);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                     rbga.targetGoalX=0-rbga.bfxoffset;
@@ -685,12 +696,12 @@ public class StateAuto extends OpMode {
     public void start() {
         if(i==0){
             if (red) {
-                Limelight.pipelineSwitch(6);
+                Limelight.pipelineSwitch(2);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");
             } else {
-                Limelight.pipelineSwitch(7);
+                Limelight.pipelineSwitch(3);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                 rbga.targetGoalX=0-rbga.bfxoffset;
                 telemetry.addLine("Blue Selected");
@@ -934,15 +945,23 @@ public class StateAuto extends OpMode {
                 .build();
 
         //BF
-        BFapproachPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(BFstartPose, BFpickup1Pose))
-                .setLinearHeadingInterpolation(BFstartPose.getHeading(), BFpickup1Pose.getHeading())
+
+        BFStart1 = follower.pathBuilder()
+                .addPath(new BezierLine(BFstartPose, BFstart1Pose))
+                .setLinearHeadingInterpolation(BFstartPose.getHeading(), BFstart1Pose.getHeading())
                 .build();
+
+        BFapproachPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(BFstart1Pose, BFpickup1Pose))
+                .setLinearHeadingInterpolation(BFstart1Pose.getHeading(), BFpickup1Pose.getHeading())
+                .build();
+
 
         BFgrabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(BFpickup1Pose, BFpickup1PoseA))
                 .setLinearHeadingInterpolation(BFpickup1Pose.getHeading(), BFpickup1PoseA.getHeading())
                 .build();
+
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup1 = follower.pathBuilder()
@@ -956,6 +975,11 @@ public class StateAuto extends OpMode {
                 .setLinearHeadingInterpolation(BFscorePose.getHeading(), BFpickup2Pose.getHeading())
                 .build();
 
+        BF1approchPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(BFstartPose, BFpickup2Pose))
+                .setLinearHeadingInterpolation(BFstartPose.getHeading(), BFpickup2Pose.getHeading(),0.5)
+                .build();
+
 
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -964,11 +988,16 @@ public class StateAuto extends OpMode {
                 .setLinearHeadingInterpolation(BFpickup2Pose.getHeading(), BFscorePose.getHeading())
                 .build();
 
+
+
+
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFgrabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(BFpickup2Pose, BFpickup2PoseA))
                 // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setConstantHeadingInterpolation(Math.toRadians(340))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseB))
+                .setConstantHeadingInterpolation( 180)
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -1012,8 +1041,6 @@ public class StateAuto extends OpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-        Limelight.pipelineSwitch(6);
-        Limelight.start();
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
