@@ -313,13 +313,12 @@ public class TeleopState extends LinearOpMode  {
         sleep(150);
         if(red) {
             Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.rcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
-            colorFactor = 1.0;
         }
 
 
         else {
             Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.bcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
-            colorFactor = -1.0;
+
         }
 
 
@@ -465,17 +464,19 @@ public class TeleopState extends LinearOpMode  {
         if (red) {
             Tx_offset = 0;
             target_id = 24;
+            colorFactor = 1.0;
             rbg.targetGoalX=rbg.redGoalX;
               if(startY==0)  { startY=startY+rbg.rfyoffset;}
             if(startX==0){ startX=startX+rbg.rfxoffset;}
-            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
+            Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
+            colorFactor = -1.0;
            if(startY==0) startY=startY+rbg.bfyoffset;
            if(startX==0) startX=startX+rbg.bfxoffset;
             rbg.targetGoalX=rbg.blueGoalX;
-            Limelight.pipelineSwitch(7);
+            Limelight.pipelineSwitch(3);
         }
         if(startHeading==0) startHeading=1.5*Math.PI;
         Limelight.start();
@@ -587,6 +588,9 @@ public class TeleopState extends LinearOpMode  {
 //        Pinpoint.update();
 //        pose = Pinpoint.getPosition();
 
+        y*= colorFactor;
+        x*=colorFactor;
+
 
 //        dashboardTelemetry.addData("Pinpoint x", pose.getX(DistanceUnit.INCH));
 //        dashboardTelemetry.addData("Pinpoint Y", pose.getY(DistanceUnit.INCH));
@@ -609,10 +613,10 @@ public class TeleopState extends LinearOpMode  {
         double frontRightPower = (rotY - rotX - rx) / denominator;
         double backRightPower = (rotY + rotX - rx) / denominator;
 
-        leftFront.setPower(frontLeftPower *colorFactor);
-        leftBack.setPower(backLeftPower * colorFactor);
-        rightFront.setPower(frontRightPower *colorFactor);
-        rightBack.setPower(backRightPower * colorFactor);
+        leftFront.setPower(frontLeftPower);
+        leftBack.setPower(backLeftPower);
+        rightFront.setPower(frontRightPower);
+        rightBack.setPower(backRightPower);
 
      //   telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
 //        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
