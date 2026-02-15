@@ -20,8 +20,11 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.base;
 
 
@@ -29,6 +32,8 @@ import org.firstinspires.ftc.teamcode.base;
 public class StateAuto extends OpMode {
 
     private Follower follower;
+
+    Pose2D pose;
     private Timer pathTimer, actionTimer, opmodeTimer,outtaketimer;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,leftFront, rightFront, leftBack, rightBack,turretPosition;
     private CRServo turretLeft, turretRight;
@@ -51,12 +56,16 @@ public class StateAuto extends OpMode {
 
     private int pathState=1 ,i=0;
     private final Pose RFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
+
+    private final Pose RFstart1Pose = new Pose(0, 4, Math.toRadians(270)); // Start Pose of our robot.
+
+
     private final Pose RFscorePose = new Pose(0, 6, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(38, -5, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2Pose = new Pose(37, -3, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseA = new Pose(37, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseB = new Pose(43, 8, Math.toRadians(0));
+    private final Pose RFpickup2PoseB = new Pose(41, 8, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose BFstartPose = new Pose(0, 0, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose BFscorePose = new Pose(-1, 7, Math.toRadians(250)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
@@ -83,7 +92,7 @@ public class StateAuto extends OpMode {
 
 
     private Path scorePreload;
-    private PathChain RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
+    private PathChain RFStart1,    RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
     private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
    // private PathChain RNstartScor1, RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
@@ -96,10 +105,28 @@ public class StateAuto extends OpMode {
     public base rbga=new base();
 
     public void FarPathUpdate() {
+
+        if(opmodeTimer.getElapsedTime()>28000&&pathState<100) {setPathState(11);turretTarget=0;shooting=false;};
         switch (pathState) {
-            case 1:
-                Ty = -12.5;
+
+            case 0:
+
+                rbga.turret_offset = 6;
+                if(red) follower.followPath(RFStart1, 0.5,true);
+                else follower.followPath(BFapproachPickup1,0.5, true);
+
+                Ty = -12.3;
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
+
+                setPathState(1);
+
+
+
+                break;
+            case 1:
+                Ty = -12.3;
+
+
                 if(ashoot()) {
 
                 if(row3)  setPathState(3);
@@ -159,6 +186,7 @@ public class StateAuto extends OpMode {
                    setPathState(14);
                    flypower=rbga.flypower2;
                    turretTarget=-12000;
+                   rbga.turrettarget = turretTarget;
                    break;
                }
 
@@ -169,6 +197,7 @@ public class StateAuto extends OpMode {
                       setPathState(14);
                       flypower=rbga.flypower2;
                       turretTarget=-12000;
+                      rbga.turrettarget = turretTarget;
                   }
 
                 break;
@@ -205,9 +234,11 @@ public class StateAuto extends OpMode {
                 break;
             case 101:
                         flypower=0;
+                        rbga.turret_offset = 0;
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
                         turretTarget=0;
+                        rbga.turrettarget = turretTarget;
                         setPathState(103);
 
 
@@ -245,7 +276,7 @@ public class StateAuto extends OpMode {
                     }
                     blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
 
-                    setPathState(-1);
+                    setPathState(200);
                 }
                 break;
         }
@@ -438,7 +469,7 @@ public class StateAuto extends OpMode {
         turntable();
      //   autonomousNearPathUpdate();
 
-        // Feedback to Driver Hub for debugging
+        // Feedback to Driver fHub for debugging
 //        telemetry.addData("path state", pathState);
 //        telemetry.addData("x", follower.getPose().getX());
 //        telemetry.addData("y", follower.getPose().getY());
@@ -493,7 +524,7 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(2);
+                    Limelight.pipelineSwitch(6);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
@@ -511,7 +542,7 @@ public class StateAuto extends OpMode {
                 }
 
                 blackboard.put("COLOR",  red);
-                setPathState(1);
+                setPathState(0);
             }
 
             if(Limelight.getLatestResult().isValid()){
@@ -539,7 +570,7 @@ public class StateAuto extends OpMode {
     public void start() {
         if(i==0){
             if (red) {
-                Limelight.pipelineSwitch(2);
+                Limelight.pipelineSwitch(6);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");
@@ -551,7 +582,7 @@ public class StateAuto extends OpMode {
             }
             Limelight.start();
             blackboard.put("COLOR",  red);
-            setPathState(1);
+            setPathState(0);
             telemetry.update();
 
         }
@@ -602,10 +633,12 @@ public class StateAuto extends OpMode {
 
     }
 
-    public void  turntable()
+    public void  turntable(){
 
-    {
-        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, -0.5);
+        pose = (new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading()));
+
+       // turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, -0.5);
+        turnPower=rbga.turret(shooting,pose,turretPos,red,true,limeValid,Tx,false);
         turretLeft.setPower(turnPower);
         turretRight.setPower(turnPower);
     }
@@ -627,7 +660,8 @@ public class StateAuto extends OpMode {
 
 
     public void flywheel() {
-        double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
+//        double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
+        double fpower = rbga.flyspeedPP(flyCurrentVel);
         flyBot.setPower(fpower);
         flyTop.setPower(fpower);
 
@@ -663,11 +697,13 @@ public class StateAuto extends OpMode {
                 telemetry.addData("fly speed gap", rbga.flyspeedgap);
                 telemetry.addData("Angle", rbga.Txgap);
                 telemetry.update();
+
+
                 break;
             case 2:
 
 
-                if (rbga.beamscanouttake(atopbb,amidbb,abotbb) || outtaketimer.getElapsedTime() > 2000) {
+                if (rbga.beamscanouttake(atopbb,amidbb,abotbb) || outtaketimer.getElapsedTime() > 1200) {
                     shootstep = 3;
                     outtaketimer.resetTimer();
                 }
@@ -724,10 +760,15 @@ public class StateAuto extends OpMode {
     scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        RFStart1 = follower.pathBuilder()
+                .addPath(new BezierLine(RFstartPose, RFstart1Pose))
+                .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFstart1Pose.getHeading())
+                .build();
+
 
         RFapproachPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(RFstartPose, RFpickup1Pose))
-                .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFpickup1Pose.getHeading())
+                .addPath(new BezierLine(RFstart1Pose, RFpickup1Pose))
+                .setLinearHeadingInterpolation(RFstart1Pose.getHeading(), RFpickup1Pose.getHeading())
                 .build();
 
         RFgrabPickup1 = follower.pathBuilder()
@@ -855,7 +896,7 @@ public class StateAuto extends OpMode {
         Blocker = hardwareMap.get(Servo.class, "Blocker");
         Tripod = hardwareMap.get(Servo.class, "Tripod");
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-        Limelight.pipelineSwitch(2);
+        Limelight.pipelineSwitch(6);
         Limelight.start();
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
