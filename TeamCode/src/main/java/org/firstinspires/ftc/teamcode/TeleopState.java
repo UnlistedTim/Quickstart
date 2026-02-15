@@ -453,7 +453,7 @@ public class TeleopState extends LinearOpMode  {
             rbg.targetGoalX=rbg.redGoalX;
               if(startY==0)  { startY=startY+rbg.rfyoffset;}
             if(startX==0){ startX=startX+rbg.rfxoffset;}
-            Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
+            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
@@ -783,7 +783,6 @@ public void turretspin()
     {
 
         double power=  rbg.intakePID.calculate(intakespeed,targetvel)+ rbg.intakef*targetvel;
-        power=Range.clip(power,-0.9,0.9);
       //  power= Range.clip(power,-0.8,0.8);
         if(targetvel==0) power=0;
         intakepower=power;
@@ -846,7 +845,7 @@ public void turretspin()
                 shootState = ShootState.PRE_SHOOT;
                 break;
             case PRE_SHOOT:
-                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1){  // rbg.Txgap < 1
+                if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1.5){  // rbg.Txgap < 1
                     drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);

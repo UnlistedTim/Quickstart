@@ -7,20 +7,13 @@ import static org.firstinspires.ftc.teamcode.StaterobotDebug.turretPos;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import com.pedropathing.util.Timer;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
-
-import java.util.Arrays;
 
 public class base {
 
@@ -34,7 +27,7 @@ public class base {
    // public double blueGoalY = 140.86;
     public double targetGoalY = 140.86;
     public double targetGoalX = 140.86;
-    public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.65;
+    public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.65,turret_offset=0;
     public double rfxoffset=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
     public double  rcalxoffset=140.86-7.5, calheading=0.5*Math.PI;
     public double  bcalxoffset=7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.75;//todo
@@ -65,7 +58,7 @@ public class base {
 //    InterpLUT Hoodlut = new InterpLUT();
 //    InterpLUT HoodlutPP = new InterpLUT();
     //public static double turretkP = 0.025, turretkI = 0.05, turretkD = 0.002;//
-    public final double turretkP = 0.0002, turretkI = 0.0, turretkD = 0,turretkS = 0.03,turretkPtx=0.015;// 0.025
+    public final double turretkP = 0.0002, turretkI = 0.0, turretkD = 0,turretkS = 0.035,turretkPtx=0.015;// 0.025
     public final double flyp = 0.002, flyi = 0, flyd = 0, flyf = 0.0005;
     public final double intakep= 0.0006, intakei = 0, intaked = 0, intakef = 0.0004;
 
@@ -75,7 +68,7 @@ public class base {
     public double targetVel=0;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
-    public int beamscancount=0;
+    public int beamscancount=0, turrettarget =0;
 
 
     //double turretPower=0;
@@ -96,10 +89,10 @@ public class base {
         intakePID.setPID(intakep, intakei, intaked);
 
 
-        Flylut.add(-13.59,1660); //far         1640
-        Flylut.add(-12.79,1620); //far    1600
+        Flylut.add(-13.59,1640); //far         1660
+        Flylut.add(-12.79,1600); //far    1620
 
-        Flylut.add(-11.65,1480); //far    1460
+        Flylut.add(-11.65,1460); //far    1480
 
         Flylut.add(-9.26, 1340); //close
         Flylut.add(-5.5,1260); //close
@@ -134,9 +127,9 @@ public class base {
 
 
 
-        FlylutPP.add(124.33,1480); //far   1460
-        FlylutPP.add(140.74,1620); //far  1600
-        FlylutPP.add(156.09,1660); //far 1640
+        FlylutPP.add(124.33,1460); //far   1480
+        FlylutPP.add(140.74,1600); //far  1620
+        FlylutPP.add(156.09,1654); //far 1660
         FlylutPP.add(200,1700);// only for data leak
 
 
@@ -264,13 +257,21 @@ public class base {
     {
         double error;
        if (pinpoint){
-           error = targetpos-currentpos;
+
+     
          //  if(Math.abs(error)<50) error=0.0001;
+
+           error = targetpos+offset*ticksPerDegree-currentpos;
+
+           if (currentpos < -10000) return error * (turretkP + 0.00013)  + Math.signum(error) * turretkS;
+           if(Math.abs(error)<100) error=0.0001;
+
            return error * turretkP + Math.signum(error) * turretkS;
        }
        else
        {
            error = offset-tx;
+           if (Math.abs(error) < 1.5) return 0;
            if (currentpos < -10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
@@ -316,7 +317,7 @@ public class base {
 
     }
 
-    public double  turret(boolean outtake , Pose2D p, int turretTicks,boolean red,boolean nav,boolean valid ,double tx,boolean shooting){
+    public double  turret(boolean outtake , Pose2D p, int turretTicks, boolean red, boolean nav, boolean valid , double tx, boolean shooting){
 
         double turretPower=0;
         if (outtake)  {
@@ -325,13 +326,13 @@ public class base {
                             double dx = targetGoalX- p.getX(DistanceUnit.INCH);
                             double dy = targetGoalY -p.getY(DistanceUnit.INCH);
                             double goalangle=Math.atan2(dy, dx);
-                            if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*3;
-                            else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*3;
+                            if(red) txoffset=-(goalangle-Pi/4)/(Pi/4)*5;
+                            else  txoffset=(goalangle-Pi*3/4)/(Pi/4)*5;
                             double targetAngle= goalangle- (p.getHeading(AngleUnit.RADIANS) -Pi);
                             if(Math.abs(targetAngle) >Pi) targetAngle=-Math.signum(targetAngle)*(2*Pi-Math.abs(targetAngle));
                             dist=Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
-                            turretPower = turretpid(turretTicks,Math.toDegrees(targetAngle) * ticksPerDegree,0,0,true);
-                            Txgap=Math.abs( (Math.toDegrees(targetAngle)  - (turretTicks/ticksPerDegree)));
+                            turretPower = turretpid(turretTicks,Math.toDegrees(targetAngle) * ticksPerDegree,0,turret_offset,true);
+                            Txgap=Math.abs( (Math.toDegrees(targetAngle) + turret_offset  - (turretTicks/ticksPerDegree)));
                               }
                          else {//Limelight aiming
                                  if (valid) {
@@ -353,7 +354,7 @@ public class base {
 
               }
 
-        else  turretPower = turretpid(turretTicks,0,0,0,true);
+        else  turretPower = turretpid(turretTicks, turrettarget,0,0,true);
         turretPower= Range.clip(turretPower,-turnMax,turnMax);
         return turretPower;
 
