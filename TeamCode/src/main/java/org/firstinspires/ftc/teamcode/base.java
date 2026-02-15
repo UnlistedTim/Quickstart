@@ -19,7 +19,7 @@ public class base {
 
 
 //     public final double ticksPerDegree = 957.0/180.0;
-    public final double ticksPerDegree =114.02;;
+    public final double ticksPerDegree =113.7777; // 114.02
 
     public double redGoalX = 140.86;
    // public double redGoalY = 140.86;
@@ -65,10 +65,11 @@ public class base {
     public double flyspeedgap=500,Txgap=50,  turnMax=0.9,dist=50;
 
 
-    public double targetVel=0;
+    public double targetVel=0,targetpos;
     public double blockClose = 0.35, blockOpen = 0.46;
     public double tripodIdle = 1.0, tripodPark = 0.35;
     public int beamscancount=0, turrettarget =0;
+
 
 
     //double turretPower=0;
@@ -77,7 +78,7 @@ public class base {
     public PIDController intakePID=new PIDController(intakep, intakei, intaked);
  //   double Tx_offset=0;
     int turretCwlim=-14000;
-    int turretCcwlim=16000;
+    int turretCcwlim=14000;
     public final int intakeVel = 1500,outtakVel=1500;
 
     public void init()
@@ -85,15 +86,11 @@ public class base {
     {
 
         flyPID.setPID(flyp, flyi, flyd);
-      //  turretPID.setPID(turretkP, turretkI, turretkD);
+
         intakePID.setPID(intakep, intakei, intaked);
-
-
         Flylut.add(-13.59,1640); //far         1660
         Flylut.add(-12.79,1600); //far    1620
-
         Flylut.add(-11.65,1460); //far    1480
-
         Flylut.add(-9.26, 1340); //close
         Flylut.add(-5.5,1260); //close
         Flylut.add(-1.19,1160); //close
@@ -101,22 +98,8 @@ public class base {
         Flylut.add(14.07 , 1180); // close
         Flylut.add(16 , 1200); // close
 
-
-//        Hoodlut.add(-13.5,0.8);   //far old
-//        Hoodlut.add(-12.7,0.8);   //far
-//        Hoodlut.add(-12.2,0.8);   //far
-//        Hoodlut.add(-11.8,0.8);   //far old
-//
-//        Hoodlut.add(-9.26,0.62); //close
-//        Hoodlut.add(-6.208,0.6);
-//        Hoodlut.add(-2.31,0.57);
-//        Hoodlut.add(5.078,0.32);
-//        Hoodlut.add(15.21,0.15);
-//        Hoodlut.add(16,0.16); //close
-
-
         Flylut.createLUT();
-//        Hoodlut.createLUT();
+
 
         FlylutPP.add(0,1200); // only for data leakclose
         FlylutPP.add(43.66,1180);
@@ -136,22 +119,8 @@ public class base {
 
 
 
-//        HoodlutPP.add(0,0.15);
-//
-//        HoodlutPP.add(57.724,0.15); //close
-//        HoodlutPP.add(69.795,0.32);
-//        HoodlutPP.add(85.513,0.57);
-//        HoodlutPP.add(100.717,0.6);
-//        HoodlutPP.add(115.923,0.62);
-//
-//        HoodlutPP.add(129.20,0.8);//far  old
-//        HoodlutPP.add(144.66,0.8);//far old
-//        HoodlutPP.add(162.00,0.8); //far old
-
-
-
         FlylutPP.createLUT();
-      //  HoodlutPP.createLUT();
+
    }
 
 
@@ -208,6 +177,9 @@ public class base {
                 turretPower= turretpid(turretPos,0,tx,offset,false);
 
                 limelocked=true;
+                targetpos=turretPos-tx*ticksPerDegree;
+
+
                 Txgap=Math.abs(tx-offset);
                 if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
                     turretPower= -0.5;
@@ -225,7 +197,9 @@ public class base {
             }
 
             if (limelocked) {
-                turretPower=0;
+
+                turretPower= turretpid(turretPos,targetpos,tx,offset,true);
+                Txgap=Math.abs(offset+(targetpos-turretPos)/ticksPerDegree);
                 return turretPower;
             }
 
@@ -258,7 +232,7 @@ public class base {
         double error;
        if (pinpoint){
 
-     
+
          //  if(Math.abs(error)<50) error=0.0001;
 
            error = targetpos+offset*ticksPerDegree-currentpos;
