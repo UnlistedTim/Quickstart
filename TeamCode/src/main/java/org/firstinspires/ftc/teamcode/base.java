@@ -198,19 +198,19 @@ public class base {
 
             if (limelocked) {
 
-//                turretPower= turretpid(turretPos,targetpos,tx,offset,true);
-//                Txgap=Math.abs(offset+(targetpos-turretPos)/ticksPerDegree);
-//                if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
-//                    turretPower= -0.5;
-////                    target = 0;
-//                    limelocked = false;
-//                }
-//                if (turretPos < (turretCwlim + 300) && turretPower< 0) {
-//                    turretPower= 0.5;
-////                    target = 0;
-//                    limelocked = false;
-//                }
-                return 0;
+                turretPower= turretpid(turretPos,targetpos,tx,offset,true);
+                Txgap=Math.abs(offset+(targetpos-turretPos)/ticksPerDegree);
+                if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
+                    turretPower= -0.5;
+//                    target = 0;
+                    limelocked = false;
+                }
+                if (turretPos < (turretCwlim + 300) && turretPower< 0) {
+                    turretPower= 0.5;
+//                    target = 0;
+                    limelocked = false;
+                }
+                return turretPower;
             }
 
 

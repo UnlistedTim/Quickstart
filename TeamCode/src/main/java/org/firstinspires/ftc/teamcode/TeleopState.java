@@ -53,6 +53,8 @@ public class TeleopState extends LinearOpMode  {
 
     public boolean lift = false;
 
+    public double colorFactor = 1;
+
 
     public boolean topbb=true,botbb=true,midbb=true,intakefirst=false;
 
@@ -105,7 +107,7 @@ public class TeleopState extends LinearOpMode  {
 
     boolean limeValid = false,pinpoint_nav=true;
     boolean outtakestate=false,intakestate=true;
-    boolean drive = true, present = false;
+    boolean drive = true, present = false, fieldCentric = true;
 
     int target_id = 24;
 
@@ -272,9 +274,16 @@ public class TeleopState extends LinearOpMode  {
             }
 
 
-            if (drive) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);  else stopDriveMotors();
+            if (drive) {
+                if (fieldCentric) mecanumRobotDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
+                else mecanumRobotCentricDrive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x);
+            }
+
+            else stopDriveMotors();
             statusupdate();//caputure all the hardware reading info.
             flywheel();
+
+            if (gamepad1.crossWasPressed()) fieldCentric = !fieldCentric;
 
 
 
@@ -282,9 +291,9 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-            telemetry.addData("Tx",Tx);
-            telemetry.addData("Ty",Ty);
-            telemetry.addData("turnpower",turnPower);
+            telemetry.addData("X",pose.getX(DistanceUnit.INCH));
+            telemetry.addData("Y",pose.getY(DistanceUnit.INCH));
+            telemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
 
             telemetry.addData("Turret Pos", turretPos);
 
@@ -302,10 +311,16 @@ public class TeleopState extends LinearOpMode  {
     {
         stopDriveMotors();
         sleep(150);
-        if(red) Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.rcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+        if(red) {
+            Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.rcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+            colorFactor = 1.0;
+        }
 
 
-        else Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.bcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+        else {
+            Pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, rbg.bcalxoffset, rbg.calyoffset, AngleUnit.RADIANS, rbg.calheading));
+            colorFactor = -1.0;
+        }
 
 
     }
@@ -594,10 +609,10 @@ public class TeleopState extends LinearOpMode  {
         double frontRightPower = (rotY - rotX - rx) / denominator;
         double backRightPower = (rotY + rotX - rx) / denominator;
 
-        leftFront.setPower(frontLeftPower);
-        leftBack.setPower(backLeftPower);
-        rightFront.setPower(frontRightPower);
-        rightBack.setPower(backRightPower);
+        leftFront.setPower(frontLeftPower *colorFactor);
+        leftBack.setPower(backLeftPower * colorFactor);
+        rightFront.setPower(frontRightPower *colorFactor);
+        rightBack.setPower(backRightPower * colorFactor);
 
      //   telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
 //        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
@@ -606,6 +621,31 @@ public class TeleopState extends LinearOpMode  {
 
 
       //  telemetry.update();
+    }
+
+
+    public void mecanumRobotCentricDrive(double y, double x, double rx){
+
+
+        // Rotate the movement direction counter to the bot's rotation
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        leftFront.setPower(frontLeftPower);
+        leftBack.setPower(backLeftPower);
+        rightFront.setPower(frontRightPower);
+        rightBack.setPower(backRightPower);
+
+        //   telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
+//        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
+//        telemetry.addData("Y", pose.getY(DistanceUnit.INCH));
+
+
+
+        //  telemetry.update();
     }
 
 public void turretspin()
@@ -823,7 +863,7 @@ public void turretspin()
         }
 
         try{
-            red = (boolean) blackboard.get("Color");
+            red = (boolean) blackboard.get("COLOR");
         }
         catch (NullPointerException e){
             red = true;

@@ -317,7 +317,7 @@ public class StateAuto extends OpMode {
                    if (red) turretTarget=-12000;
                    else turretTarget=12000;
 
-                //   rbga.turrettarget = turretTarget;
+                   rbga.turrettarget = turretTarget;
                    break;
                }
 
@@ -329,7 +329,7 @@ public class StateAuto extends OpMode {
                       flypower=rbga.flypower2;
                       if (red) turretTarget=-12000;
                       else turretTarget=12000;
-                     // rbga.turrettarget = turretTarget;
+                      rbga.turrettarget = turretTarget;
                   }
 
                 break;
@@ -802,7 +802,7 @@ public class StateAuto extends OpMode {
 
 
     public void flywheel() {
-        Ty = -12.0;
+//        Ty = -12.0;
     double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
       //  double fpower = rbga.flyspeedPP(flyCurrentVel);
         flyBot.setPower(fpower);
