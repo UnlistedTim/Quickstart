@@ -88,10 +88,10 @@ public class base {
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.59,1640); //far         1660
-        Flylut.add(-12.79,1600); //far    1620
-        Flylut.add(-11.65,1460); //far    1480
-        Flylut.add(-9.26, 1340); //close
+        Flylut.add(-13.59,1720); //far         1700
+        Flylut.add(-12.79,1680); //far    1660
+        Flylut.add(-11.65,1540); //far    1520
+        Flylut.add(-9.26, 1380); //close   1340
         Flylut.add(-5.5,1260); //close
         Flylut.add(-1.19,1160); //close
         Flylut.add(5.82,1140); //close
@@ -237,7 +237,7 @@ public class base {
 
            error = targetpos+offset*ticksPerDegree-currentpos;
 
-           if (currentpos < -10000) return error * (turretkP + 0.00013)  + Math.signum(error) * turretkS;
+           if (Math.abs(currentpos) > 10000) return error * (turretkP + 0.00013)  + Math.signum(error) * turretkS;
            if(Math.abs(error)<100) error=0.0001;
 
            return error * turretkP + Math.signum(error) * turretkS;
@@ -246,7 +246,7 @@ public class base {
        {
            error = offset-tx;
            if (Math.abs(error) < 1.5) return 0;
-           if (currentpos < -10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
+           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }

@@ -66,7 +66,7 @@ public class StaterobotDebug extends LinearOpMode {
     public GoBildaPinpointDriver Pinpoint;
 
 
-    public static int IntakeVel = 1300;
+    public static int IntakeVel = 0;
 
     public static int turretPos = 0;
     int openInARow = 1;
@@ -292,7 +292,7 @@ public class StaterobotDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
-        Limelight.pipelineSwitch(2);
+        Limelight.pipelineSwitch(3);
 
         double targetGoalX = 140.86;
         double targetGoalY = 140.86;
@@ -387,7 +387,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 //            flyBANGBANG(flyVel);
 
-            flyPID(flyVel);
+//            flyPID(flyVel);
 
 //            telemetry.addData("Bottom BB state",botBB.getState());
 //            telemetry.addData("top BB state",topBB.getState());
@@ -415,6 +415,8 @@ public class StaterobotDebug extends LinearOpMode {
             telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
             telemetry.addData("Left front pos", leftFront.getCurrentPosition());
+
+            telemetry.addData("Ty",Ty);
 
           //  dashboardTelemetry.update();
             telemetry.update();

@@ -39,7 +39,7 @@ public class StateAuto extends OpMode {
     private CRServo turretLeft, turretRight;
     private Servo Hood, Blocker, Tripod;
     private DigitalChannel botBB,topBB,midBB;
-    double intakevel,intaketargtvel=0,intakestdvel=1500,outakestdvel=1500,outtakebstvel=1700;
+    double intakevel,intaketargtvel=0,intakestdvel=1500,outakestdvel=1300,outtakebstvel=1500;
     int shootstep=0;
     private Limelight3A Limelight;
     LLResult result;
@@ -52,6 +52,8 @@ public class StateAuto extends OpMode {
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
     private boolean row3=false;
     double turnPower;
+
+    double autoTurretOffset = 0;
 
 
     private int pathState=0 ,i=0;
@@ -234,6 +236,11 @@ public class StateAuto extends OpMode {
             case 0:
 
 
+                outtaketimer.resetTimer();
+
+//                rbga.txoffset = 2;
+
+
                 if(red) follower.followPath(RFStart1, 0.5,true);
                 else follower.followPath(BFStart1,0.5, true);
 
@@ -246,7 +253,7 @@ public class StateAuto extends OpMode {
 
                 break;
             case 1:
-                Ty = -12.2;
+                Ty = -12.0;   //-12.0
 
 
                 if(ashoot()) {
@@ -303,11 +310,13 @@ public class StateAuto extends OpMode {
 
                if(firstshoot) {
                    if (red) follower.followPath(RF1approchPickup2, false);
-                         else follower.followPath(BF1approchPickup2, false);
+                   else follower.followPath(BF1approchPickup2, false);
                    firstshoot=false;
                    setPathState(14);
                    flypower=rbga.flypower2;
-                   turretTarget=-12000;
+                   if (red) turretTarget=-12000;
+                   else turretTarget=12000;
+
                    rbga.turrettarget = turretTarget;
                    break;
                }
@@ -318,7 +327,8 @@ public class StateAuto extends OpMode {
                       else follower.followPath(BFapproachPickup2, false);
                       setPathState(14);
                       flypower=rbga.flypower2;
-                      turretTarget=-12000;
+                      if (red) turretTarget=-12000;
+                      else turretTarget=12000;
                       rbga.turrettarget = turretTarget;
                   }
 
@@ -352,6 +362,7 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {//cycle wall grab and shooting
                     setPathState(10);
+                    outtaketimer.resetTimer();
                 }
                 break;
             case 101:
@@ -475,7 +486,8 @@ public class StateAuto extends OpMode {
                     firstshoot=false;
                     setPathState(14);
                     flypower=rbga.flypower2;
-                    turretTarget=-12000;
+                    if (red) turretTarget=-12000;
+                    else turretTarget=12000;
                     rbga.turrettarget = turretTarget;
                     break;
                 }
@@ -486,7 +498,8 @@ public class StateAuto extends OpMode {
                     else follower.followPath(BFapproachPickup2, false);
                     setPathState(14);
                     flypower=rbga.flypower2;
-                    turretTarget=-12000;
+                    if (red) turretTarget=-12000;
+                    else turretTarget=12000;
                     rbga.turrettarget = turretTarget;
                 }
 
@@ -652,11 +665,14 @@ public class StateAuto extends OpMode {
                 if (red) {
                     Limelight.pipelineSwitch(2);
 
+                    autoTurretOffset = -0.5;
+
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                     telemetry.addLine("Red  Selected");
                     Limelight.start();
                 } else {
+                    autoTurretOffset = 1.25;
                     Limelight.pipelineSwitch(3);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
@@ -763,7 +779,7 @@ public class StateAuto extends OpMode {
 
       //  pose = (new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.RADIANS, follower.getHeading()));
 
-        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, -0.5);
+        turnPower= rbga.turretturn(shooting,limeValid,turretTarget,turretPos,Tx, autoTurretOffset);
 //        turnPower=rbga.turret(shooting,pose,turretPos,red,true,limeValid,Tx,false);
         turretLeft.setPower(turnPower);
         turretRight.setPower(turnPower);
@@ -786,6 +802,7 @@ public class StateAuto extends OpMode {
 
 
     public void flywheel() {
+        Ty = -12.0;
     double fpower=rbga.flyspeed(flyCurrentVel,Ty);;
       //  double fpower = rbga.flyspeedPP(flyCurrentVel);
         flyBot.setPower(fpower);
@@ -814,7 +831,7 @@ public class StateAuto extends OpMode {
 
 
             case 1:
-                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 2) {
+                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 1500) {
 
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
@@ -911,8 +928,8 @@ public class StateAuto extends OpMode {
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RF1approchPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(RFstartPose, RFpickup2Pose))
-                .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFpickup2Pose.getHeading(),0.5)
+                .addPath(new BezierLine(RFstart1Pose, RFpickup2Pose))
+                .setLinearHeadingInterpolation(RFstart1Pose.getHeading(), RFpickup2Pose.getHeading(),0.5)
                 .build();
 
 
@@ -976,8 +993,8 @@ public class StateAuto extends OpMode {
                 .build();
 
         BF1approchPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(BFstartPose, BFpickup2Pose))
-                .setLinearHeadingInterpolation(BFstartPose.getHeading(), BFpickup2Pose.getHeading(),0.5)
+                .addPath(new BezierLine(BFstart1Pose, BFpickup2Pose))
+                .setLinearHeadingInterpolation(BFstart1Pose.getHeading(), BFpickup2Pose.getHeading(),0.5)
                 .build();
 
 
@@ -997,7 +1014,7 @@ public class StateAuto extends OpMode {
                 // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseB))
-                .setConstantHeadingInterpolation( 180)
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
