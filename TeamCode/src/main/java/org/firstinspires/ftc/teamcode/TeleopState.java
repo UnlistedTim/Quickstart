@@ -280,7 +280,7 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-            turntable(gamepad1.right_stick_x);
+            turntable(gamepad2.right_stick_x);
 
 
 

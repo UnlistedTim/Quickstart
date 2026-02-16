@@ -64,9 +64,9 @@ public class StateAuto extends OpMode {
     private final Pose RFscorePose = new Pose(0, 6, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2Pose = new Pose(36, -3, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseA = new Pose(37, 10, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup2PoseB = new Pose(40, 10, Math.toRadians(0));
+    private final Pose RFpickup2Pose = new Pose(36, -2, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseA = new Pose(37, 9, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup2PoseB = new Pose(41, 9, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
 
@@ -78,10 +78,10 @@ public class StateAuto extends OpMode {
     private final Pose BFscorePose = new Pose(0, 6, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose BFpickup1Pose = new Pose(-12, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BFpickup1PoseA = new Pose(-38, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup2Pose = new Pose(-36, -3, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup2PoseA = new Pose(-37, 10, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup2Pose = new Pose(-36, -2, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup2PoseA = new Pose(-37, 9, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
 
-    private final Pose BFpickup2PoseB = new Pose(-40, 10, Math.toRadians(180));
+    private final Pose BFpickup2PoseB = new Pose(-41, 9, Math.toRadians(180));
 
     private final Pose BFendPose = new Pose(-12, 10, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
@@ -338,8 +338,8 @@ public class StateAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2,0.5, false);
-                    else follower.followPath(BFgrabPickup2, 0.5,false);
+                    if(red)follower.followPath(RFgrabPickup2, false);
+                    else follower.followPath(BFgrabPickup2, false);
                     setPathState(17);
 
 
@@ -677,14 +677,14 @@ public class StateAuto extends OpMode {
                 if (red) {
                     Limelight.pipelineSwitch(2);
 
-                    autoTurretOffset = -0.5;
+                    autoTurretOffset = -4;
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                     telemetry.addLine("Red  Selected");
                     Limelight.start();
                 } else {
-                    autoTurretOffset = 1.25;
+                    autoTurretOffset = 4;
                     Limelight.pipelineSwitch(3);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;

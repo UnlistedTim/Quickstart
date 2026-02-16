@@ -106,13 +106,13 @@ public class base {
         FlylutPP.add(53.3,1140);
         FlylutPP.add(67.27,1160);
         FlylutPP.add(81.75,1260);
-        FlylutPP.add(102.064,1340); //cloe
+        FlylutPP.add(102.064,1380); //cloe
 
 
 
-        FlylutPP.add(124.33,1460); //far   1480
-        FlylutPP.add(140.74,1600); //far  1620
-        FlylutPP.add(156.09,1654); //far 1660
+        FlylutPP.add(124.33,1540); //far   1460
+        FlylutPP.add(140.74,1680); //far  1600
+        FlylutPP.add(156.09,1720); //far 1650
         FlylutPP.add(200,1700);// only for data leak
 
 
@@ -322,6 +322,7 @@ public class base {
                               }
                          else {//Limelight aiming
                                  if (valid) {
+                                    if(red) txoffset=-2; else txoffset=2;
                                     turretPower = turretpid(0, 0, tx, txoffset, false);
                                     limelocked = true;
                                     Txgap = Math.abs(tx - txoffset);
