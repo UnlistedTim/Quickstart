@@ -259,18 +259,11 @@ public class TeleopState extends LinearOpMode  {
                telemetry.update();
             }
 
-            if(gamepad1.shareWasReleased()||calibrate) {
-                if (!calibrate) {
-                    calibrate = true;
-                    timer.reset();
-                }
-                if (timer.milliseconds() > 1000 && gamepad2.share) {
-                    gamepad1.rumble(200);
-                      calibrate();
-                      calibrate=false;
+            if(gamepad1.shareWasReleased()) {
 
-                }
-                if (timer.milliseconds() > 3000 )calibrate=false;
+                      calibrate();
+
+
             }
 
 
@@ -287,7 +280,7 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-            turntable();
+            turntable(gamepad1.right_stick_x);
 
 
 
@@ -357,12 +350,17 @@ public class TeleopState extends LinearOpMode  {
 
     }
 
-    public void  turntable()
+    public void  turntable( double x)
 
     {
 //        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
 //       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-        turnPower=rbg.turret(outtakestate,pose,turretPos,red,pinpoint_nav,limeValid,Tx,shooting);
+       if(Math.abs(x)>0.3){
+            if (x > 0.3) turnPower = -0.35;
+           else  turnPower= 0.35;
+         }
+       else turnPower=rbg.turret(outtakestate,pose,turretPos,red,pinpoint_nav,limeValid,Tx,shooting);
+
        turretLeft.setPower(turnPower);
        turretRight.setPower(turnPower);
 
