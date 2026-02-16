@@ -255,7 +255,6 @@ public class StateAuto extends OpMode {
             case 1:
                 Ty = -12.0;   //-12.0
 
-
                 if(ashoot()) {
 
                 if(row3)  setPathState(3);
