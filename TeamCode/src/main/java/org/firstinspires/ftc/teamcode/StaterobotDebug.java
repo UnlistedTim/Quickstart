@@ -51,7 +51,7 @@ import java.util.List;
 public class StaterobotDebug extends LinearOpMode {
 
 
-    //blocker Block 0.25, blocker not block 0.65
+    //blocker Block 0.11, blocker not block 0.23
 
 
 
