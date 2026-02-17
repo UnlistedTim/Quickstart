@@ -216,7 +216,7 @@ public class TeleopState extends LinearOpMode  {
 
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
-                            gamepad1.rumble(750);
+                            gamepad1.rumble(500);
                              intaketargetvel=0;
                             outtakestate=true;
                             intakestate=false;
