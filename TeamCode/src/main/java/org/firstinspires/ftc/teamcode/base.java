@@ -219,7 +219,7 @@ public class base {
         }
 
          turretPower = turretpid(turretPos,target,tx,0,true);
-         Txgap=Math.abs(targetpos-turretPos);
+         Txgap=Math.abs(target-turretPos)/ticksPerDegree;
 
          turretPower= Range.clip(turretPower,-turnMax,turnMax);
 
