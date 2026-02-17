@@ -257,6 +257,12 @@ public class StateAuto extends OpMode {
 
                 if(ashoot()) {
 
+                    if (red) turretTarget=-12000;
+                    else turretTarget=12000;
+
+                    rbga.turrettarget = turretTarget;
+
+
                 if(row3)  setPathState(3);
                 else setPathState(11);
 
@@ -674,7 +680,7 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(2);
+                    Limelight.pipelineSwitch(6);
 
                     autoTurretOffset = -4;
 
@@ -684,7 +690,7 @@ public class StateAuto extends OpMode {
                     Limelight.start();
                 } else {
                     autoTurretOffset = 4;
-                    Limelight.pipelineSwitch(3);
+                    Limelight.pipelineSwitch(7);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                     rbga.targetGoalX=0-rbga.bfxoffset;
@@ -723,12 +729,12 @@ public class StateAuto extends OpMode {
     public void start() {
         if(i==0){
             if (red) {
-                Limelight.pipelineSwitch(2);
+                Limelight.pipelineSwitch(6);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");
             } else {
-                Limelight.pipelineSwitch(3);
+                Limelight.pipelineSwitch(7);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                 rbga.targetGoalX=0-rbga.bfxoffset;
                 telemetry.addLine("Blue Selected");

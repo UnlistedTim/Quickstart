@@ -81,39 +81,39 @@ public class base {
     int turretCcwlim=14000;
     public final int intakeVel = 1500,outtakVel=1500;
 
-    public void init()
+    public void  init()
 
     {
 
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.59,1720); //far         1700
-        Flylut.add(-12.79,1680); //far    1660
-        Flylut.add(-11.65,1540); //far    1520
-        Flylut.add(-9.26, 1380); //close   1340
-        Flylut.add(-5.5,1260); //close
-        Flylut.add(-1.19,1160); //close
-        Flylut.add(5.82,1140); //close
-        Flylut.add(14.07 , 1180); // close
-        Flylut.add(16 , 1200); // close
+        Flylut.add(-13.59,1560); //far         1700
+        Flylut.add(-12.79,1520); //far    1660
+        Flylut.add(-11.65,1380); //far    1520
+        Flylut.add(-9.26, 1220); //close   1340
+        Flylut.add(-5.5,1160); //close
+        Flylut.add(-1.19,1060); //close
+        Flylut.add(5.82,1040); //close
+        Flylut.add(14.07 , 1120); // close
+        Flylut.add(16 , 1120); // close
 
         Flylut.createLUT();
 
 
-        FlylutPP.add(0,1200); // only for data leakclose
-        FlylutPP.add(43.66,1180);
-        FlylutPP.add(53.3,1140);
-        FlylutPP.add(67.27,1160);
-        FlylutPP.add(81.75,1260);
-        FlylutPP.add(102.064,1380); //cloe
+        FlylutPP.add(0,1120); // only for data leakclose
+        FlylutPP.add(43.66,1120);
+        FlylutPP.add(53.3,1040);
+        FlylutPP.add(67.27,1060);
+        FlylutPP.add(81.75,1160);
+        FlylutPP.add(102.064,1220); //cloe
 
 
 
-        FlylutPP.add(124.33,1540); //far   1460
-        FlylutPP.add(140.74,1680); //far  1600
-        FlylutPP.add(156.09,1720); //far 1650
-        FlylutPP.add(200,1700);// only for data leak
+        FlylutPP.add(124.33,1380); //far   1460
+        FlylutPP.add(140.74,1520); //far  1600
+        FlylutPP.add(156.09,1560); //far 1650
+        FlylutPP.add(200,1720);// only for data leak
 
 
 

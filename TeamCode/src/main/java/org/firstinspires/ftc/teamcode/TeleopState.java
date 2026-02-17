@@ -87,7 +87,7 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-    int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak = 4;
+    int intake = 0, outtake = 1, spinstatus = 2, spinfix = 3, shootbreak;
 
     private final Pose RHPStartPose = new Pose(130, 10, Math.toRadians(0)); //
     private final Pose BHPStartPose = new Pose(-10, 10, Math.toRadians(180)); //
@@ -145,7 +145,9 @@ public class TeleopState extends LinearOpMode  {
         IDLE,
         INTAKE,
         OUTTAKE,
-        MANUALOUTTAKE;
+        MANUALOUTTAKE,
+
+        PARK;
     }
 
     private enum ShootState {
@@ -232,6 +234,40 @@ public class TeleopState extends LinearOpMode  {
 
                 case MANUALOUTTAKE:
                     break;
+                case PARK:
+
+                  if(lift) {
+                      drive = false;
+                      outtakestate = false;
+                      lift = true;
+                      flypower = 0;
+
+                      //  stopDriveMotors();
+
+                      intaketargetvel = 0;
+
+                      rbg.turrettarget = -10000;
+                      lift=false;
+
+                      // turnPower=rbg.turretpid(turretPos, -10000,0,0,true);
+
+                  }
+
+                    if (turretPos < -9500){
+
+                        Tripod.setPosition(rbg.tripodPark);
+                    }
+
+                    if (gamepad1.psWasPressed()){
+                        Tripod.setPosition(rbg.tripodIdle);
+                        state = State.IDLE;
+                        lift = false;
+                        drive = true;
+                    }
+
+
+
+                    break;
             }
 
 
@@ -239,17 +275,10 @@ public class TeleopState extends LinearOpMode  {
 
 
             if (gamepad1.psWasPressed()){
-                if (!lift){
-                    Tripod.setPosition(rbg.tripodPark);
-                    drive = false;
-                    lift = true;
-                }
 
-                else{
-                    Tripod.setPosition(rbg.tripodIdle);
-                    lift = false;
-                    drive = true;
-                }
+                state = State.PARK;
+
+                lift = true;
 
             }
             if(gamepad2.psWasPressed()){
@@ -280,7 +309,7 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-            turntable(gamepad2.right_stick_x);
+            turntable(gamepad2.right_stick_x,lift);
 
 
 
@@ -350,7 +379,7 @@ public class TeleopState extends LinearOpMode  {
 
     }
 
-    public void  turntable( double x)
+    public void  turntable( double x, boolean lift)
 
     {
 //        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
@@ -359,10 +388,13 @@ public class TeleopState extends LinearOpMode  {
             if (x > 0.3) turnPower = -0.35;
            else  turnPower= 0.35;
          }
-       else turnPower=rbg.turret(outtakestate,pose,turretPos,red,pinpoint_nav,limeValid,Tx,shooting);
 
-       turretLeft.setPower(turnPower);
-       turretRight.setPower(turnPower);
+           turnPower = rbg.turret(outtakestate, pose, turretPos, red, pinpoint_nav, limeValid, Tx, shooting);
+           turretLeft.setPower(turnPower);
+           turretRight.setPower(turnPower);
+
+
+
 
     }
 
@@ -466,7 +498,7 @@ public class TeleopState extends LinearOpMode  {
             rbg.targetGoalX=rbg.redGoalX;
               if(startY==0)  { startY=startY+rbg.rfyoffset;}
             if(startX==0){ startX=startX+rbg.rfxoffset;}
-            Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
+            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
@@ -474,7 +506,7 @@ public class TeleopState extends LinearOpMode  {
            if(startY==0) startY=startY+rbg.bfyoffset;
            if(startX==0) startX=startX+rbg.bfxoffset;
             rbg.targetGoalX=rbg.blueGoalX;
-            Limelight.pipelineSwitch(3);
+            Limelight.pipelineSwitch(7);
         }
         if(startHeading==0) startHeading=1.5*Math.PI;
         Limelight.start();
