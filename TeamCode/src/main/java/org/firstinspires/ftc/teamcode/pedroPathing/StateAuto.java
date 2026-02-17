@@ -282,8 +282,8 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
                     /* Grab Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    if(red) follower.followPath(RFgrabPickup1, 0.35,true);
-                    else follower.followPath(BFgrabPickup1, 0.35,true);
+                    if(red) follower.followPath(RFgrabPickup1, 0.45,true);
+                    else follower.followPath(BFgrabPickup1, 0.45,true);
                     flypower=rbga.flypower2;
                     setPathState(6);
                 }
