@@ -213,8 +213,10 @@ public class TeleopState extends LinearOpMode  {
                 case INTAKE:
                    // if ( gamepad2.leftBumperWasPressed() || (stoptimers(800,intake) && beamBreakCount())){
                      if ( gamepad2.leftBumperWasPressed() || rbg.beamscanintake(topbb,midbb,botbb)){//(stoptimers(500,intake)
+
                             state = State.OUTTAKE;
                             Led.setPosition(rbg.ledred);
+                            gamepad1.rumble(500);
                              intaketargetvel=0;
                             outtakestate=true;
                             intakestate=false;
@@ -238,7 +240,7 @@ public class TeleopState extends LinearOpMode  {
                     break;
                 case PARK:
 
-                    if (!lift &&turretPos < -11500){
+                    if (!lift){
 
                         Tripod.setPosition(rbg.tripodPark);
                         lift=true;
@@ -268,7 +270,7 @@ public class TeleopState extends LinearOpMode  {
                 lift = false;
                 flypower = 0;
                 intaketargetvel = 0;
-                rbg.turrettarget = -12000;
+
 
 
 
