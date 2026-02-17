@@ -236,29 +236,13 @@ public class TeleopState extends LinearOpMode  {
                     break;
                 case PARK:
 
-                  if(lift) {
-                      drive = false;
-                      outtakestate = false;
-                      lift = true;
-                      flypower = 0;
-
-                      //  stopDriveMotors();
-
-                      intaketargetvel = 0;
-
-                      rbg.turrettarget = -10000;
-                      lift=false;
-
-                      // turnPower=rbg.turretpid(turretPos, -10000,0,0,true);
-
-                  }
-
-                    if (turretPos < -9500){
+                    if (!lift &&turretPos < -9500){
 
                         Tripod.setPosition(rbg.tripodPark);
+                        lift=true;
                     }
 
-                    if (gamepad1.psWasPressed()){
+                    if (lift && gamepad1.psWasPressed()){
                         Tripod.setPosition(rbg.tripodIdle);
                         state = State.IDLE;
                         lift = false;
@@ -277,15 +261,21 @@ public class TeleopState extends LinearOpMode  {
             if (gamepad1.psWasPressed()){
 
                 state = State.PARK;
+                drive = false;
+                outtakestate = false;
+                lift = false;
+                flypower = 0;
+                intaketargetvel = 0;
+                rbg.turrettarget = -10000;
 
-                lift = true;
+
 
             }
             if(gamepad2.psWasPressed()){
 
                pinpoint_nav=!pinpoint_nav;
-               telemetry.addData("pinpoint-nav",pinpoint_nav);
-               telemetry.update();
+//               telemetry.addData("pinpoint-nav",pinpoint_nav);
+//               telemetry.update();
             }
 
             if(gamepad1.shareWasReleased()) {
@@ -694,7 +684,7 @@ public void turretspin()
 
 
         if(outtakestate) {
-            if (pinpoint_nav) {
+            if (pinpoint_nav&&!shooting) {
                 flypower = rbg.flyspeedPP(flyCurrentVel);
 
             } else {
