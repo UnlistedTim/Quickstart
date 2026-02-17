@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode;
+import static org.firstinspires.ftc.teamcode.StaterobotDebug.turretPos;
+
 import android.annotation.SuppressLint;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -65,7 +67,7 @@ public class TeleopState extends LinearOpMode  {
 
     public double intakespeed=0;
 
-    public int ball_count = 0;
+    public int ball_count = 0,Tgap=0;
 
     public boolean debounce = false;
 
@@ -103,7 +105,7 @@ public class TeleopState extends LinearOpMode  {
 
     boolean recevieinfo = false;
     FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+  //  Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     boolean limeValid = false,pinpoint_nav=true;
     boolean outtakestate=false,intakestate=true;
@@ -299,18 +301,18 @@ public class TeleopState extends LinearOpMode  {
 
 
 
-            turntable(gamepad2.right_stick_x,lift);
+            turntable(gamepad2.right_stick_x);
 
 
-
-            telemetry.addData("X",pose.getX(DistanceUnit.INCH));
-            telemetry.addData("Y",pose.getY(DistanceUnit.INCH));
-            telemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
-
-            telemetry.addData("Turret Pos", turretPos);
-
-
-            telemetry.update();//to do
+//
+//            telemetry.addData("X",pose.getX(DistanceUnit.INCH));
+//            telemetry.addData("Y",pose.getY(DistanceUnit.INCH));
+//            telemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
+//
+//            telemetry.addData("Turret Pos", turretPos);
+//
+//
+//            telemetry.update();//to do
 
 
 
@@ -339,7 +341,7 @@ public class TeleopState extends LinearOpMode  {
     public void statusupdate()
 
     {
-       turretPos=leftFront.getCurrentPosition();
+       turretPos=leftFront.getCurrentPosition()+Tgap;
         Pinpoint.update();
         pose = Pinpoint.getPosition();
         intakespeed=intakeLeft.getVelocity();
@@ -369,7 +371,7 @@ public class TeleopState extends LinearOpMode  {
 
     }
 
-    public void  turntable( double x, boolean lift)
+    public void  turntable( double x)
 
     {
 //        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
@@ -383,13 +385,18 @@ public class TeleopState extends LinearOpMode  {
 
            turnPower = rbg.turret(outtakestate, pose, turretPos, red, pinpoint_nav, limeValid, Tx, shooting);
 
-
        }
+        if (turretPos > rbg.turretCcwlim- 300 &&  turnPower  > 0) {
+           turnPower= -0.5;//
+            rbg.limelocked = false;
+        }
+        if (turretPos < (rbg.turretCwlim + 300) && turnPower< 0) {
+           turnPower= 0.5;//
+            rbg.limelocked = false;
+        }
+
            turretLeft.setPower(turnPower);
            turretRight.setPower(turnPower);
-
-
-
 
 
     }
@@ -747,7 +754,7 @@ public void turretspin()
 
         Pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
         configurePinpoint();
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
+//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());//todo
 
         Hood = hardwareMap.get(Servo.class, "Hood");
         turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
@@ -899,6 +906,12 @@ public void turretspin()
             red = true;
         }
 
+        try{
+            Tgap = (int) blackboard.get("T");
+        }
+        catch (NullPointerException e){
+            Tgap= 0;
+        }
 
 
     }

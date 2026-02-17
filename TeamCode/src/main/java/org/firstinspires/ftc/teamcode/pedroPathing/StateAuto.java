@@ -46,7 +46,7 @@ public class StateAuto extends OpMode {
     private boolean atopbb,abotbb,amidbb,configured=false,intakefull=false;
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
     public double hoodPos = 0,outtaketime=0;
-    public int shootState=0 ,turretTarget=0 ;
+    public int shootState=0 ,turretTarget=0 ,turretredtarget1=-4000,turretbluetarget1=4000,turretredtarget2=-12000,turretbluetarget2=12000;;
    public final int preshoot=0,shoot=1,done=2;
     int  turretPos;
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
@@ -230,7 +230,7 @@ public class StateAuto extends OpMode {
 
     public void FarPathUpdate() {
 
-        if(opmodeTimer.getElapsedTime()>28000&&pathState<100) {setPathState(101);turretTarget=0;shooting=false;};
+        if(opmodeTimer.getElapsedTime()>28000&&pathState<100) {setPathState(101);};
         switch (pathState) {
 
             case 0:
@@ -241,11 +241,19 @@ public class StateAuto extends OpMode {
 //                rbga.txoffset = 2;
 
 
-                if(red) follower.followPath(RFStart1, 0.5,true);
-                else follower.followPath(BFStart1,0.5, true);
+                if(red) {
 
+                    follower.followPath(RFStart1, 0.5,true);
+                    turretTarget=turretredtarget1;
+                }
+                else {
+
+                    follower.followPath(BFStart1,0.5, true);
+                    turretTarget=turretbluetarget1;
+                }
 
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
+
 
                 setPathState(1);
 
@@ -257,10 +265,10 @@ public class StateAuto extends OpMode {
 
                 if(ashoot()) {
 
-                    if (red) turretTarget=-12000;
-                    else turretTarget=12000;
+                    if (red) turretTarget=-turretredtarget2;
+                    else turretTarget=turretbluetarget2;
 
-                    rbga.turrettarget = turretTarget;
+
 
 
                 if(row3)  setPathState(3);
@@ -319,10 +327,10 @@ public class StateAuto extends OpMode {
                    firstshoot=false;
                    setPathState(14);
                    flypower=rbga.flypower2;
-                   if (red) turretTarget=-12000;
-                   else turretTarget=12000;
+                   if (red) turretTarget=turretredtarget2;
+                   else turretTarget=turretbluetarget2;
 
-                   rbga.turrettarget = turretTarget;
+                //   rbga.turrettarget = turretTarget;
                    break;
                }
 
@@ -332,9 +340,9 @@ public class StateAuto extends OpMode {
                       else follower.followPath(BFapproachPickup2, false);
                       setPathState(14);
                       flypower=rbga.flypower2;
-                      if (red) turretTarget=-12000;
-                      else turretTarget=12000;
-                      rbga.turrettarget = turretTarget;
+                      if (red) turretTarget=turretredtarget2;
+                      else turretTarget=turretbluetarget2;
+
                   }
 
                 break;
@@ -354,7 +362,7 @@ public class StateAuto extends OpMode {
             case 17:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                     intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
-                if (intakefull||actionTimer.getElapsedTime()>1800) {
+                if (intakefull||actionTimer.getElapsedTime()>2500) {
                     if(red) follower.followPath(RFscorePickup2,true);
                     else follower.followPath(BFscorePickup2,true);
                     if(intakefull) intaketargtvel=0;
@@ -372,14 +380,15 @@ public class StateAuto extends OpMode {
                 }
                 break;
             case 101:
+                        shooting=false;
+                        turretTarget=0;
                         flypower=0;
                         rbga.turret_offset = 0;
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
-                        turretTarget=0;
-                        rbga.turrettarget = turretTarget;
+                        Intake(0);
                         setPathState(103);
-
+                        Blocker.setPosition(rbga.blockClose);
 
                 break;
 
@@ -387,21 +396,22 @@ public class StateAuto extends OpMode {
 
 
             case 103: /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
+                if (!follower.isBusy()&& Math.abs(turretPos)<200 ) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-                    flypower=0;
-                    flyprepower(0);
-                    Blocker.setPosition(rbga.blockClose);
-                    Intake(0);
+
                     actionTimer.resetTimer();
                     setPathState(105);
+                    turretLeft.setPower(0);
+                    turretRight.setPower(0);
+
+
 
 
                 }
                 break;
 
             case 105:
-                if(actionTimer.getElapsedTime()>300) {
+                if(actionTimer.getElapsedTime()>500) {
 
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
@@ -414,6 +424,8 @@ public class StateAuto extends OpMode {
                         //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
                     blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
+
+                    blackboard.put("T", turretPos);
 
                     setPathState(200);
                 }
@@ -963,11 +975,15 @@ public class StateAuto extends OpMode {
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
                 .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RFpickup2PoseB, RFpickup2PoseA))
+                .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2Pose))
+                .setConstantHeadingInterpolation( 0)
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(RFpickup2PoseB, RFscorePose))
+                .addPath(new BezierLine(RFpickup2PoseA, RFscorePose))
                 .setLinearHeadingInterpolation(RFpickup2PoseB.getHeading(), RFscorePose.getHeading())
                 .build();
 
