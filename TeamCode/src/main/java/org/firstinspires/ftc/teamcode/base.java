@@ -157,6 +157,7 @@ public class base {
         if(pinpoint)
         {
         if(dist>110) hoodpos=hoodfarpos;
+
         else hoodpos=hoodnearpose;
         }
 
@@ -259,7 +260,7 @@ public class base {
        {
            error = offset-tx;
            if (Math.abs(error) < 1.5) return 0;
-           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.01) + Math.signum(error) * turretkS;
+           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }
@@ -323,7 +324,7 @@ public class base {
                               }
                          else {//Limelight aiming
                                  if (valid) {
-                                    if(red) txoffset=-2; else txoffset=2;
+                                    if(red) txoffset=-2.5; else txoffset=2.5;
                                     turretPower = turretpid(0, 0, tx, txoffset, false);
                                     limelocked = true;
                                     Txgap = Math.abs(tx - txoffset);
