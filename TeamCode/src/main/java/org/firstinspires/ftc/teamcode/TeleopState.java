@@ -103,7 +103,7 @@ public class TeleopState extends LinearOpMode  {
 
     boolean[] flag = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-    boolean recevieinfo = false;
+    boolean recevieinfo = false,manualturn=false;
     FtcDashboard dashboard = FtcDashboard.getInstance();
   //  Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -280,12 +280,12 @@ public class TeleopState extends LinearOpMode  {
 //               telemetry.update();
             }
 
-            if(gamepad1.shareWasReleased()) {
-
-                      calibrate();
-
-
-            }
+//            if(gamepad1.shareWasReleased()) {
+//
+//                      calibrate();
+//
+//
+//            }
 
 
             if (drive) {
@@ -379,6 +379,7 @@ public class TeleopState extends LinearOpMode  {
        if(Math.abs(x)>0.3){
             if (x > 0.3) turnPower = -0.7;
            else  turnPower= 0.7;
+           manualturn=true;
          }
 
        else {
