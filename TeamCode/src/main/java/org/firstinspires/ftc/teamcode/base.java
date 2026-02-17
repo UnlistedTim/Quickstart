@@ -66,7 +66,7 @@ public class base {
 
 
     public double targetVel=0,targetpos;
-    public double blockClose = 0.35, blockOpen = 0.46;
+    public double blockClose = 0.11, blockOpen = 0.23;
     public double tripodIdle = 1.0, tripodPark = 0.35;
     public int beamscancount=0, turrettarget =0;
 
@@ -179,9 +179,7 @@ public class base {
                 turretPower= turretpid(turretPos,0,tx,offset,false);
 
                 limelocked=true;
-                targetpos=turretPos-tx*ticksPerDegree;
-
-
+              //  targetpos=turretPos-tx*ticksPerDegree;
                 Txgap=Math.abs(tx-offset);
                 if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
                     turretPower= -0.5;
@@ -198,29 +196,32 @@ public class base {
                 return  turretPower ;
             }
 
-            if (limelocked) {
 
-                turretPower= turretpid(turretPos,targetpos,tx,offset,true);
-                Txgap=Math.abs(offset+(targetpos-turretPos)/ticksPerDegree);
-                if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
-                    turretPower= -0.5;
-//                    target = 0;
-                    limelocked = false;
-                }
-                if (turretPos < (turretCwlim + 300) && turretPower< 0) {
-                    turretPower= 0.5;
-//                    target = 0;
-                    limelocked = false;
-                }
-                return turretPower;
-            }
+
+//            if (limelocked) {
+//
+//                turretPower= turretpid(turretPos,targetpos,tx,offset,true);
+//                Txgap=Math.abs(offset+(targetpos-turretPos)/ticksPerDegree);
+//                if (turretPos > turretCcwlim- 300 &&  turretPower  > 0) {
+//                    turretPower= -0.5;
+////                    target = 0;
+//                    limelocked = false;
+//                }
+//                if (turretPos < (turretCwlim + 300) && turretPower< 0) {
+//                    turretPower= 0.5;
+////                    target = 0;
+//                    limelocked = false;
+//                }
+//                return turretPower;
+//            }
 
 
         }
 
-       turretPower = turretpid(turretPos,target,tx,0,true);
+         turretPower = turretpid(turretPos,target,tx,0,true);
+         Txgap=Math.abs(targetpos-turretPos);
 
-        turretPower= Range.clip(turretPower,-turnMax,turnMax);
+         turretPower= Range.clip(turretPower,-turnMax,turnMax);
 
         return turretPower;
 
