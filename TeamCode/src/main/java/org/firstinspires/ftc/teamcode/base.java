@@ -88,32 +88,32 @@ public class base {
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.59,1560); //far         1700
-        Flylut.add(-12.79,1520); //far    1660
-        Flylut.add(-11.65,1380); //far    1520
-        Flylut.add(-9.26, 1220); //close   1340
-        Flylut.add(-5.5,1160); //close
-        Flylut.add(-1.19,1060); //close
-        Flylut.add(5.82,1040); //close
-        Flylut.add(14.07 , 1120); // close
-        Flylut.add(16 , 1120); // close
+        Flylut.add(-13.59,1590); //far         1700
+        Flylut.add(-12.79,1550); //far    1660
+        Flylut.add(-11.65,1410); //far    1520
+        Flylut.add(-9.26, 1240); //close   1340
+        Flylut.add(-5.5,1180); //close
+        Flylut.add(-1.19,1080); //close
+        Flylut.add(5.82,1060); //close
+        Flylut.add(14.07 , 1140); // close
+        Flylut.add(16 , 1140); // close
 
         Flylut.createLUT();
 
 
-        FlylutPP.add(0,1120); // only for data leakclose
-        FlylutPP.add(43.66,1120);
-        FlylutPP.add(53.3,1040);
-        FlylutPP.add(67.27,1060);
-        FlylutPP.add(81.75,1160);
-        FlylutPP.add(102.064,1220); //cloe
+        FlylutPP.add(0,1140); // only for data leakclose
+        FlylutPP.add(43.66,1140);
+        FlylutPP.add(53.3,1060);
+        FlylutPP.add(67.27,1080);
+        FlylutPP.add(81.75,1180);
+        FlylutPP.add(102.064,1240); //cloe
 
 
 
-        FlylutPP.add(124.33,1380); //far   1460
-        FlylutPP.add(140.74,1520); //far  1600
-        FlylutPP.add(156.09,1560); //far 1650
-        FlylutPP.add(200,1720);// only for data leak
+        FlylutPP.add(124.33,1410); //far   1460
+        FlylutPP.add(140.74,1550); //far  1600
+        FlylutPP.add(156.09,1590); //far 1650
+        FlylutPP.add(200,1730);// only for data leak
 
 
 
@@ -258,7 +258,7 @@ public class base {
        {
            error = offset-tx;
            if (Math.abs(error) < 1.5) return 0;
-           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
+           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.01) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }

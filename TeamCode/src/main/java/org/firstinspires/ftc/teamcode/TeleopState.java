@@ -236,7 +236,7 @@ public class TeleopState extends LinearOpMode  {
                     break;
                 case PARK:
 
-                    if (!lift &&turretPos < -9500){
+                    if (!lift &&turretPos < -11500){
 
                         Tripod.setPosition(rbg.tripodPark);
                         lift=true;
@@ -266,7 +266,7 @@ public class TeleopState extends LinearOpMode  {
                 lift = false;
                 flypower = 0;
                 intaketargetvel = 0;
-                rbg.turrettarget = -10000;
+                rbg.turrettarget = -12000;
 
 
 
@@ -375,13 +375,19 @@ public class TeleopState extends LinearOpMode  {
 //        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
 //       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
        if(Math.abs(x)>0.3){
-            if (x > 0.3) turnPower = -0.35;
-           else  turnPower= 0.35;
+            if (x > 0.3) turnPower = -0.7;
+           else  turnPower= 0.7;
          }
 
+       else {
+
            turnPower = rbg.turret(outtakestate, pose, turretPos, red, pinpoint_nav, limeValid, Tx, shooting);
+
+
+       }
            turretLeft.setPower(turnPower);
            turretRight.setPower(turnPower);
+
 
 
 

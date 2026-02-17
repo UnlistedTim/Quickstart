@@ -356,7 +356,7 @@ public class StaterobotDebug extends LinearOpMode {
 
             }
 
-            limelightturretPID();
+//            limelightturretPID();
 
 //            telemetry.addData("Tx",Tx);
 
@@ -387,7 +387,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 //            flyBANGBANG(flyVel);
 
-//            flyPID(flyVel);
+            flyPID(flyVel);
 
 //            telemetry.addData("Bottom BB state",botBB.getState());
 //            telemetry.addData("top BB state",topBB.getState());
