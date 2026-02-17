@@ -359,6 +359,18 @@ public class TeleopState extends LinearOpMode  {
               if(limeValid)  {
                   Tx=result.getTx();
                   Ty=result.getTy();
+
+                  if(red){
+                      if(Ty<-10.5) rbg.txoffset = -2.5;
+
+                      else rbg.txoffset = 0;
+                  } else {
+
+                      if(Ty<-10.5) rbg.txoffset =2.5;
+
+                      else rbg.txoffset = 0;
+
+                  }
                   if(pinpoint_nav) Tx_offset=rbg.txoffset;
 
                  // fardis= Ty < -10.5;// simpify

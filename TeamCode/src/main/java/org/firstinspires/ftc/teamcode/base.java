@@ -324,7 +324,6 @@ public class base {
                               }
                          else {//Limelight aiming
                                  if (valid) {
-                                    if(red) txoffset=-2.5; else txoffset=2.5;
                                     turretPower = turretpid(0, 0, tx, txoffset, false);
                                     limelocked = true;
                                     Txgap = Math.abs(tx - txoffset);

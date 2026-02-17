@@ -46,7 +46,7 @@ public class StateAuto extends OpMode {
     private boolean atopbb,abotbb,amidbb,configured=false,intakefull=false;
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
     public double hoodPos = 0,outtaketime=0;
-    public int shootState=0 ,turretTarget=0 ,turretredtarget1=-4000,turretbluetarget1=4000,turretredtarget2=-12000,turretbluetarget2=12000;;
+    public int shootState=0 ,turretTarget=0 ,turretredtarget1=-2333,turretbluetarget1=2333,turretredtarget2=-12864,turretbluetarget2=12864;
    public final int preshoot=0,shoot=1,done=2;
     int  turretPos;
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
@@ -244,11 +244,13 @@ public class StateAuto extends OpMode {
                 if(red) {
 
                     follower.followPath(RFStart1, 0.5,true);
+                    rbga.txoffset=-2;
                     turretTarget=turretredtarget1;
                 }
                 else {
 
                     follower.followPath(BFStart1,0.5, true);
+                    rbga.txoffset=2;
                     turretTarget=turretbluetarget1;
                 }
 
@@ -261,7 +263,7 @@ public class StateAuto extends OpMode {
 
                 break;
             case 1:
-                Ty = -12.0;   //-12.0
+                Ty = -11.8;   //-12.0
 
                 if(ashoot()) {
 
@@ -796,6 +798,7 @@ public class StateAuto extends OpMode {
                 Tx=result.getTx();
                 Ty=result.getTy();
             }
+            else Ty = -11.8;
             flyCurrentVel=flyBot.getVelocity();
 //
 
@@ -986,7 +989,7 @@ public class StateAuto extends OpMode {
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFpickup2PoseA, RFscorePose))
-                .setLinearHeadingInterpolation(RFpickup2PoseB.getHeading(), RFscorePose.getHeading())
+                .setLinearHeadingInterpolation(RFpickup2PoseA.getHeading(), RFscorePose.getHeading())
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -1016,6 +1019,8 @@ public class StateAuto extends OpMode {
                 .build();
 
 
+
+
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(BFpickup1PoseA, BFscorePose))
@@ -1037,8 +1042,8 @@ public class StateAuto extends OpMode {
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(BFpickup2PoseB, BFscorePose))
-                .setLinearHeadingInterpolation(BFpickup2PoseB.getHeading(), BFscorePose.getHeading())
+                .addPath(new BezierLine(BFpickup2PoseA, BFscorePose))
+                .setLinearHeadingInterpolation(BFpickup2PoseA.getHeading(), BFscorePose.getHeading())
                 .build();
 
 
@@ -1051,7 +1056,13 @@ public class StateAuto extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseB))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(BFpickup2Pose, BFpickup2PoseA))
+                // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(BFpickup2PoseA, BFpickup2Pose))
+                .setConstantHeadingInterpolation( 0)
                 .build();
+
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
 
