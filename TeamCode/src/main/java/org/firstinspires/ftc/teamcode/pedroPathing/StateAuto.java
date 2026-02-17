@@ -265,7 +265,7 @@ public class StateAuto extends OpMode {
 
                 if(ashoot()) {
 
-                    if (red) turretTarget=-turretredtarget2;
+                    if (red) turretTarget=turretredtarget2;
                     else turretTarget=turretbluetarget2;
 
 
@@ -694,7 +694,7 @@ public class StateAuto extends OpMode {
                 if (red) {
                     Limelight.pipelineSwitch(6);
 
-                    autoTurretOffset = -4;
+                    autoTurretOffset = -3;
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
@@ -870,6 +870,8 @@ public class StateAuto extends OpMode {
 
                 telemetry.addData("fly speed gap", rbga.flyspeedgap);
                 telemetry.addData("Angle", rbga.Txgap);
+                telemetry.addData("Angle", Ty);
+                telemetry.addData("Turret pos",turretPos);
                 telemetry.update();
 
 
@@ -1096,6 +1098,10 @@ public class StateAuto extends OpMode {
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

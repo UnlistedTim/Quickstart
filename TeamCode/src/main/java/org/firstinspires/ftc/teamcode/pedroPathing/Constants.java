@@ -28,7 +28,7 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(15.911)
+            .mass(15.38)
             .centripetalScaling(0.0005)
             .forwardZeroPowerAcceleration(-34.1233)
             .lateralZeroPowerAcceleration(-74.2839)
