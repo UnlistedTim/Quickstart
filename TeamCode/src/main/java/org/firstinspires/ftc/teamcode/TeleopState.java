@@ -935,6 +935,7 @@ public void turretspin()
     public boolean shoot(){
         switch (shootState){
             case START:
+                drive = false;
                 intaketargetvel=rbg.outtakVel;
                 Hood.setPosition(rbg.hoodposition(pinpoint_nav,Ty));
                 shooting = true;
@@ -944,7 +945,7 @@ public void turretspin()
                 break;
             case PRE_SHOOT:
                 if(rbg.flyspeedgap <= 40&& rbg.Txgap < 1.5){  // rbg.Txgap < 1
-                    drive = false;
+//                    drive = false;
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
                     shootState = ShootState.SHOOT;  //Unlock
