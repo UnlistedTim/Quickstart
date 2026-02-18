@@ -89,7 +89,7 @@ public class StateAuto extends OpMode {
     private Path scorePreload;
     private PathChain RFStart1,    RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
     private PathChain BFStart1,    BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BF1approchPickup2,BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
-    private PathChain RNscorstart0;
+    private PathChain RNscorstart0,RNapproachPickup1, RNopenGate1,RNscroeGate1,RNapproachPickup2, RNopenGate2, RNscoreGate2,RNapproachPickup3, RNscorePickup3,RNparkEnd;
   //          RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
 //    private PathChain approachPickup1, grabPickup1,scorePickup1, approachPickup2,grabPickup2, scorePickup2;
@@ -100,14 +100,18 @@ public class StateAuto extends OpMode {
     //neardistance
 
     private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
-    private final Pose RNscore0Pose = new Pose(-26, -28, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNscore0Pose = new Pose(-40, -38, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup1Pose = new Pose(-6, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+
+    private final Pose RNpickup2PoseA = new Pose(-40, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
     private final Pose RNpickup2Pose = new Pose(-6, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNscore1Pose = new Pose(-40, -38, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNpickup3PoseA = new Pose(-40, -76, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup3Pose = new Pose(-6, -76, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose RNscore2Pose = new Pose(-40, -0, Math.toRadians(270));
+    private final Pose RNscore3Pose = new Pose(-40, -0, Math.toRadians(0));
+
 
 
 
@@ -117,9 +121,47 @@ public class StateAuto extends OpMode {
 //nearside
         RNscorstart0 = follower.pathBuilder()
                 .addPath(new BezierLine(RNstartPose, RNscore0Pose))
-                .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFstart1Pose.getHeading())
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNapproachPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore0Pose, RNpickup1Pose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNopenGate1 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup1Pose, RNgatePose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNscroeGate1 = follower.pathBuilder()
+                .addPath(new BezierLine(RNgatePose, RNscore1Pose))
+                .setConstantHeadingInterpolation( 0)
                 .build();
 
+        RNapproachPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore1Pose, RNpickup2PoseA))
+                .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RNpickup2PoseA, RNpickup2Pose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNopenGate2 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup2Pose, RNgatePose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNapproachPickup3 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore1Pose, RNpickup3PoseA))
+                .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RNpickup2PoseA, RNpickup3Pose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNscorePickup3 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup3Pose, RNscore3Pose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+
+        RNparkEnd = follower.pathBuilder()
+
+                .addPath(new BezierLine(RNscore3Pose, RNendPose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
 
 //     //   RNapproachPickup1 = follower.pathBuilder()
 //                .addPath(new BezierLine(RNscore0Pose, RFpickup1Pose))
@@ -443,14 +485,13 @@ public class StateAuto extends OpMode {
 
             case 0:
 
-                if(red) follower.followPath(RNscorstart0,false);
+                if(red) {follower.followPath(RNscorstart0,true);  turretTarget=turretredtarget2;}
                 else follower.followPath(BFapproachPickup1,0.5, true);
-                turretTarget=-12000;
-                flypower=0.6;
+               rbga.flypower2=0.6;
+
                // Ty = -12.2;
               Hood.setPosition(rbga.hoodnearpose);
-
-                setPathState(2);
+              setPathState(2);
 
 
 
@@ -461,107 +502,143 @@ public class StateAuto extends OpMode {
 
 
             case 3:
-                if(ashoot()) setPathState(5);
-
-
-            case 5:
-
-                if (!follower.isBusy()) {
-                    /* Grab Sample */
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    if(red) follower.followPath(RFgrabPickup1, 0.35,true);
-                    else follower.followPath(BFgrabPickup1, 0.35,true);
-                    flypower=rbga.flypower2;
+                if(ashoot()) {
+                    if(red)follower.followPath(RNapproachPickup1,0.6,true);
+                    else ;
                     setPathState(6);
+
                 }
-                break;
+
             case 6:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if (!follower.isBusy()|| rbga.beamscanintake(atopbb,amidbb,abotbb)) {
+                    intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (!follower.isBusy()|| intakefull) {
 
-                    if(red) follower.followPath(RFscorePickup1, true);
-                    else follower.followPath(BFscorePickup1, true);
-                    intaketargtvel=0;
-                    setPathState(7);
-
-                }
-                break;
-            case 7:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-
-                if (!follower.isBusy()) {
+                    if(red) follower.followPath(RNopenGate1, 0.6,true);
+                    else follower.followPath(BFgrabPickup1, 0.6,true);
+                    flypower=rbga.flypower2;
+                    if(intakefull) intaketargtvel=0;
                     setPathState(10);
                 }
                 break;
-
             case 10:
-                if(ashoot()) setPathState(11);
-                break;
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                if (!follower.isBusy()) {
 
-            case 11:
+                    if(red) follower.followPath(RNscroeGate1, true);
+                    else follower.followPath(BFscorePickup1, true);
 
-                if(firstshoot) {
-                    if (red) follower.followPath(RF1approchPickup2, false);
-                    //      else follower.followPath(BFapproachPickup2, false);
-                    firstshoot=false;
-                    setPathState(14);
-                    flypower=rbga.flypower2;
-                    if (red) turretTarget=-12000;
-                    else turretTarget=12000;
-                    rbga.turrettarget = turretTarget;
-                    break;
+                    setPathState(13);
+
                 }
-
-                if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
-                else {
-                    if (red) follower.followPath(RFapproachPickup2, false);
-                    else follower.followPath(BFapproachPickup2, false);
-                    setPathState(14);
-                    flypower=rbga.flypower2;
-                    if (red) turretTarget=-12000;
-                    else turretTarget=12000;
-                    rbga.turrettarget = turretTarget;
-                }
-
                 break;
+            case 12:
+            /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+            if (!follower.isBusy()) {
+
+
+
+                setPathState(14);
+
+            }
+            break;
+
+
 
             case 14:
+                if(ashoot()) {
+                    if (red) follower.followPath(RNapproachPickup2, 0.6, true);
+                    else ;
+
+                    setPathState(16);
+                }
+
+            case 16:
+
+                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (!follower.isBusy()|| intakefull) {
+
+                    if(red) follower.followPath(RNopenGate2, 0.6,true);
+                    else follower.followPath(BFgrabPickup1, 0.6,true);
+                    flypower=rbga.flypower2;
+                    if(intakefull) intaketargtvel=0;
+                    setPathState(18);
+                }
+                break;
+
+
+            case 18:
 
                 if (!follower.isBusy()) {
-                    actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, false);
+
+                    if(red)follower.followPath(RNscoreGate2, false);
                     else follower.followPath(BFgrabPickup2, false);
-                    setPathState(17);
+                    setPathState(20);
 
 
                 }
                 break;
 
-            case 17:
+            case 20:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
-                if (intakefull||actionTimer.getElapsedTime()>1800) {
-                    if(red) follower.followPath(RFscorePickup2,true);
-                    else follower.followPath(BFscorePickup2,true);
-                    setPathState(19);
-                }
-
-                break;
-
-            case 19:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-
                 if (!follower.isBusy()) {//cycle wall grab and shooting
-                    setPathState(10);
+                    setPathState(22);
                 }
                 break;
+
+
+            case 22:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(ashoot()) {
+                    if (red) follower.followPath(RNapproachPickup3, 0.6, true);
+                    else ;
+
+                    setPathState(25);
+                }
+
+                break;
+
+            case 25:
+                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (!follower.isBusy()|| intakefull) {
+
+                    if(red) follower.followPath(RNscorePickup3, 0.6,true);
+                    else follower.followPath(BFgrabPickup1, 0.6,true);
+                    flypower=rbga.flypower2;
+                    if(intakefull) intaketargtvel=0;
+                    setPathState(27);
+                }
+                break;
+            case 27:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if (!follower.isBusy()) {//cycle wall grab and shooting
+                    setPathState(29);
+                }
+                break;
+
+
+            case 29:
+                if(ashoot()) {
+
+                    setPathState(101);
+                }
+
+                break;
+            case 30:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if (!follower.isBusy()) {//cycle wall grab and shooting
+                    setPathState(101);
+                }
+                break;
+
             case 101:
+                shooting=false;
                 flypower=0;
                 rbga.turret_offset = 0;
-                if(red)follower.followPath(RFparkEnd, true);
-                else follower.followPath(BFparkEnd, true);
+                intaketargtvel=0;
                 turretTarget=0;
-                rbga.turrettarget = turretTarget;
+                if(red)follower.followPath(RNparkEnd, true);
+                else follower.followPath(BFparkEnd, true);
+
                 setPathState(103);
 
 
@@ -573,10 +650,8 @@ public class StateAuto extends OpMode {
             case 103: /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-                    flypower=0;
-                    flyprepower(0);
+
                     Blocker.setPosition(rbga.blockClose);
-                    Intake(0);
                     actionTimer.resetTimer();
                     setPathState(105);
 
@@ -598,6 +673,8 @@ public class StateAuto extends OpMode {
                         //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
                     blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
+
+                    blackboard.put("T", turretPos);
 
                     setPathState(200);
                 }
@@ -981,6 +1058,7 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseB, RFpickup2PoseA))
+                .setTValueConstraint(300)
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2Pose))
                 .setConstantHeadingInterpolation( 0)
@@ -1057,6 +1135,7 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseB))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(new BezierLine(BFpickup2Pose, BFpickup2PoseA))
+                .setTValueConstraint(300)
                 // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(new BezierLine(BFpickup2PoseA, BFpickup2Pose))
