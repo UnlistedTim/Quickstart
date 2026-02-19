@@ -194,8 +194,6 @@ public class StateAuto extends OpMode {
         switch (pathState) {
 
             case 0:
-
-
                 outtaketimer.resetTimer();
 
 //                rbga.txoffset = 2;
@@ -206,18 +204,21 @@ public class StateAuto extends OpMode {
                     follower.followPath(RFStart1, 0.5,true);
                     rbga.txoffset=-2;
                     turretTarget=turretredtarget1;
+
                 }
                 else {
 
                     follower.followPath(BFStart1,0.5, true);
                     rbga.txoffset=2;
                     turretTarget=turretbluetarget1;
+
+
                 }
 
                 if(fardis) Hood.setPosition(rbga.hoodfarpos);
 
-
                 setPathState(1);
+
 
 
 
@@ -733,12 +734,12 @@ public class StateAuto extends OpMode {
             else telemetry.addLine("N3rd Row Auto Not Selected");
             Limelight.start();
             blackboard.put("COLOR",  red);
-            setPathState(0);
+
             telemetry.update();
 
         }
         opmodeTimer.resetTimer();
-
+        setPathState(0);
 
     }
 
@@ -830,8 +831,6 @@ public class StateAuto extends OpMode {
             case 0:
 
                 shooting = true;
-               if(intakefull) intaketargtvel=outakestdvel;
-               else intaketargtvel=outtakebstvel;
                intakefull=false;
                rbga.Txgap = 30;//avoid to use last time valu
                 shootstep = 1;
@@ -841,7 +840,8 @@ public class StateAuto extends OpMode {
 
             case 1:
                 if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 1500) {
-
+                    if(intakefull) intaketargtvel=outakestdvel;
+                    else intaketargtvel=outtakebstvel;
                     Blocker.setPosition(rbga.blockOpen);
                     outtaketimer.resetTimer();
                     shootstep = 2;
