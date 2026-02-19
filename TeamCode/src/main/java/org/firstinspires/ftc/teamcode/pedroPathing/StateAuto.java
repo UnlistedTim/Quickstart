@@ -88,8 +88,8 @@ public class StateAuto extends OpMode {
 
 
     private Path scorePreload;
-    private PathChain RFStart1,    RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
-    private PathChain BFStart1,    BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BF1approchPickup2,BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
+    private PathChain RFStart1,   RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2B, RFgrabPickupB2,RFscorePickup2,RFparkEnd;
+    private PathChain BFStart1,    BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BF1approchPickup2,BFapproachPickup2,BFgrabPickup2B, BFgrabPickupB2,BFscorePickup2,BFparkEnd;
     private PathChain RNscorstart0,RNapproachPickup1, RNopenGate1,RNscoreGate1,RNapproachPickup2, RNopenGate2, RNscoreGate2,RNapproachPickup3, RNscorePickup3,RNparkEnd;
   //          RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
@@ -292,8 +292,6 @@ public class StateAuto extends OpMode {
                    flypower=rbga.flypower2;
                    if (red) turretTarget=turretredtarget2;
                    else turretTarget=turretbluetarget2;
-
-                //   rbga.turrettarget = turretTarget;
                    break;
                }
 
@@ -311,26 +309,48 @@ public class StateAuto extends OpMode {
                 break;
 
             case 14:
+                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (intakefull)   setPathState(18);
 
                 if (!follower.isBusy()) {
-                    actionTimer.resetTimer();
-                    if(red)follower.followPath(RFgrabPickup2, false);
-                    else follower.followPath(BFgrabPickup2, false);
+                 //   actionTimer.resetTimer();
+                    if(red)follower.followPath(RFgrabPickup2B, false);
+                    else follower.followPath(BFgrabPickup2B, false);
+                    setPathState(15);
+
+
+                }
+                break;
+
+            case 15:
+                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (intakefull)   setPathState(18);
+                if (!follower.isBusy()) {
+
+                    if(red)follower.followPath(RFgrabPickupB2, false);
+                    else follower.followPath(BFgrabPickupB2, false);
                     setPathState(17);
 
 
                 }
                 break;
 
+
             case 17:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                    intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
-                if (intakefull||actionTimer.getElapsedTime()>2500) {
-                    if(red) follower.followPath(RFscorePickup2,true);
-                    else follower.followPath(BFscorePickup2,true);
-                    if(intakefull) intaketargtvel=0;
-                    setPathState(19);
+                intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
+                if (intakefull)   setPathState(18);
+                if (!follower.isBusy()) {
+                    setPathState(18);
                 }
+
+                break;
+
+            case 18:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+
+                if (red) follower.followPath(RFscorePickup2, true);
+                else  follower.followPath(BFscorePickup2, true);
 
                 break;
 
@@ -948,23 +968,27 @@ public class StateAuto extends OpMode {
                 .setLinearHeadingInterpolation(RFscorePose.getHeading(), RFpickup2Pose.getHeading(),0.5)
                 .build();
 
-        RFgrabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(RFpickup2Pose, RFpickup2PoseA))
-                // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                //.setConstantHeadingInterpolation(Math.toRadians(RFpickup2Pose.getHeading()))
-                .setConstantHeadingInterpolation( 0)
-                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
-                .setConstantHeadingInterpolation( 0)
+
+
+
+        RFgrabPickupB2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFpickup2PoseB, RFpickup2PoseA))
-                .setTValueConstraint(500)
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2Pose))
                 .setConstantHeadingInterpolation( 0)
                 .build();
 
+
+        RFgrabPickup2B = follower.pathBuilder()
+                .addPath(new BezierLine(RFpickup2Pose, RFpickup2PoseA))
+                .setConstantHeadingInterpolation( 0)
+                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(RFpickup2PoseA, RFscorePose))
+                .addPath(new BezierCurve(follower::getPose, RFscorePose))
                 .setConstantHeadingInterpolation( 0)
                 .build();
 
@@ -1011,28 +1035,32 @@ public class StateAuto extends OpMode {
 
         BF1approchPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(BFstart1Pose, BFpickup2Pose))
-                .setLinearHeadingInterpolation(BFstart1Pose.getHeading(), BFpickup2Pose.getHeading(),0.5)
+                .setLinearHeadingInterpolation(BFstart1Pose.getHeading(), BFpickup2Pose.getHeading())
                 .build();
 
 
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(BFpickup2PoseA, BFscorePose))
-                .setLinearHeadingInterpolation(BFpickup2PoseA.getHeading(), BFscorePose.getHeading())
+                .addPath(new BezierCurve(follower::getPose, BFscorePose))
+                .setConstantHeadingInterpolation( 0)
                 .build();
 
 
 
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        BFgrabPickup2 = follower.pathBuilder()
+        BFgrabPickup2B = follower.pathBuilder()
                 .addPath(new BezierLine(BFpickup2Pose, BFpickup2PoseA))
                 // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseB))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(new BezierLine(BFpickup2Pose, BFpickup2PoseA))
+                .build();
+
+
+        BFgrabPickupB2 = follower.pathBuilder()
+                .addPath(new BezierLine(BFpickup2PoseB, BFpickup2PoseA))
                 .setTValueConstraint(300)
                 // .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
                 .setConstantHeadingInterpolation(Math.toRadians(180))
