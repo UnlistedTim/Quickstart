@@ -60,7 +60,7 @@ public class TeleopState extends LinearOpMode  {
 
     public boolean topbb=true,botbb=true,midbb=true,intakefirst=false;
 
-    public boolean prevBBState = true,outscan;
+
 
 
 
@@ -218,7 +218,7 @@ public class TeleopState extends LinearOpMode  {
                             Led.setPosition(rbg.ledred);
                             gamepad1.rumble(500);
                              intaketargetvel=0;
-                           if(!manual) outtakestate=true;
+                            outtakestate=true;
                             intakestate=false;
                             shootState=ShootState.START;
                     }
@@ -389,7 +389,7 @@ public class TeleopState extends LinearOpMode  {
 
        else {
 
-           turnPower = rbg.turret(outtakestate, pose, turretPos, red, pinpoint_nav, limeValid, Tx, shooting);
+           turnPower = rbg.turret(outtakestate&&!manual, pose, turretPos, red, pinpoint_nav, limeValid, Tx, shooting);
 
        }
         if (turretPos > rbg.turretCcwlim- 300 &&  turnPower  > 0) {
@@ -536,15 +536,7 @@ public class TeleopState extends LinearOpMode  {
 //
 //    }
 
-    public void resetIntakeVars(){
-        breakInARow = 0;
-        ball_count = 0;
-        debounce = false;
-        i = 0;
-        boolean debouncearr[] =  {false,false,false};
-        prevBBState = true;
 
-    }
 
 
 
@@ -944,7 +936,7 @@ public void turretspin()
                     Blocker.setPosition(rbg.blockOpen);
                     stoptimers(0, outtake);
                     shootState = ShootState.SHOOT;  //Unlock
-                    outscan=false;
+
                 }
                 break;
 
