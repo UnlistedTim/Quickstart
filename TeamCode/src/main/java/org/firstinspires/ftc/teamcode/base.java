@@ -77,8 +77,8 @@ public class base {
     PIDController flyPID = new PIDController(flyp, flyi, flyd);
     public PIDController intakePID=new PIDController(intakep, intakei, intaked);
  //   double Tx_offset=0;
-    int turretCwlim=-14000;
-    int turretCcwlim=14000;
+    int turretCwlim=-15000;
+    int turretCcwlim=15000;
     public final int intakeVel = 1500,outtakVel=1500;
 
     public void  init()
@@ -260,7 +260,8 @@ public class base {
        {
            error = offset-tx;
            if (Math.abs(error) < 1.5) return 0;
-           if (Math.abs (currentpos) > 10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
+          if ( currentpos <-10000) return error * (turretkPtx+0.004) + Math.signum(error) * turretkS;
+          if (currentpos>10000) return error * (turretkPtx + 0.008) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }
