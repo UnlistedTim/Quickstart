@@ -196,13 +196,12 @@ public class StateAuto extends OpMode {
             case 0:
                 outtaketimer.resetTimer();
 
-//                rbga.txoffset = 2;
-
 
                 if(red) {
 
                     follower.followPath(RFStart1, 0.5,true);
                     rbga.txoffset=-2;
+                    autoTurretOffset = -2.5;
                     turretTarget=turretredtarget1;
 
                 }
@@ -210,6 +209,7 @@ public class StateAuto extends OpMode {
 
                     follower.followPath(BFStart1,0.5, true);
                     rbga.txoffset=2;
+                    autoTurretOffset = 4;
                     turretTarget=turretbluetarget1;
 
 
@@ -673,7 +673,6 @@ public class StateAuto extends OpMode {
                 if (red) {
                     Limelight.pipelineSwitch(2);
 
-                    autoTurretOffset = -3;
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                     rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
@@ -839,7 +838,7 @@ public class StateAuto extends OpMode {
 
 
             case 1:
-                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 1500) {
+                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 1000) {
                     if(intakefull) intaketargtvel=outakestdvel;
                     else intaketargtvel=outtakebstvel;
                     Blocker.setPosition(rbga.blockOpen);
