@@ -623,7 +623,7 @@ public class StateAuto extends OpMode {
         nearbuildPaths();
        // follower.setStartingPose(RFstartPose);
 
-        follower.setStartingPose(RNstartPose);
+        follower.setStartingPose(RFstartPose);
        // telemetry.addLine("Turn the camera to the shooting target");
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
