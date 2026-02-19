@@ -297,8 +297,8 @@ public class StateAuto extends OpMode {
                    break;
                }
 
-                  if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
-                  else {
+              if (opmodeTimer.getElapsedTime() > 24000)  setPathState(101);
+              else {
                       if (red) follower.followPath(RFapproachPickup2, false);
                       else follower.followPath(BFapproachPickup2, false);
                       setPathState(14);
@@ -957,7 +957,7 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseB))
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseB, RFpickup2PoseA))
-                .setTValueConstraint(300)
+                .setTValueConstraint(500)
                 .setConstantHeadingInterpolation( 0)
                 .addPath(new BezierLine(RFpickup2PoseA, RFpickup2Pose))
                 .setConstantHeadingInterpolation( 0)
@@ -966,7 +966,7 @@ public class StateAuto extends OpMode {
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RFpickup2PoseA, RFscorePose))
-                .setLinearHeadingInterpolation(RFpickup2PoseA.getHeading(), RFscorePose.getHeading())
+                .setConstantHeadingInterpolation( 0)
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
