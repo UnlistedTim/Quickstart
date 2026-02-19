@@ -117,7 +117,7 @@ public class TeleopState extends LinearOpMode  {
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double  startime=0, intaketargetvel=1500;
-    double Tx = 100,manualTy=8.5;//todo
+    double Tx = 100,manualTy=-8.5;//todo
     public static double Tx_offset = 0;
 
 
@@ -203,7 +203,7 @@ public class TeleopState extends LinearOpMode  {
 //
 //                    break;
                 case IDLE:
-                    if (stoptimers(300,intake )){
+                    if (stoptimers(500,intake )){
                         intakeStart();
                         state = State.INTAKE;
                         stoptimers(0,intake);
@@ -366,6 +366,8 @@ public class TeleopState extends LinearOpMode  {
 
                  // fardis= Ty < -10.5;// simpify
            }
+
+              if (manual) Ty = manualTy;
 
          // }
           flyCurrentVel=flyBot.getVelocity();

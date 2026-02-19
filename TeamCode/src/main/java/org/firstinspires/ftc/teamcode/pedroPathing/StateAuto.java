@@ -64,10 +64,11 @@ public class StateAuto extends OpMode {
     private final Pose RFstart1Pose = new Pose(0, 6, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose RFscorePose = new Pose(0, 6, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RFpickup1Pose = new Pose(12, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose RFpickup1PoseA = new Pose(38, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RFpickup1PoseA = new Pose(40, 23, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2Pose = new Pose(36, -2, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseA = new Pose(34, 8, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RFpickup2PoseB = new Pose(40, 8, Math.toRadians(0));
+    private final Pose RFpickup2PoseC = new Pose(40, 0, Math.toRadians(0));
     private final Pose RFendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
 
@@ -78,12 +79,12 @@ public class StateAuto extends OpMode {
 
     private final Pose BFscorePose = new Pose(0, 6, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose BFpickup1Pose = new Pose(-12, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose BFpickup1PoseA = new Pose(-38, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose BFpickup1PoseA = new Pose(-40, 23, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BFpickup2Pose = new Pose(-36, -2, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BFpickup2PoseA = new Pose(-34, 8, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
 
     private final Pose BFpickup2PoseB = new Pose(-40, 8, Math.toRadians(180));
-
+    private final Pose BFpickup2PoseC = new Pose(-40, 0, Math.toRadians(180));
     private final Pose BFendPose = new Pose(-12, 10, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
 
@@ -245,8 +246,8 @@ public class StateAuto extends OpMode {
                 if (!follower.isBusy()) {
                     /* Grab Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    if(red) follower.followPath(RFgrabPickup1, 0.45,true);
-                    else follower.followPath(BFgrabPickup1, 0.45,true);
+                    if(red) follower.followPath(RFgrabPickup1, 0.4,true);
+                    else follower.followPath(BFgrabPickup1, 0.4,true);
                     flypower=rbga.flypower2;
                     setPathState(6);
                 }
@@ -334,7 +335,7 @@ public class StateAuto extends OpMode {
                         rbga.turret_offset = 0;
                         if(red)follower.followPath(RFparkEnd, true);
                         else follower.followPath(BFparkEnd, true);
-                        Intake(0);
+                        intaketargtvel = 0;
                         setPathState(103);
                         Blocker.setPosition(rbga.blockClose);
 
@@ -942,7 +943,7 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(RFpickup2PoseB, RFpickup2PoseA))
                 .setConstantHeadingInterpolation( 0)
                 .setTimeoutConstraint(300)
-                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2Pose))
+                .addPath(new BezierLine(RFpickup2PoseA, RFpickup2PoseC))
                 .setConstantHeadingInterpolation( 0)
 
                 .build();
@@ -1048,7 +1049,7 @@ public class StateAuto extends OpMode {
                 .addPath(new BezierLine(BFpickup2PoseB, BFpickup2PoseA))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .setTimeoutConstraint(300)
-                .addPath(new BezierLine(BFpickup2PoseA, BFpickup2Pose))
+                .addPath(new BezierLine(BFpickup2PoseA, BFpickup2PoseC))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
 
                 .build();
