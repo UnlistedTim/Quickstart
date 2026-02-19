@@ -12,25 +12,19 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.base;
 
 
-@Autonomous(name = " StateAuto", group = "A")
-public class StateAuto extends OpMode {
+@Autonomous(name = " StateAutoNear", group = "A")
+public class StateAutoNear extends OpMode {
 
     private Follower follower;
 
@@ -90,7 +84,7 @@ public class StateAuto extends OpMode {
     private Path scorePreload;
     private PathChain RFStart1,   RFapproachPickup1, RFgrabPickup1,RFscorePickup1, RF1approchPickup2,RFapproachPickup2,RFgrabPickup2B, RFgrabPickupB2,RFgrabPickup2B2,RFscorePickup2,RFparkEnd;
     private PathChain BFStart1,    BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BF1approchPickup2,BFapproachPickup2,BFgrabPickup2B, BFgrabPickup2B2,BFgrabPickupB2,BFscorePickup2,BFparkEnd;
-    private PathChain RNscorstart0,RNapproachPickup1, RNopenGate1,RNscoreGate1,RNapproachPickup2, RNopenGate2, RNscoreGate2,RNapproachPickup3, RNscorePickup3,RNparkEnd;
+    private PathChain RNscorstart0,RNapproachPickup1, RNopenGate1,RNscoreGate1,RNapproachPickup2, RNgrabPickup2,RNopenGate2, RNscoreGate2,RNapproachPickup3, RNgrabPickup3,RNscorePickup3,RNparkEnd;
   //          RFgrabPickup1,RFscorePickup1, RFapproachPickup2,RFgrabPickup2, RFscorePickup2,RFparkEnd;
    // private PathChain BFapproachPickup1, BFgrabPickup1,BFscorePickup1, BFapproachPickup2,BFgrabPickup2, BFscorePickup2,BFparkEnd;
 //    private PathChain approachPickup1, grabPickup1,scorePickup1, approachPickup2,grabPickup2, scorePickup2;
@@ -100,20 +94,19 @@ public class StateAuto extends OpMode {
 
     //neardistance
 
-//    private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
-//    private final Pose RNscore0Pose = new Pose(-30, -26, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-//    private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-//    private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-//    private final Pose RNgatePoseC1 = new Pose(-6, -33, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
-//    private final Pose RNgatePoseC2 = new Pose(-6, -43, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Ma
-//
-//    private final Pose RNpickup2PoseA = new Pose(-40, -50, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
-//    private final Pose RNpickup2Pose = new Pose(-6, -50, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-//    private final Pose RNscore1Pose = new Pose(-30, -26, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-//    private final Pose RNpickup3PoseA = new Pose(-40, -74, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-//    private final Pose RNpickup3Pose = new Pose(-6, -74, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-//    private final Pose RNendPose = new Pose(12, 10, Math.toRadians(0)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-//    private final Pose RNscore3Pose = new Pose(-40, 0, Math.toRadians(0));
+    private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
+    private final Pose RNscore0Pose = new Pose(-34, -28, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RNgatePoseC1 = new Pose(-6, -33, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose RNgatePoseC2 = new Pose(-6, -43, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Ma
+
+    private final Pose RNpickup2PoseA = new Pose(-31, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
+    private final Pose RNpickup2Pose = new Pose(-6, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNscore1Pose = new Pose(-32, -27, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNpickup3PoseA = new Pose(-31, -73, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup3Pose = new Pose(-10, -76, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNscore3Pose = new Pose(-40, -10, Math.toRadians(315));
 
 
 
@@ -122,62 +115,73 @@ public class StateAuto extends OpMode {
     public void nearbuildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //nearside
-//        RNscorstart0 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNstartPose, RNscore0Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//        RNapproachPickup1 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNscore0Pose, RNpickup1Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//        RNscoreGate1 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNgatePose, RNscore1Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//        RNopenGate1 = follower.pathBuilder()
-//                .addPath(new BezierCurve(RNpickup1Pose,RNgatePoseC1,RNgatePose))
-//                .setConstantHeadingInterpolation( 0)
-//                .setTValueConstraint(1000)
-//                .build();
-//
-//        RNopenGate2 = follower.pathBuilder()
-//                .addPath(new BezierCurve(RNpickup2Pose,RNgatePoseC2,RNgatePose))
-//                .setConstantHeadingInterpolation( 0)
-//                .setTValueConstraint(1000)
-//                .build();
-//
-//        RNscoreGate2 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNgatePose, RNscore1Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//        RNapproachPickup2 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNscore1Pose, RNpickup2PoseA))
-//                .setConstantHeadingInterpolation( 0)
-//                .addPath(new BezierLine(RNpickup2PoseA, RNpickup2Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//
-//        RNapproachPickup3 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNscore1Pose, RNpickup3PoseA))
-//                .setConstantHeadingInterpolation( 0)
-//                .addPath(new BezierLine(RNpickup2PoseA, RNpickup3Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//        RNscorePickup3 = follower.pathBuilder()
-//                .addPath(new BezierLine(RNpickup3Pose, RNscore3Pose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
-//
-//        RNparkEnd = follower.pathBuilder()
-//
-//                .addPath(new BezierLine(RNscore3Pose, RNendPose))
-//                .setConstantHeadingInterpolation( 0)
-//                .build();
+        RNscorstart0 = follower.pathBuilder()
+                .addPath(new BezierLine(RNstartPose, RNscore0Pose))
+                .setConstantHeadingInterpolation( 0)
+               // .setBrakingStrength(0.6)
+                .build();
+        RNapproachPickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore0Pose, RNpickup1Pose))
+                .setConstantHeadingInterpolation( 0)
+                .setBrakingStrength(0.6)
+                .build();
+        RNscoreGate1 = follower.pathBuilder()
+                .addPath(new BezierLine(RNgatePose, RNscore1Pose))
+                .setConstantHeadingInterpolation( 0)
+              //  .setBrakingStrength(0.6)
+                .build();
+        RNopenGate1 = follower.pathBuilder()
+                .addPath(new BezierCurve(RNpickup1Pose,RNgatePoseC1,RNgatePose))
+                .setConstantHeadingInterpolation( 0)
+                .setTimeoutConstraint(500)
+                .build();
 
-//     //   RNapproachPickup1 = follower.pathBuilder()
+        RNopenGate2 = follower.pathBuilder()
+                .addPath(new BezierCurve(RNpickup2Pose,RNgatePoseC2,RNgatePose))
+                .setConstantHeadingInterpolation( 0)
+                .setTimeoutConstraint(500)
+                .build();
+
+        RNscoreGate2 = follower.pathBuilder()
+                .addPath(new BezierLine(RNgatePose, RNscore1Pose))
+                .setConstantHeadingInterpolation( 0)
+                .build();
+        RNapproachPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore1Pose, RNpickup2PoseA))
+                .setConstantHeadingInterpolation( 0)
+                .setBrakingStrength(0.6)
+
+                .build();
+
+
+        RNgrabPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup2PoseA, RNpickup2Pose))
+                .setConstantHeadingInterpolation( 0)
+               // .setBrakingStrength(0.6)
+                .build();
+
+        RNapproachPickup3 = follower.pathBuilder()
+                .addPath(new BezierLine(RNscore1Pose, RNpickup3PoseA))
+                .setConstantHeadingInterpolation( 0)
+                 .build();
+        RNgrabPickup3 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup3PoseA, RNpickup3Pose))
+                .setConstantHeadingInterpolation( 0)
+            //    .setBrakingStrength(0.6)
+                .build();
+
+        RNscorePickup3 = follower.pathBuilder()
+                .addPath(new BezierLine(RNpickup3Pose, RNscore3Pose))
+                .setLinearHeadingInterpolation(RNpickup3Pose.getHeading(), RNscore3Pose.getHeading())
+                //.setBrakingStrength(0.6)
+                .build();
+
+
+//        RNapproachPickup1 = follower.pathBuilder()
 //                .addPath(new BezierLine(RNscore0Pose, RFpickup1Pose))
 //                .setLinearHeadingInterpolation(RFstart1Pose.getHeading(), RFpickup1Pose.getHeading())
-//
+//                .build();
+
 
 
     }
@@ -417,7 +421,7 @@ public class StateAuto extends OpMode {
                     intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
                 if (!follower.isBusy()|| intakefull) {
 
-                    if(red) follower.followPath(RNopenGate1, 0.8,true);
+                    if(red) follower.followPath(RNopenGate1,true);
                     else follower.followPath(BFgrabPickup1, true);
                     flypower=rbga.flypower2;
                     if(intakefull) intaketargtvel=0;
@@ -428,7 +432,7 @@ public class StateAuto extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if (!follower.isBusy()) {
 
-                    if(red) follower.followPath(RNscoreGate1, 0.7,true);
+                    if(red) follower.followPath(RNscoreGate1, true);
                     else follower.followPath(BFscorePickup1, true);
 
                     setPathState(12);
@@ -450,11 +454,25 @@ public class StateAuto extends OpMode {
 
             case 14:
                 if(ashoot()) {
-                    if (red) follower.followPath(RNapproachPickup2, 0.7, false);
+                    if (red) follower.followPath(RNapproachPickup2,  false);
 
-                    setPathState(16);
+                    setPathState(15);
                 }
                 break;
+
+
+            case 15:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                if (!follower.isBusy()) {
+
+                    if(red) follower.followPath(RNgrabPickup2, 0.5,true);
+                    else follower.followPath(BFscorePickup1, true);
+
+                    setPathState(16);
+
+                }
+                break;
+
 
             case 16:
 
@@ -493,20 +511,31 @@ public class StateAuto extends OpMode {
             case 22:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(ashoot()) {
-                    if (red) follower.followPath(RNapproachPickup3, 0.6, true);
+                    if (red) follower.followPath(RNapproachPickup3,  false);
                     else ;
 
-                    setPathState(25);
+                    setPathState(23);
                     autoTurretOffset=1;
                 }
 
+                break;
+            case 23:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                if (!follower.isBusy()) {
+
+                    if(red) follower.followPath(RNgrabPickup3, 0.5,true);
+                    else follower.followPath(BFscorePickup1, true);
+
+                    setPathState(25);
+
+                }
                 break;
 
             case 25:
                 intakefull=rbga.beamscanintake(atopbb,amidbb,abotbb);
                 if (!follower.isBusy()|| intakefull) {
 
-                    if(red) follower.followPath(RNscorePickup3, 0.6,true);
+                    if(red) follower.followPath(RNscorePickup3, true);
                     else follower.followPath(BFgrabPickup1, 0.6,true);
                     flypower=rbga.flypower2;
                     if(intakefull) intaketargtvel=0;
@@ -577,10 +606,10 @@ public class StateAuto extends OpMode {
     public void loop() {
         follower.update();
         statusupdate();
-       FarPathUpdate();
-      //  NearPathUpdate();
+     //  FarPathUpdate();
+        NearPathUpdate();
         turntable();
-     //   autonomousNearPathUpdate();
+
 
         // Feedback to Driver fHub for debugging
      telemetry.addData("path state", pathState);
@@ -604,11 +633,11 @@ public class StateAuto extends OpMode {
         rbga.init();
         setPathState(0);
         follower = Constants.createFollower(hardwareMap);
-        farbuildPaths();
-       // nearbuildPaths();
-       // follower.setStartingPose(RFstartPose);
+      //  farbuildPaths();
+       nearbuildPaths();
+      follower.setStartingPose(RNstartPose);
 
-        follower.setStartingPose(RFstartPose);
+       // follower.setStartingPose(RFstartPose);
        // telemetry.addLine("Turn the camera to the shooting target");
         telemetry.addLine("Driver Cross select Blue side");
         telemetry.addLine("Driver Circle select  Red  side");
@@ -823,7 +852,7 @@ public class StateAuto extends OpMode {
 
 
             case 1:
-                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 800) {
+                if (rbga.flyspeedgap <= 40 && rbga.Txgap < 1.5  && outtaketimer.getElapsedTime() > 600) {
                     if(intakefull) intaketargtvel=outakestdvel;
                     else intaketargtvel=outtakebstvel;
                     Blocker.setPosition(rbga.blockOpen);

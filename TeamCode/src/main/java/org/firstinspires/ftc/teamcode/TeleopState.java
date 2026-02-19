@@ -108,7 +108,7 @@ public class TeleopState extends LinearOpMode  {
   //  Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     boolean limeValid = false,pinpoint_nav=true;
-    boolean outtakestate=false,intakestate=true;
+    boolean outtakestate=false,intakestate=true,manual=false;
     boolean drive = true, present = false, fieldCentric = true;
 
     int target_id = 24;
@@ -117,7 +117,7 @@ public class TeleopState extends LinearOpMode  {
     ElapsedTime timer = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     double  startime=0, intaketargetvel=1500;
-    double Tx = 100;
+    double Tx = 100,manualTy=8.5;//todo
     public static double Tx_offset = 0;
 
 
@@ -218,7 +218,7 @@ public class TeleopState extends LinearOpMode  {
                             Led.setPosition(rbg.ledred);
                             gamepad1.rumble(500);
                              intaketargetvel=0;
-                            outtakestate=true;
+                           if(!manual) outtakestate=true;
                             intakestate=false;
                             shootState=ShootState.START;
                     }
@@ -236,8 +236,7 @@ public class TeleopState extends LinearOpMode  {
                     }
                     break;
 
-                case MANUALOUTTAKE:
-                    break;
+
                 case PARK:
 
                     if (!lift){
@@ -259,6 +258,12 @@ public class TeleopState extends LinearOpMode  {
             }
 
 
+            if(gamepad2.shareWasPressed()){
+
+               manual=!manual;
+//               telemetry.addData("pinpoint-nav",pinpoint_nav);
+//               telemetry.update();
+            }
 
 
 
@@ -272,8 +277,6 @@ public class TeleopState extends LinearOpMode  {
                 intaketargetvel = 0;
 
 
-
-
             }
             if(gamepad2.psWasPressed()){
 
@@ -282,12 +285,9 @@ public class TeleopState extends LinearOpMode  {
 //               telemetry.update();
             }
 
-//            if(gamepad1.shareWasReleased()) {
 //
-//                      calibrate();
-//
-//
-//            }
+
+
 
 
             if (drive) {
@@ -302,24 +302,15 @@ public class TeleopState extends LinearOpMode  {
             if (gamepad1.crossWasPressed()) fieldCentric = !fieldCentric;
 
 
-
             turntable(gamepad2.right_stick_x);
 
-
-//
-//            telemetry.addData("X",pose.getX(DistanceUnit.INCH));
-//            telemetry.addData("Y",pose.getY(DistanceUnit.INCH));
-//            telemetry.addData("Heading",pose.getHeading(AngleUnit.DEGREES));
-//
-//            telemetry.addData("Turret Pos", turretPos);
-//
-//
-//            telemetry.update();//to do
 
 
 
         }
     }
+
+
 
 
     void calibrate()
@@ -390,10 +381,8 @@ public class TeleopState extends LinearOpMode  {
     {
 //        if(pinpoint_nav&&!shooting)  turnPower= rbg.turretturnPP(outtakestate,pose,turretPos,red);
 //       else turnPower= rbg.turretturn(outtakestate,limeValid ,turretTarget,turretPos,Tx, Tx_offset);
-       if(Math.abs(x)>0.3){
-            if (x > 0.3) turnPower = -0.7;
-           else  turnPower= 0.7;
-           manualturn=true;
+       if(Math.abs(x)>0.1){
+            turnPower = -0.8*x;
          }
 
        else {
@@ -730,7 +719,10 @@ public void turretspin()
 
         {
             if(intakefirst&&!topbb) {flypower=rbg.intakeflypower2;intakefirst=false;}
+            if(manual)   {flypower = rbg.flyspeed(flyCurrentVel, manualTy);}
+
         }
+
         flyBot.setPower(flypower);
         flyTop.setPower(flypower);
 
@@ -940,6 +932,7 @@ public void turretspin()
                 Hood.setPosition(rbg.hoodposition(pinpoint_nav,Ty));
                 shooting = true;
                 rbg.Txgap=30;
+                if(manual) rbg.Txgap=1;
                 rbg.beamscancount=0;
                 shootState = ShootState.PRE_SHOOT;
                 break;
@@ -953,12 +946,6 @@ public void turretspin()
                 }
                 break;
 
-            case UNLOCK:
-                while(!outscan&&opModeIsActive()&&!gamepad2.left_bumper) {
-                    outscan = topBB.getState() && midBB.getState() && botBB.getState();
-                    flyCurrentVel=flyBot.getVelocity();
-                    flywheel();
-                }
 
 
             case SHOOT:
