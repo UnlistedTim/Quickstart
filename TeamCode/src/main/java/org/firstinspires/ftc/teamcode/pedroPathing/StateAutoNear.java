@@ -433,15 +433,15 @@ public class StateAutoNear extends OpMode {
 
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.rfxoffset);
+                        blackboard.put("X", follower.getPose().getX() + rbga.rnxoffset);
                         //   blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
 
                     } else {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.bfxoffset);
+                        blackboard.put("X", follower.getPose().getX() + rbga.bnxoffset);
                         //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
-                    blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
+                    blackboard.put("Y", follower.getPose().getY() + rbga.rnyoffset);
 
                     blackboard.put("T", turretPos);
 

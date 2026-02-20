@@ -29,6 +29,8 @@ public class base {
     public double targetGoalX = 140.86;
     public double Pi=Math.PI,intakeflypower1=0.3,intakeflypower2=0.65,turret_offset=0,intakeflypower3=0.5;
     public double rfxoffset=93.83-7.5,rfyoffset=11.17,bfxoffset=47.52-7.5,bfyoffset=11.17;//23.17-12
+    public double rnxoffset=117.392766-1+7.25,rnyoffset=117.424016-7.5,bnxoffset=23.955266
+           +1 -7.25,bnyoffset=17.424016-7.5;//23.17-12
     public double  rcalxoffset=7.5, calheading=0.5*Math.PI;
     public double  bcalxoffset=140.86-7.5,calyoffset=7.25,txoffset=0,flypower1=0.4,flypower2=0.75;//todo
 
