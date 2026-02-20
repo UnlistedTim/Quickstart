@@ -657,7 +657,7 @@ public class StateAuto extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(2);
+                    Limelight.pipelineSwitch(6);
 
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
@@ -666,7 +666,7 @@ public class StateAuto extends OpMode {
                     Limelight.start();
                 } else {
                     autoTurretOffset = 4;
-                    Limelight.pipelineSwitch(3);
+                    Limelight.pipelineSwitch(7);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                     rbga.targetGoalX=0-rbga.bfxoffset;

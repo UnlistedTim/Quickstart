@@ -95,7 +95,7 @@ public class StateAutoNear extends OpMode {
     //neardistance
 
     private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
-    private final Pose RNscore0Pose = new Pose(-34, -28, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNscore0Pose = new Pose(-34, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePoseC1 = new Pose(-6, -33, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -103,7 +103,7 @@ public class StateAutoNear extends OpMode {
 
     private final Pose RNpickup2PoseA = new Pose(-31, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
     private final Pose RNpickup2Pose = new Pose(-6, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RNscore1Pose = new Pose(-32, -27, Math.toRadians(0)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNscore1Pose = new Pose(-34, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup3PoseA = new Pose(-31, -73, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNpickup3Pose = new Pose(-10, -76, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNscore3Pose = new Pose(-40, -10, Math.toRadians(315));
@@ -117,7 +117,7 @@ public class StateAutoNear extends OpMode {
 //nearside
         RNscorstart0 = follower.pathBuilder()
                 .addPath(new BezierLine(RNstartPose, RNscore0Pose))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNstartPose.getHeading(), RNscore0Pose.getHeading())
                // .setBrakingStrength(0.6)
                 .build();
         RNapproachPickup1 = follower.pathBuilder()
