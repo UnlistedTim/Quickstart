@@ -203,7 +203,7 @@ public class TeleopState extends LinearOpMode  {
 //
 //                    break;
                 case IDLE:
-                    if (stoptimers(500,intake )){
+                    if (stoptimers(300,intake )){
                         intakeStart();
                         state = State.INTAKE;
                         stoptimers(0,intake);

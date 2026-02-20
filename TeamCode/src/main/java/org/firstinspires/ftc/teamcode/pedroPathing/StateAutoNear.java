@@ -41,7 +41,7 @@ public class StateAutoNear extends OpMode {
     private boolean atopbb,abotbb,amidbb,configured=false,intakefull=true;
     public double hoodLastPos = 0.0,Tx,Ty,  flyCurrentVel,flypower=0.7;
     public double hoodPos = 0,outtaketime=0;
-    public int shootState=0 ,turretTarget=0 ,turretredtarget1=-2333,turretbluetarget1=2333,turretredtarget2=-12864,turretbluetarget2=12864;
+    public int shootState=0 ,turretTarget=0 ,turretredtarget1=-2333,turretbluetarget1=2333,turretredtarget2=-10000,turretbluetarget2=10000;
    public final int preshoot=0,shoot=1,done=2;
     int  turretPos;
     public boolean red=true,recevieinfo=false,adrive=false,limeValid=false,Limelocked=false,fardis=true;
@@ -95,7 +95,7 @@ public class StateAutoNear extends OpMode {
     //neardistance
 
     private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
-    private final Pose RNscore0Pose = new Pose(-34, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNscore0Pose = new Pose(-35, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePoseC1 = new Pose(-6, -33, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -122,12 +122,12 @@ public class StateAutoNear extends OpMode {
                 .build();
         RNapproachPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(RNscore0Pose, RNpickup1Pose))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNscore0Pose.getHeading(), RNpickup1Pose.getHeading())
                 .setBrakingStrength(0.6)
                 .build();
         RNscoreGate1 = follower.pathBuilder()
                 .addPath(new BezierLine(RNgatePose, RNscore1Pose))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNgatePose.getHeading(), RNscore1Pose.getHeading())
               //  .setBrakingStrength(0.6)
                 .build();
         RNopenGate1 = follower.pathBuilder()
@@ -144,11 +144,11 @@ public class StateAutoNear extends OpMode {
 
         RNscoreGate2 = follower.pathBuilder()
                 .addPath(new BezierLine(RNgatePose, RNscore1Pose))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNgatePose.getHeading(), RNscore1Pose.getHeading())
                 .build();
         RNapproachPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(RNscore1Pose, RNpickup2PoseA))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNscore1Pose.getHeading(), RNpickup2PoseA.getHeading())
                 .setBrakingStrength(0.6)
 
                 .build();
@@ -162,7 +162,7 @@ public class StateAutoNear extends OpMode {
 
         RNapproachPickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(RNscore1Pose, RNpickup3PoseA))
-                .setConstantHeadingInterpolation( 0)
+                .setLinearHeadingInterpolation(RNscore1Pose.getHeading(), RNpickup3PoseA.getHeading())
                  .build();
         RNgrabPickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(RNpickup3PoseA, RNpickup3Pose))
