@@ -131,7 +131,6 @@ public class base {
 
       if(topon&&midon&&boton) beamscancount++; else beamscancount=0;
       if(beamscancount>4) {beamscancount=0;return true;}
-
       return false;//no result
 
     }

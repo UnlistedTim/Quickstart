@@ -266,6 +266,16 @@ public class TeleopState extends LinearOpMode  {
 //               telemetry.update();
             }
 
+            if(gamepad2.right_stick_button) {
+                turretLeft.setPower(0);
+                turretRight.setPower(0);
+                stopDriveMotors();
+                sleep(100);
+                leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                sleep(50);
+                Tgap = 0;
+
+            }
 
 
             if (gamepad1.psWasPressed()){
@@ -508,7 +518,7 @@ public class TeleopState extends LinearOpMode  {
             rbg.targetGoalX=rbg.redGoalX;
               if(startY==0)  { startY=startY+rbg.rfyoffset;}
             if(startX==0){ startX=startX+rbg.rfxoffset;}
-            Limelight.pipelineSwitch(6);//6 for highlight red , 2 for low light red
+            Limelight.pipelineSwitch(2);//6 for highlight red , 2 for low light red
         } else {
             Tx_offset = 0;
             target_id = 20;
@@ -516,7 +526,7 @@ public class TeleopState extends LinearOpMode  {
            if(startY==0) startY=startY+rbg.bfyoffset;
            if(startX==0) startX=startX+rbg.bfxoffset;
             rbg.targetGoalX=rbg.blueGoalX;
-            Limelight.pipelineSwitch(7);
+            Limelight.pipelineSwitch(3);
         }
         if(startHeading==0) startHeading=1.5*Math.PI;
         Limelight.start();
