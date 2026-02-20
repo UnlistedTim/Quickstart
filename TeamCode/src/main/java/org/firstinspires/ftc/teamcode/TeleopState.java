@@ -261,6 +261,7 @@ public class TeleopState extends LinearOpMode  {
             if(gamepad2.shareWasPressed()){
 
                manual=!manual;
+               pinpoint_nav = false;
 //               telemetry.addData("pinpoint-nav",pinpoint_nav);
 //               telemetry.update();
             }
@@ -367,7 +368,7 @@ public class TeleopState extends LinearOpMode  {
                  // fardis= Ty < -10.5;// simpify
            }
 
-              if (manual) Ty = manualTy;
+              if (manual) {Ty = manualTy;}
 
          // }
           flyCurrentVel=flyBot.getVelocity();
