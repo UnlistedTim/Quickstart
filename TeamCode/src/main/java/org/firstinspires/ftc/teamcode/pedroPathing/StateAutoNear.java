@@ -91,32 +91,32 @@ public class StateAutoNear extends OpMode {
     //neardistance
 
     private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
-    private final Pose RNscore0Pose = new Pose(-35, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose RNscore0Pose = new Pose(-34, -27, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePoseC1 = new Pose(-6, -33, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePoseC2 = new Pose(-6, -43, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Ma
 
-    private final Pose RNpickup2PoseA = new Pose(-31, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
-    private final Pose RNpickup2Pose = new Pose(-6, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup2PoseA = new Pose(-29, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts fro
+    private final Pose RNpickup2Pose = new Pose(-5, -52, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNscore1Pose = new Pose(-34, -28, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose RNpickup3PoseA = new Pose(-31, -73, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose RNpickup3Pose = new Pose(-10, -76, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup3PoseA = new Pose(-29, -74, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose RNpickup3Pose = new Pose(-10, -77, Math.toRadians(0)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose RNscore3Pose = new Pose(-40, -8, Math.toRadians(315));
 
 
     private final Pose BNstartPose = new Pose(0, 0, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose BNscore0Pose = new Pose(35, -28, Math.toRadians(225)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose BNscore0Pose = new Pose(34, -27, Math.toRadians(225)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose BNpickup1Pose = new Pose(5, -28, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BNgatePose = new Pose(1, -38, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BNgatePoseC1 = new Pose(6, -33, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BNgatePoseC2 = new Pose(6, -43, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Ma
 
-    private final Pose BNpickup2PoseA = new Pose(31, -52, Math.toRadians(180)); // Middle (Second Set) of Artifacts fro
-    private final Pose BNpickup2Pose = new Pose(6, -52, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BNpickup2PoseA = new Pose(29, -52, Math.toRadians(180)); // Middle (Second Set) of Artifacts fro
+    private final Pose BNpickup2Pose = new Pose(5, -52, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BNscore1Pose = new Pose(34, -28, Math.toRadians(225)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose BNpickup3PoseA = new Pose(31, -73, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose BNpickup3Pose = new Pose(10, -76, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BNpickup3PoseA = new Pose(29, -74, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose BNpickup3Pose = new Pose(10, -77, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose BNscore3Pose = new Pose(40, -8, Math.toRadians(225));
 
 
@@ -131,7 +131,7 @@ public class StateAutoNear extends OpMode {
                 .build();
         RNapproachPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(RNscore0Pose, RNpickup1Pose))
-                .setLinearHeadingInterpolation(RNscore0Pose.getHeading(), RNpickup1Pose.getHeading())
+                .setLinearHeadingInterpolation(RNscore0Pose.getHeading(), RNpickup1Pose.getHeading(),0.3)
                 .setBrakingStrength(0.6)
                 .build();
         RNscoreGate1 = follower.pathBuilder()
@@ -195,7 +195,7 @@ public class StateAutoNear extends OpMode {
                 .build();
         BNapproachPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(BNscore0Pose, BNpickup1Pose))
-                .setLinearHeadingInterpolation(BNscore0Pose.getHeading(), BNpickup1Pose.getHeading())
+                .setLinearHeadingInterpolation(BNscore0Pose.getHeading(), BNpickup1Pose.getHeading(),0.3)
                 .setBrakingStrength(0.6)
                 .build();
         BNscoreGate1 = follower.pathBuilder()
@@ -205,13 +205,13 @@ public class StateAutoNear extends OpMode {
                 .build();
         BNopenGate1 = follower.pathBuilder()
                 .addPath(new BezierCurve(BNpickup1Pose,BNgatePoseC1,BNgatePose))
-                .setConstantHeadingInterpolation( 0)
+                .setConstantHeadingInterpolation( Math.toRadians(180))
                 .setTimeoutConstraint(500)
                 .build();
 
         BNopenGate2 = follower.pathBuilder()
                 .addPath(new BezierCurve(BNpickup2Pose,BNgatePoseC2,BNgatePose))
-                .setConstantHeadingInterpolation( 0)
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .setTimeoutConstraint(500)
                 .build();
 
@@ -454,13 +454,13 @@ public class StateAutoNear extends OpMode {
 
     public void  NearPathUpdate() {
 
-        if(opmodeTimer.getElapsedTime()>28000&&pathState<100) {setPathState(101);turretTarget=0;shooting=false;};
+        if(opmodeTimer.getElapsedTime()>28000&&pathState<100) {setPathState(102);turretTarget=0;shooting=false;};
         switch (pathState) {
 
             case 0:
 
-                if(red) {follower.followPath(RNscorstart0,false);  turretTarget=turretredtarget2;autoTurretOffset = -4;}
-                else {follower.followPath(BNscorstart0,false);  turretTarget=turretbluetarget2;autoTurretOffset = 4;}
+                if(red) {follower.followPath(RNscorstart0,false);  turretTarget=turretredtarget2;autoTurretOffset = -3;}
+                else {follower.followPath(BNscorstart0,false);  turretTarget=turretbluetarget2;autoTurretOffset = 3;}
                rbga.flypower2=0.6;
 
                // Ty = -12.2;
@@ -476,8 +476,8 @@ public class StateAutoNear extends OpMode {
 
             case 3:
                 if(ashoot()) {
-                    if(red) follower.followPath(RNapproachPickup1,0.7,false);
-                    else   follower.followPath(BNapproachPickup1,0.7,false);
+                    if(red) follower.followPath(RNapproachPickup1,0.8,false);
+                    else   follower.followPath(BNapproachPickup1,0.8,false);
 
                     setPathState(6);
 
@@ -522,7 +522,7 @@ public class StateAutoNear extends OpMode {
             case 14:
                 if(ashoot()) {
                     if (red) follower.followPath(RNapproachPickup2,  false);
-                    follower.followPath(BNapproachPickup2,  false);
+                    else follower.followPath(BNapproachPickup2,  false);
                     setPathState(15);
                 }
                 break;
@@ -532,8 +532,8 @@ public class StateAutoNear extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if (!follower.isBusy()) {
 
-                    if(red) follower.followPath(RNgrabPickup2, 0.5,true);
-                    follower.followPath(BNgrabPickup2, 0.5,true);
+                    if(red) follower.followPath(RNgrabPickup2, 0.45,true);
+                    else follower.followPath(BNgrabPickup2, 0.45,true);
 
                     setPathState(16);
 
@@ -547,7 +547,7 @@ public class StateAutoNear extends OpMode {
                 if (!follower.isBusy()|| intakefull) {
 
                     if(red) follower.followPath(RNopenGate2, true);
-                    else follower.followPath(RNopenGate2, true);
+                    else follower.followPath(BNopenGate2, true);
                     flypower=rbga.flypower2;
                     if(intakefull) intaketargtvel=0;
                     setPathState(18);
@@ -589,8 +589,8 @@ public class StateAutoNear extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if (!follower.isBusy()) {
 
-                    if(red) follower.followPath(RNgrabPickup3, 0.5,true);
-                    else follower.followPath(BNgrabPickup3, 0.5,true);
+                    if(red) follower.followPath(RNgrabPickup3, 0.45,true);
+                    else follower.followPath(BNgrabPickup3, 0.45,true);
 
                     setPathState(25);
 
@@ -619,35 +619,54 @@ public class StateAutoNear extends OpMode {
             case 29:
                 if(ashoot()) {
 
-                    shooting=false;
-                    flypower=0;
-                    rbga.turret_offset = 0;
-                    intaketargtvel=0;
-                    turretTarget=0;
-                    setPathState(105);
-                    actionTimer.resetTimer();
+
+                    setPathState(102);
+
 
                 }
 
                 break;
 
 
+            case 102:
+                shooting=false;
+                flypower=0;
+                rbga.turret_offset = 0;
+                intaketargtvel=0;
+                turretTarget=0;
+
+                Blocker.setPosition(rbga.blockClose);
+                setPathState(103);
+
+                break;
+
+
+            case 103:
+                if (Math.abs(turretPos) < 200){
+                    turretLeft.setPower(0);
+                    turretRight.setPower(0);
+
+                    actionTimer.resetTimer();
+                    setPathState(105);
+
+                }
+                break;
+
 
 
             case 105:
-                if(actionTimer.getElapsedTime()>500) {
-
+                if(actionTimer.getElapsedTime()>300) {
                     if (red) {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.rfxoffset);
+                        blackboard.put("X", follower.getPose().getX() + rbga.rnxoffset);
                         //   blackboard.put("Y", follower.getPose().getY() + rbga.REDYOFFSET);
 
                     } else {
                         blackboard.put("Heading", follower.getPose().getHeading());
-                        blackboard.put("X", follower.getPose().getX() + rbga.bfxoffset);
+                        blackboard.put("X", follower.getPose().getX() + rbga.bnxoffset);
                         //    blackboard.put("Y", follower.getPose().getY() + rbga.BLUEYOFFSET);
                     }
-                    blackboard.put("Y", follower.getPose().getY() + rbga.rfyoffset);
+                    blackboard.put("Y", follower.getPose().getY() + rbga.rnyoffset);
 
                     blackboard.put("T", turretPos);
 
@@ -701,7 +720,8 @@ public class StateAutoNear extends OpMode {
         follower = Constants.createFollower(hardwareMap);
       //  farbuildPaths();
        nearbuildPaths();
-      follower.setStartingPose(RNstartPose);
+
+
 
        // follower.setStartingPose(RFstartPose);
        // telemetry.addLine("Turn the camera to the shooting target");
@@ -751,7 +771,7 @@ public class StateAutoNear extends OpMode {
             if(i==0) {
 
                 if (red) {
-                    Limelight.pipelineSwitch(2);
+                    Limelight.pipelineSwitch(6);
 
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
@@ -760,7 +780,7 @@ public class StateAutoNear extends OpMode {
                     Limelight.start();
                 } else {
                     autoTurretOffset = 4;
-                    Limelight.pipelineSwitch(3);
+                    Limelight.pipelineSwitch(7);
 
                     rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
                     rbga.targetGoalX=0-rbga.bfxoffset;
@@ -803,6 +823,7 @@ public class StateAutoNear extends OpMode {
                 rbga.targetGoalY=rbga.targetGoalY-rbga.rfyoffset;
                 rbga.targetGoalX=rbga.targetGoalX-rbga.rfxoffset;
                 telemetry.addLine("Red  Selected");
+
             } else {
                 Limelight.pipelineSwitch(7);
                 rbga.targetGoalY=rbga.targetGoalY-rbga.bfyoffset;
@@ -817,6 +838,9 @@ public class StateAutoNear extends OpMode {
             telemetry.update();
 
         }
+        if (red) follower.setStartingPose(RNstartPose);
+        else follower.setStartingPose(BNstartPose);
+
         opmodeTimer.resetTimer();
         setPathState(0);
 
