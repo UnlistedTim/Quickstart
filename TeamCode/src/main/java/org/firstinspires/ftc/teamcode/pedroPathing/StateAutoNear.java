@@ -90,7 +90,7 @@ public class StateAutoNear extends OpMode {
 
     //neardistance
 
-    private final Pose RNstartPose = new Pose(0, 0, Math.toRadians(0)); // Start Pose of our robot.
+    private final Pose RNstartPose = new Pose(0, 2, Math.toRadians(0)); // Start Pose of our robot.
     private final Pose RNscore0Pose = new Pose(-34, -27, Math.toRadians(315)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose RNpickup1Pose = new Pose(-5, -28, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose RNgatePose = new Pose(-1, -38, Math.toRadians(0)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -105,7 +105,7 @@ public class StateAutoNear extends OpMode {
     private final Pose RNscore3Pose = new Pose(-40, -8, Math.toRadians(315));
 
 
-    private final Pose BNstartPose = new Pose(0, 0, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose BNstartPose = new Pose(0, 2, Math.toRadians(180)); // Start Pose of our robot.
     private final Pose BNscore0Pose = new Pose(34, -27, Math.toRadians(225)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose BNpickup1Pose = new Pose(5, -28, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose BNgatePose = new Pose(1, -38, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
