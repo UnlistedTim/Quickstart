@@ -45,7 +45,6 @@ import java.util.List;
 //motor encoder full red0
 
 //motor ecoder no red 1
-@Disabled
 
 @TeleOp
 @Config
@@ -293,7 +292,7 @@ public class StaterobotDebug extends LinearOpMode {
 
         Hood.setDirection(Servo.Direction.REVERSE);
 
-        Limelight.pipelineSwitch(3);
+        Limelight.pipelineSwitch(6);
 
         double targetGoalX = 140.86;
         double targetGoalY = 140.86;

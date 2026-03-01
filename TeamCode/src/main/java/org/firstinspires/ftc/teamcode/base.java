@@ -90,32 +90,32 @@ public class base {
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.59,1560); //far         1570
-        Flylut.add(-12.79,1520); //far    1530
-        Flylut.add(-11.65,1380); //far    1390
-        Flylut.add(-9.26, 1240); //close   1340
-        Flylut.add(-5.5,1180); //close
-        Flylut.add(-1.19,1080); //close
-        Flylut.add(5.82,1060); //close
-        Flylut.add(14.07 , 1140); // close
-        Flylut.add(16 , 1140); // close
+        Flylut.add(-13.34,1450); //far         1570
+        Flylut.add(-12.56,1370); //far    1530
+        Flylut.add(-11.7,1320); //far    1390
+        Flylut.add(-9.5, 1180); //close   1340
+        Flylut.add(-6.08,1120); //close
+        Flylut.add(-1.9,1050); //close
+        Flylut.add(4.74,1030); //close
+        Flylut.add(14.2 , 1060); // close
+        Flylut.add(16 , 1080); // close
 
         Flylut.createLUT();
 
 
-        FlylutPP.add(0,1140); // only for data leakclose
-        FlylutPP.add(43.66,1140);
-        FlylutPP.add(53.3,1060);
-        FlylutPP.add(67.27,1080);
-        FlylutPP.add(81.75,1180);
-        FlylutPP.add(102.064,1240); //cloe
+        FlylutPP.add(0,1080); // only for data leakclose
+        FlylutPP.add(43.66,1060);
+        FlylutPP.add(53.3,1030);
+        FlylutPP.add(67.27,1050);
+        FlylutPP.add(81.75,1120);
+        FlylutPP.add(102.064,1180); //cloe
 
 
 
-        FlylutPP.add(124.33,1380); //far   1390
-        FlylutPP.add(140.74,1520); //far  1530
-        FlylutPP.add(156.09,1560); //far 1570
-        FlylutPP.add(200,1730);// only for data leak
+        FlylutPP.add(124.33,1320); //far   1380
+        FlylutPP.add(140.74,1370); //far  1530
+        FlylutPP.add(154.66,1450); //far 1570
+        FlylutPP.add(200,1600);// only for data leak
 
 
 

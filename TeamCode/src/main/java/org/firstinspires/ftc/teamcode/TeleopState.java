@@ -364,12 +364,12 @@ public class TeleopState extends LinearOpMode  {
                   Ty=result.getTy();
 
                   if(red){
-                      if(Ty<-10.5) rbg.txoffset = -2.5;
+                      if(Ty<-10.5) rbg.txoffset = -2;
 
                       else rbg.txoffset = 0;
                   } else {
 
-                      if(Ty<-10.5) rbg.txoffset =3;
+                      if(Ty<-10.5) rbg.txoffset =2.0;
 
                       else rbg.txoffset = 0;
 
