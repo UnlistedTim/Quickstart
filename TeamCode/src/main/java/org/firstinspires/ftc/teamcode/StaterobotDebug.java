@@ -89,7 +89,7 @@ public class StaterobotDebug extends LinearOpMode {
     double filteredIntakeCurrent;
 
 
-    public static double hoodPos = 0.15;// 0 vertical angle 1.0 horizontal angle
+    public static double hoodPos = 0;// 0 vertical angle 1.0 horizontal angle
 
     public static double blockerPos = 0.35; // 0.46 open, 0.35 close
 
