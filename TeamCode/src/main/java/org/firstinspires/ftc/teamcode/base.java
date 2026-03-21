@@ -350,7 +350,28 @@ public class base {
 
 
     }
+    public double  turretdemo(boolean outtake ,  int turretTicks,  boolean valid , double tx ){
 
+        double turretPower;
+        if (outtake)  {
+
+                if (valid) {
+                    turretPower = turretpid(0, 0, tx, txoffset, false);
+                    limelocked = true;
+                    Txgap = Math.abs(tx - txoffset);
+                }
+                else    turretPower=0;
+
+
+
+        }
+
+        else  turretPower = turretpid(turretTicks, turrettarget,0,0,true);
+        turretPower= Range.clip(turretPower,-turnMax,turnMax);
+        return turretPower;
+
+
+    }
 
     public double  flyspeed(double currentVel,double ty) {
 
