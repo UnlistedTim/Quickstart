@@ -1020,6 +1020,8 @@ public class StateAutoNear extends OpMode {
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFStart1 = follower.pathBuilder()
                 .addPath(new BezierLine(RFstartPose, RFstart1Pose))
+                .setTimeoutConstraint(50)//todo
+
                 .setLinearHeadingInterpolation(RFstartPose.getHeading(), RFstart1Pose.getHeading())
                 .build();
 

@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode;
-import static org.firstinspires.ftc.teamcode.StaterobotDebug.turretPos;
 
 import android.annotation.SuppressLint;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -22,20 +19,17 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
 import java.util.List;
 
 
 @TeleOp(name="TeleopState", group="A")
 @Config
-public class TeleopState extends LinearOpMode  {
+public class TeleopStateH extends LinearOpMode  {
 
     Pose2D pose;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,  leftFront, rightFront, leftBack, rightBack;
@@ -47,7 +41,7 @@ public class TeleopState extends LinearOpMode  {
     public GoBildaPinpointDriver Pinpoint;
 
 
-    public base rbg= new base();
+    public baseh rbg= new baseh();
 
     double startHeading, startX, startY;
 
@@ -211,7 +205,7 @@ public class TeleopState extends LinearOpMode  {
                              intaketargetvel=0;
                             outtakestate=true;
                             intakestate=false;
-                            shootState=ShootState.START;
+                            shootState= ShootState.START;
                     }
 
                     break;
@@ -223,7 +217,7 @@ public class TeleopState extends LinearOpMode  {
                     if(!outtakestate || gamepad2.leftBumperWasPressed()) //||gamepad2.leftBumperWasPressed()
                     {
                         outtakedone();
-                        state=State.IDLE;
+                        state= State.IDLE;
                     }
                     break;
 
