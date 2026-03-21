@@ -307,6 +307,13 @@ public class TeleopState extends LinearOpMode  {
 
             turntable(gamepad2.right_stick_x);
 
+            telemetry.addData("Left intake current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("Right intake current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+
+            telemetry.update();
+
+
+
 
 
 
