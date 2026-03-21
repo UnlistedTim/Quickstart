@@ -355,7 +355,7 @@ public class base {
     public double  flyspeed(double currentVel,double ty) {
 
 
-        if (ty < 11 && ty > -13.58) {
+        if (ty < 16 && ty > -13.34) {
 
             targetVel = Flylut.get(ty);// Tx offset
 
