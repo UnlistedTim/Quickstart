@@ -28,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import java.util.List;
 
 
-@TeleOp(name="TeleopState", group="A")
+@TeleOp(name="TeleopDemo", group="A")
 @Config
 public class TeleopDemo extends LinearOpMode  {
 
@@ -72,7 +72,7 @@ public class TeleopDemo extends LinearOpMode  {
 
     public double hoodLastPos = 0.0,targetx=144,targety=144,intakepower=0;
 
-    public double hoodPos = 0, currentime=0,previoustime=0,flypower=0.3;
+    public double hoodPos = 0, currentime=0,previoustime=0,flypower=0.4;
 
 
 
@@ -409,8 +409,8 @@ public class TeleopDemo extends LinearOpMode  {
 
     public void intakeStart(){
        // Blocker.setPosition(rbg.blockClose);
-     //  flypower=rbg.intakeflypower1;
-       flypower=0;
+//       flypower=rbg.intakeflypower1;
+       flypower=0.4;
       // intakefirst=true;
        // checker = new BooleanConfidenceChecker();
         // intakeCurrentFilter = new MedianFilter(10);
@@ -648,10 +648,10 @@ public class TeleopDemo extends LinearOpMode  {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        leftFront.setPower(frontLeftPower*0.4);
-        leftBack.setPower(backLeftPower*0.4);
-        rightFront.setPower(frontRightPower*0.4);
-        rightBack.setPower(backRightPower*0.4);
+        leftFront.setPower(frontLeftPower);
+        leftBack.setPower(backLeftPower);
+        rightFront.setPower(frontRightPower);
+        rightBack.setPower(backRightPower);
 
         //   telemetry.addData("Angle", pose.getHeading(AngleUnit.DEGREES));
 //        telemetry.addData("X", pose.getX(DistanceUnit.INCH));
@@ -688,7 +688,7 @@ public void turretspin()
 
         {
 //            if(intakefirst&&!topbb) {flypower=rbg.intakeflypower2;intakefirst=false;}
-          flypower = 0;
+          flypower = 0.4;
 
         }
 
