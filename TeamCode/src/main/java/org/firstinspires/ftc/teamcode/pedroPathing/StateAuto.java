@@ -970,7 +970,7 @@ public class StateAuto extends OpMode {
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         RFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(RFpickup2PoseA, RFscorePose))
+                .addPath(new BezierLine(RFpickup2PoseA, RFscorePose))
                 .setConstantHeadingInterpolation( 0)
                 .build();
 
@@ -1024,7 +1024,7 @@ public class StateAuto extends OpMode {
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         BFscorePickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(BFpickup2PoseA, BFscorePose))
+                .addPath(new BezierLine(BFpickup2PoseA, BFscorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 

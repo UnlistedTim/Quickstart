@@ -27,7 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import java.util.List;
 
 
-@TeleOp(name="TeleopState", group="A")
+@TeleOp(name="TeleopStateH", group="A")
 @Config
 public class TeleopStateH extends LinearOpMode  {
 

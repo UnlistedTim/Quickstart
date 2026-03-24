@@ -360,6 +360,12 @@ public class StaterobotDebug extends LinearOpMode {
 
 //            telemetry.addData("Tx",Tx);
 
+
+            telemetry.addData("bottom beam break ", botBB.getState());
+            telemetry.addData("mid beam break ", midBB.getState());
+            telemetry.addData("top beam break ", topBB.getState());
+            telemetry.update();
+
             dashboardTelemetry.addData("X pos", pose.getX(DistanceUnit.INCH));
             dashboardTelemetry.addData("Y pos",pose.getY(DistanceUnit.INCH));
 

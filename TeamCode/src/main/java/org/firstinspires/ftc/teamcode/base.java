@@ -80,7 +80,7 @@ public class base {
     public PIDController intakePID=new PIDController(intakep, intakei, intaked);
  //   double Tx_offset=0;
     int turretCwlim=-16000;
-    int turretCcwlim=14000;
+    int turretCcwlim=14500;
     public final int intakeVel = 1500,outtakVel=1500;
 
     public void  init()
@@ -90,9 +90,9 @@ public class base {
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.34,1450); //far         1570
-        Flylut.add(-12.56,1370); //far    1530
-        Flylut.add(-11.7,1320); //far    1390
+        Flylut.add(-13.34,1450); //far         1450
+        Flylut.add(-12.56,1370); //far    1370
+        Flylut.add(-11.7,1320); //far    1320
         Flylut.add(-9.5, 1180); //close   1340
         Flylut.add(-6.08,1120); //close
         Flylut.add(-1.9,1050); //close
@@ -112,10 +112,10 @@ public class base {
 
 
 
-        FlylutPP.add(124.33,1320); //far   1380
-        FlylutPP.add(140.74,1370); //far  1530
-        FlylutPP.add(154.66,1450); //far 1570
-        FlylutPP.add(200,1600);// only for data leak
+        FlylutPP.add(124.33,1320); //far   1320
+        FlylutPP.add(140.74,1370); //far  1370
+        FlylutPP.add(154.66,1450); //far 1450
+        FlylutPP.add(200,1600);// only for dat leak
 
 
 
@@ -252,7 +252,7 @@ public class base {
 
            error = targetpos+offset*ticksPerDegree-currentpos;
 
-           if (Math.abs(currentpos) > 10000) return error * (turretkP + 0.00013)  + Math.signum(error) * turretkS;
+           if (Math.abs(currentpos) > 10000) return error * (turretkP + 0.00013)  + Math.signum(error) * turretkS; // + 0.00013
            if(Math.abs(error)<100) error=0.0001;
 
            return error * turretkP + Math.signum(error) * turretkS;
@@ -262,7 +262,7 @@ public class base {
            error = offset-tx;
            if (Math.abs(error) < 1.5) return 0;
           if ( currentpos <-10000) return error * (turretkPtx+0.004) + Math.signum(error) * turretkS;
-          if (currentpos>10000) return error * (turretkPtx + 0.01) + Math.signum(error) * turretkS;
+          if (currentpos>10000) return error * (turretkPtx + 0.007) + Math.signum(error) * turretkS;
            else return error * turretkPtx + Math.signum(error) * turretkS;
        }
     }
