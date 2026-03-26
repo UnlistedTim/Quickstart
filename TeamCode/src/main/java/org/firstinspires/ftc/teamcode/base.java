@@ -90,9 +90,9 @@ public class base {
         flyPID.setPID(flyp, flyi, flyd);
 
         intakePID.setPID(intakep, intakei, intaked);
-        Flylut.add(-13.34,1450); //far         1450
-        Flylut.add(-12.56,1370); //far    1370
-        Flylut.add(-11.7,1320); //far    1320
+        Flylut.add(-13.34,1440); //far         1450
+        Flylut.add(-12.56,1360); //far    1370
+        Flylut.add(-11.7,1310); //far    1320
         Flylut.add(-9.5, 1180); //close   1340
         Flylut.add(-6.08,1120); //close
         Flylut.add(-1.9,1050); //close
@@ -112,9 +112,9 @@ public class base {
 
 
 
-        FlylutPP.add(124.33,1320); //far   1320
-        FlylutPP.add(140.74,1370); //far  1370
-        FlylutPP.add(154.66,1450); //far 1450
+        FlylutPP.add(124.33,1310); //far   1320
+        FlylutPP.add(140.74,1360); //far  1370
+        FlylutPP.add(154.66,1440); //far 1450
         FlylutPP.add(200,1600);// only for dat leak
 
 
