@@ -37,6 +37,10 @@ import java.util.List;
 @Config
 public class TeleopState extends LinearOpMode  {
 
+
+    //Low light 800 exposure
+    // high light 450 exposure
+
     Pose2D pose;
     private DcMotorEx intakeLeft,intakeRight, flyBot, flyTop,  leftFront, rightFront, leftBack, rightBack;
     private CRServo turretLeft, turretRight;
@@ -100,7 +104,7 @@ public class TeleopState extends LinearOpMode  {
 
     boolean recevieinfo = false;
     FtcDashboard dashboard = FtcDashboard.getInstance();
-  //  Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     boolean limeValid = false,pinpoint_nav=true;
     boolean outtakestate=false,intakestate=true,manual=false;
@@ -311,12 +315,10 @@ public class TeleopState extends LinearOpMode  {
 //            telemetry.addData("Right intake current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
 
-            telemetry.addData("Ty", Ty);
-            telemetry.addData("Tx", Tx);
+            dashboardTelemetry.addData("Tx", Tx);
+            dashboardTelemetry.addData("Turn power", turnPower);
 
-            telemetry.addData("Distance", rbg.dist);
-
-            telemetry.update();
+            dashboardTelemetry.update();
 
 
 
