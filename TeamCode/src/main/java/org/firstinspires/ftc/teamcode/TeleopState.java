@@ -315,10 +315,10 @@ public class TeleopState extends LinearOpMode  {
 //            telemetry.addData("Right intake current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
 
-            dashboardTelemetry.addData("Tx", Tx);
-            dashboardTelemetry.addData("Turn power", turnPower);
-
-            dashboardTelemetry.update();
+//            dashboardTelemetry.addData("Tx", Tx);
+//            dashboardTelemetry.addData("Turn power", turnPower);
+//
+//            dashboardTelemetry.update();
 
 
 
