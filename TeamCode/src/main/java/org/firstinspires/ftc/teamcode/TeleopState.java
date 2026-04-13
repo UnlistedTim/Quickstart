@@ -311,6 +311,21 @@ public class TeleopState extends LinearOpMode  {
 
             turntable(gamepad2.right_stick_x);
 
+            telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("flywheel top current", flyTop.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("flywheel bottom current", flyBot.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("left front  current", leftFront.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("right front current", rightFront.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("left Back  current", leftBack.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("right Back current", rightBack.getCurrent(CurrentUnit.MILLIAMPS));
+
+
+
+
+
+            telemetry.update();
+
 //            telemetry.addData("Left intake current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
 //            telemetry.addData("Right intake current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 

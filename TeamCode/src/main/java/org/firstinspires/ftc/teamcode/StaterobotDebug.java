@@ -16,6 +16,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -139,6 +141,8 @@ public class StaterobotDebug extends LinearOpMode {
 
     private CRServo turretLeft, turretRight;
 
+    private VoltageSensor battery;
+
     private DigitalChannel topBB, midBB;;
 
     private DigitalChannel botBB;
@@ -211,6 +215,8 @@ public class StaterobotDebug extends LinearOpMode {
         turretLeft = hardwareMap.get(CRServo.class,"turretLeft");
         turretRight = hardwareMap.get(CRServo.class, "turretRight");
 
+
+
         Hood = hardwareMap.get(Servo.class, "Hood");
         Blocker = hardwareMap.get(Servo.class, "Blocker");
 //        Flicker = hardwareMap.get(Servo.class, "Flicker");
@@ -220,6 +226,8 @@ public class StaterobotDebug extends LinearOpMode {
         midBB = hardwareMap.get(DigitalChannel.class, "midBB");
         flyBot = hardwareMap.get(DcMotorEx.class, "flyBot");
         flyTop = hardwareMap.get(DcMotorEx.class, "flyTop");
+
+        battery = hardwareMap.get(VoltageSensor.class,"Control Hub");
 
         Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 //        turretSpin = hardwareMap.get(DcMotorEx.class, "turretSpin");
@@ -393,6 +401,10 @@ public class StaterobotDebug extends LinearOpMode {
 
 //            flyBANGBANG(flyVel);
 
+            dashboardTelemetry.addData("Top flywheel current", flyTop.getCurrent(CurrentUnit.MILLIAMPS));
+            dashboardTelemetry.addData("Bottom flywheel current", flyBot.getCurrent(CurrentUnit.MILLIAMPS));
+            dashboardTelemetry.addData("Battery voltage", battery.getVoltage());
+
             flyPID(flyVel);
 
 //            telemetry.addData("Bottom BB state",botBB.getState());
@@ -418,9 +430,11 @@ public class StaterobotDebug extends LinearOpMode {
 //            turretLeft.setPower(0.3);
 //            turretRight.setPower(0.3);
            // dashboardTelemetry.addData("Intake Left Vel",intakeLeft.getVelocity());telemetry.addData("Intake left current", intakeLeft.getCurrent(CurrentUnit.MILLIAMPS));
-            telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
+//            telemetry.addData("Intake right current", intakeRight.getCurrent(CurrentUnit.MILLIAMPS));
 
             telemetry.addData("Left front pos", leftFront.getCurrentPosition());
+
+
 
             telemetry.addData("Ty",Ty);
 
@@ -469,6 +483,7 @@ public class StaterobotDebug extends LinearOpMode {
 
 
         dashboardTelemetry.addData(" Current velocity", vel);
+
         dashboardTelemetry.addData("Target velocity",targ_vel);
         dashboardTelemetry.addData("Power",power);
 
